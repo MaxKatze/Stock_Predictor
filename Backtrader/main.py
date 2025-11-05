@@ -15,7 +15,7 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro(stdstats=False)
 
     # Add a strategy
-    cerebro.addstrategy(bt.Strategy)
+    cerebro.addstrategy(FixedDateStrategy)
 
     # Get a pandas dataframe
     datapath = ('data/assets/MSFT.csv')
@@ -36,8 +36,15 @@ if __name__ == '__main__':
 
     cerebro.adddata(data)
 
+    cerebro.broker.set_cash(100000.0)
+    cerebro.broker.setcommission(commission=0.001)
+
+    print("--- Starting Portfolio Value:", cerebro.broker.getvalue(), " ---")
+
     # Run over everything
     cerebro.run()
+
+    print("--- Ending Portfolio Value:", cerebro.broker.getvalue(), " ---")
 
     # Plot the result
     cerebro.plot(style='bar')

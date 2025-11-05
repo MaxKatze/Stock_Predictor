@@ -14,11 +14,11 @@ class FixedDateStrategy(bt.Strategy):
         # Kaufen am Buy-Datum
         if current_date == self.params.buy_date:
             if not self.position:  # keine offene Position
-                self.buy()
+                self.buy(size=1)
                 print(f"Kauf am {current_date} zum Preis {self.data.close[0]}")
         
         # Verkaufen am Sell-Datum
         elif current_date == self.params.sell_date:
             if self.position:  # nur verkaufen, wenn Position offen
-                self.sell()
+                self.sell(size=1)
                 print(f"Verkauf am {current_date} zum Preis {self.data.close[0]}")
