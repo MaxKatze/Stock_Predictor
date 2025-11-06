@@ -5,9 +5,9 @@ import backtrader as bt
 import os
 import sys
 import datetime
-from FixedDateStrategy import FixedDateStrategy
+from fixed_date_strategy import FixedDateStrategy
 import pandas
-from fileFormat import PandasData
+from file_format_yahoo import PandasData
 
 if __name__ == '__main__':
 
@@ -17,33 +17,34 @@ if __name__ == '__main__':
     # Add a strategy
     cerebro.addstrategy(FixedDateStrategy)
 
-    # Get a pandas dataframe
-    datapath = ('data/assets/MSFT.csv')
+    stocks = ["MSFT", "AAPL", "ORCL", "SAP"]
 
-    # Simulate the header row isn't there if noheaders requested
-    skiprows = 0
-    header = 0
+    for stock in stocks:
+        # Get a pandas dataframe
+        datapath = (f"data/assets/{stock}.csv")
 
-    dataframe = pandas.read_csv(datapath,
-                                skiprows=skiprows,
-                                header=header,
-                                parse_dates=True,
-                                index_col=0)
+        # Simulate the header row isn't there if noheaders requested
+        skiprows = 0
+        header = 0
+
+        dataframe = pandas.read_csv(datapath,
+                                        skiprows=skiprows,
+                                        header=header,
+                                        parse_dates=True,
+                                        index_col=0)
 
 
-    # Pass it to the backtrader datafeed and add it to the cerebro
-    data = bt.feeds.PandasData(dataname=dataframe)
+        # Pass it to the backtrader datafeed and add it to the cerebro
+        data = bt.feeds.PandasData(dataname=dataframe)
 
-    cerebro.adddata(data)
+        cerebro.adddata(data, name=stock)
 
     cerebro.broker.set_cash(100000.0)
     cerebro.broker.setcommission(commission=0.0)
 
     print("--- Starting Portfolio Value:", cerebro.broker.getvalue(), " ---")
-
     # Run over everything
     cerebro.run()
-
     print("--- Ending Portfolio Value:", cerebro.broker.getvalue(), " ---")
 
     # Plot the result

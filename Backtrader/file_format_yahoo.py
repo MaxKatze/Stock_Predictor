@@ -1,10 +1,13 @@
 import backtrader.feeds as feed
+
+header_row_real = "Date,Adj Close,Close,High,Low,Open,Volume\n"
+header_row_adjusted = "Date,Close,High,Low,Open,Volume\n"
+
 class PandasData(feed.DataBase):
     '''
     The ``dataname`` parameter inherited from ``feed.DataBase`` is the pandas
     DataFrame
     '''
-
     params = (
         # Possible values for datetime (must always be present)
         #  None : datetime is the "index" in the Pandas Dataframe
