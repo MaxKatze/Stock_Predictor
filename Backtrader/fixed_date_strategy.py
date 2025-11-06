@@ -3,8 +3,8 @@ from datetime import date
 
 class FixedDateStrategy(bt.Strategy):
     params = (
-        ("buy_date", date(2000, 1, 5)),   # hart codiertes Kaufdatum
-        ("sell_date", date(2000, 11, 20)),  # hart codiertes Verkaufsdatum
+        ("buy_date", date(2000, 1, 5)),
+        ("sell_date", date(2000, 11, 20)),
     )
 
     def next(self):
@@ -12,7 +12,6 @@ class FixedDateStrategy(bt.Strategy):
             if data._name != "MSFT":
                 continue
         
-            # Aktuelles Datum des Datenfeeds
             current_date = data.datetime.date(0)
             
             # Kaufen am Buy-Datum
