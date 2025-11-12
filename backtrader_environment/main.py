@@ -8,6 +8,7 @@ import datetime
 from fixed_date_strategy import FixedDateStrategy
 import pandas
 from file_format_yahoo import PandasData
+from moving_average_strategy import MovingAverageStrategy
 
 if __name__ == '__main__':
 
@@ -15,9 +16,9 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro(stdstats=False)
 
     # Add a strategy
-    cerebro.addstrategy(FixedDateStrategy)
+    cerebro.addstrategy(MovingAverageStrategy)
 
-    stocks = ["MSFT", "AAPL", "ORCL", "SAP"]
+    stocks = ["SAP"] #, "AAPL", "ORCL", "SAP"
 
     for stock in stocks:
         # Get a pandas dataframe
