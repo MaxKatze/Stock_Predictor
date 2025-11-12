@@ -2,6 +2,7 @@
 
 data/assets
 config.yaml
+backtrader_environment/config.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
