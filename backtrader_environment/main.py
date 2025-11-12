@@ -9,6 +9,7 @@ from fixed_date_strategy import FixedDateStrategy
 import pandas
 from file_format_yahoo import PandasData
 from moving_average_strategy import MovingAverageStrategy
+from arima_strategy import ARIMAStrategy
 
 if __name__ == '__main__':
 
@@ -16,7 +17,7 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro(stdstats=False)
 
     # Add a strategy
-    cerebro.addstrategy(MovingAverageStrategy)
+    cerebro.addstrategy(ARIMAStrategy)
 
     stocks = ["SAP"] #, "AAPL", "ORCL", "SAP"
 

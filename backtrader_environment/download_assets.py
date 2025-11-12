@@ -10,7 +10,7 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 ASSETS = ["ORCL", "AAPL", "MSFT", "SAP"]
 
 # Zeitraum für die historischen Daten
-START_DATE = "2024-11-11"
+START_DATE = "2023-11-11"
 END_DATE = "2027-12-31"
 
 def download_asset(symbol, start=START_DATE, end=END_DATE, force_update=False, auto_adjust=True):

@@ -4,7 +4,7 @@ import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 
-class ARIMAStrategy(PredictionModel):
+class ARIMAModel(PredictionModel):
     def __init__(self, order=(1,1,1), window=100):
         """
         order: tuple - (p,d,q) Parameter für ARIMA
