@@ -1,19 +1,24 @@
 import os
+import yaml
 import yfinance as yf
 from file_format_yahoo import header_row_real, header_row_adjusted
 
-#cache folder
+# cache folder
 CACHE_DIR = "data/assets"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# list of assets
-ASSETS = ["ORCL", "AAPL", "MSFT", "SAP"]
+# read config
+with open("config.yaml", "r") as f:
+    cfg = yaml.safe_load(f)
 
-# Zeitraum für die historischen Daten
-START_DATE = "2023-11-11"
-END_DATE = "2027-12-31"
+ASSETS = cfg.get("assets", [])
+START_DATE = cfg.get("start_date", "2023-01-01")
+END_DATE = cfg.get("end_date", "2027-12-31")
+FORCE_UPDATE = cfg.get("force_update", False)
+AUTO_ADJUST = cfg.get("auto_adjust", True)
 
-def download_asset(symbol, start=START_DATE, end=END_DATE, force_update=False, auto_adjust=True):
+
+def download_asset(symbol, start=START_DATE, end=END_DATE, force_update=FORCE_UPDATE, auto_adjust=AUTO_ADJUST):
     """download assets"""
     filepath = os.path.join(CACHE_DIR, f"{symbol}.csv")
     
@@ -26,16 +31,12 @@ def download_asset(symbol, start=START_DATE, end=END_DATE, force_update=False, a
         return filepath
     
     print(f"Downloading {symbol}...")
-    data = yf.download(symbol, start=start, end=end, auto_adjust=auto_adjust) # auto adjusted prices (no dividend/splits)
+    data = yf.download(symbol, start=start, end=end, auto_adjust=auto_adjust)
 
     data.to_csv(filepath)
 
-    #correct yahoo finance data, somehow header is wrong, TODO: correct it with pandas, this somehow weird:
-    if auto_adjust:
-        header = header_row_adjusted
-    else:
-        header = header_row_real
-    
+    # correct yahoo finance data
+    header = header_row_adjusted if auto_adjust else header_row_real
     with open(filepath, "r") as f:
         lines = f.readlines()
     lines = lines[3:]
@@ -46,7 +47,6 @@ def download_asset(symbol, start=START_DATE, end=END_DATE, force_update=False, a
     return filepath
 
 
-#check assets and download
 if __name__ == '__main__':
-    cached_files = [download_asset(sym, force_update=True, auto_adjust=True) for sym in ASSETS]
+    cached_files = [download_asset(sym) for sym in ASSETS]
     print("Fertig! Dateien sind im Cache:", cached_files)

@@ -1,0 +1,12 @@
+# config.yaml
+assets:
+  - ORCL
+  - AAPL
+  - MSFT
+  - SAP
+
+start_date: "2023-11-11"
+end_date: "2027-12-31"
+
+force_update: true
+auto_adjust: true
