@@ -14,6 +14,7 @@ class ARIMAStrategy(GeneralStrategy):
     )
 
     def __init__(self):
+        super().__init__()
         self.models = dict()
         self.forecast_lines = dict()
         self._fit_counters = dict()  # Zähler pro Datenfeed
@@ -56,9 +57,6 @@ class ARIMAStrategy(GeneralStrategy):
 
             # Linie für Plot setzen
             self.forecast_lines[d].lines.line[0] = prediction
-            
-            dt = d.datetime.date(0)
-            print(f"Guessing {prediction} on {dt}")
             
             current_close = d.close[0]
 

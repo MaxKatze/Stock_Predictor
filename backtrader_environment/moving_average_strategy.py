@@ -9,6 +9,7 @@ class MovingAverageStrategy(GeneralStrategy):
     )
 
     def __init__(self):
+        super().__init__()
         print("-------Data:---------")
         for i, d in enumerate(self.datas):
             print(i, d._name)  # zeigt alle Datafeeds

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     cerebro = bt.Cerebro(stdstats=False)
 
     # Add a strategy
-    cerebro.addstrategy(ARIMAStrategy)
+    cerebro.addstrategy(MovingAverageStrategy)
 
     stocks = ["SAP"] #, "AAPL", "ORCL", "SAP"
 

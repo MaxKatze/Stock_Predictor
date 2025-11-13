@@ -9,6 +9,9 @@ class FixedDateStrategy(GeneralStrategy):
         ("sell_date", date(2000, 11, 20)),
     )
 
+    def __init__(self):
+        super().__init__()
+
     def next(self):
         for data in self.datas:
             if data._name != "MSFT":
