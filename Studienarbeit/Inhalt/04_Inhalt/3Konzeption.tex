@@ -1,0 +1,27 @@
+\chapter{Konzeption}
+\section{Überblick}\label{uberblick}
+Dieses Kapitel beschreibt die Konzeption der entwickelten Modelle. Diese Modelle gliedern sich zunächst in zwei Arten. Zum einen werden Modelle zur Prognose von Aktienkursen konzipiert. Außerdem werden Modelle entwickelt, die unter Einbeziehung der prognostizierten Aktienkurse Kauf- und Verkaufsentscheidungen treffen. Hierbei werden sowohl eigene Ansätze verfolgt, als auch Kombinationen von bereits existenten Ansätzen untersucht.\\
+\ref{daten_benchmarking} beschreibt welche Daten die Grundlage für unsere Modelle bilden. Dafür wird begründet welche Assets in welchem Zeitraum verwendet werden und deren zeitliche Granularität (Minütlich/Täglich) entschieden. Des Weiteren wird hier das Benchmarking diskutiert. Es werden die Verfahren erläutert, mit denen die verschiedenen Arten von Modellen evaluiert werden und was als Grundlage und Vergleichswert für die Evaluation dient.\\
+\ref{bewertungskriterien} beschreibt anhand welcher Kriterien Modelle bewertet werden. Zum einen wird eine \ac{DoS}-artige Definition eines funktionierenden Modells aufgestellt und definiert wann ein Modell gut ist. Des Weiteren wird erarbeitet, wie Modelle untereinander verglichen werden und mit welchen anderen Strategien Modelle verglichen werden.\\
+In \ref{entwicklung} wird beschrieben wie die Modelle aufgebaut sind und warum sie so aufgebaut sind. Bei kombinierten Modellen wird erläutert wieso sich für die konkrete Kombination entschieden wurde und wie diese die Modelle beeinflusst.\\
+In \ref{marktstrategie} wird behandelt, wie die Kaufs- und Verkaufsentscheidungen bei Prognose-Modellen getroffen werden. Außerdem werden Strategien und Analysen behandelt, die die Ordergröße berechnen und den Vorhersagehorizont der Modelle untersuchen.
+\section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
+\section{Bewertungskriterien} \label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test), 
+\section{Entwicklung} \label{entwicklung}
+\subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
+\subsection{Korrelationsmatrix} % Unternehmenskorrelation
+Matrix mit allen Unternehmen je auf x und y.
+Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
+über: Ri * Rj / abs(Ri) * abs(Rj)
+Mache das für die letzten x Tage (5)
+daraus ein Vektor
+
+und eine Matrix
+Tage gewichten
+=> Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
+
+\subsection{Support Vector Machines (SVM)} % mit Kursdaten als Features (5-20 RDP)
+\subsection{Sentiment-Analyse mit Echtzeitinformationen} % Twitter/Trump scrape usw
+\subsection{SVMs mit Analyse Features} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
+\subsection{Marktstrategie} \label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
+
