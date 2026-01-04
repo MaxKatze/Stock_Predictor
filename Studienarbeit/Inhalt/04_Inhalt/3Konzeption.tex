@@ -6,6 +6,18 @@ Dieses Kapitel beschreibt die Konzeption der entwickelten Modelle. Diese Modelle
 In \ref{entwicklung} wird beschrieben wie die Modelle aufgebaut sind und warum sie so aufgebaut sind. Bei kombinierten Modellen wird erläutert wieso sich für die konkrete Kombination entschieden wurde und wie diese die Modelle beeinflusst.\\
 In \ref{marktstrategie} wird behandelt, wie die Kaufs- und Verkaufsentscheidungen bei Prognose-Modellen getroffen werden. Außerdem werden Strategien und Analysen behandelt, die die Ordergröße berechnen und den Vorhersagehorizont der Modelle untersuchen.
 \section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
+Die Auswahl der Daten erfolgt zunächst aus einzeln betrachteten Aktien. Es werden Aktien ausgewählt, die verschiedene Eigenschaften haben, zum Beispiel hohe Volatilität, steigende, fallend, großer Crash.
+Die Aktien werden als Zeitreihe gesehen und jeweils aufgeteilt, in einen Trainingszeitraum $T$, einen Parameterzeitraum $P$ und einen Testzeitraum $S$, die zu allen Zeiten disjunkt bleiben müssen.
+Die Modelle werden stets für eine Zeitreihe trainiert, die Parameter werden geschätzt anhand des Parameterzeitraums und danach werden die Modelle auf dem Testzeitraum derselben Reihe getestet.
+Hierfür werden 5 Aktien ausgewählt.
+\begin{tabular}{l c r c}
+
+Aktie & Trainingszeitraum & Parameterzeitraum & Testzeitraum & Eigenschaften \\
+\hline
+Tesla & Nov. 21 - Nov. 23 & Nov. 23 - Jan 24 & Jan 24 - Nov 24 \\
+1 & 2 & 3 & 4
+\end{tabular}
+
 \section{Bewertungskriterien} \label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test), 
 \section{Entwicklung} \label{entwicklung}
 \subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
