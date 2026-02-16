@@ -1,5 +1,5 @@
 
-from prediction_models import PredictionModel
+from .prediction_models import PredictionModel
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 import numpy as np

@@ -1,7 +1,7 @@
 import os
 import yaml
 import yfinance as yf
-from file_format_yahoo import header_row_real, header_row_adjusted
+from .file_format_yahoo import header_row_real, header_row_adjusted
 
 # cache folder
 CACHE_DIR = "data/assets"

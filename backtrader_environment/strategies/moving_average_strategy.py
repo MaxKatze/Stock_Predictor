@@ -1,6 +1,6 @@
 import backtrader as bt
 
-from general_strategy import GeneralStrategy
+from strategies import GeneralStrategy
 
 class MovingAverageStrategy(GeneralStrategy):
     params = (

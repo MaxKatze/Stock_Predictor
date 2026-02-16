@@ -2,9 +2,9 @@ import backtrader as bt
 from datetime import date
 import pandas as pd
 
-from ARIMALine import PlotLineIndicator
-from general_strategy import GeneralStrategy
-from arima_prediction_model import ARIMAModel
+from visualization import PlotLineIndicator
+from strategies import GeneralStrategy
+from models import ARIMAModel
 
 class ARIMAStrategy(GeneralStrategy):
     params = dict(

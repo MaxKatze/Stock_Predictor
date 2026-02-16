@@ -1,7 +1,7 @@
 import backtrader as bt
 from datetime import date
 
-from general_strategy import GeneralStrategy
+from strategies import GeneralStrategy
 
 class FixedDateStrategy(GeneralStrategy):
     params = (
