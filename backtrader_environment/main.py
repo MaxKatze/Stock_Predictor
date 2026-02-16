@@ -2,14 +2,8 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import backtrader as bt
-import os
-import sys
-import datetime
-from strategies.fixed_date_strategy import FixedDateStrategy
 import pandas
-from data_handling import PandasData
-from strategies.moving_average_strategy import MovingAverageStrategy
-from strategies.arima_strategy import ARIMAStrategy
+from strategies import MovingAverageStrategy
 
 if __name__ == '__main__':
 

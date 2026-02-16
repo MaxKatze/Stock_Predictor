@@ -1,1 +1,4 @@
 from .general_strategy import GeneralStrategy
+from .moving_average_strategy import MovingAverageStrategy
+from .arima_strategy import ARIMAStrategy
+from .fixed_date_strategy import FixedDateStrategy
