@@ -4,6 +4,7 @@ class GeneralStrategy(bt.Strategy):
     def __init__(self):
         self.last_trade = 0
         self.trades = []
+        self.analyzer = []
     def notify_order(self, order):
         data = order.data
         name = data._name

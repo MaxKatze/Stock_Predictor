@@ -3,15 +3,18 @@ from __future__ import (absolute_import, division, print_function,
 
 import backtrader as bt
 import pandas
-from strategies import MovingAverageStrategy
-
+from strategies import MovingAverageStrategy, ARIMAStrategy
+from analyzer import LeastSquareAnalyzer
+from sizing import PercentageSizer
 if __name__ == '__main__':
 
     # Create a cerebro entity
     cerebro = bt.Cerebro(stdstats=False)
 
     # Add a strategy
-    cerebro.addstrategy(MovingAverageStrategy)
+    cerebro.addstrategy(ARIMAStrategy)
+    cerebro.addanalyzer(LeastSquareAnalyzer)
+    cerebro.addsizer(PercentageSizer)
 
     stocks = ["SAP"] #, "AAPL", "ORCL", "SAP"
 

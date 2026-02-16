@@ -5,13 +5,15 @@ import pandas as pd
 from visualization import PlotLineIndicator
 from strategies import GeneralStrategy
 from models import ARIMAModel
+from analyzer import LeastSquareAnalyzer
 
 class ARIMAStrategy(GeneralStrategy):
     params = dict(
         arima_order=(1, 1, 1),
         arima_window=100,
-        fit_interval=1,  # 0=einmalig, 1=jeden Bar, 2=jeden 2. Bar, etc.
+        fit_interval=100,  # 0=einmalig, 1=jeden Bar, 2=jeden 2. Bar, etc.
     )
+    supported_analyzers = [LeastSquareAnalyzer]
 
     def __init__(self):
         super().__init__()
