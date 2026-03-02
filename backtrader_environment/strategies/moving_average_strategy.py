@@ -36,7 +36,7 @@ class MovingAverageStrategy(GeneralStrategy):
                     if size > 0:
                         dt = d.datetime.date(0)
                         print(f"Should buy on {dt} for {stockprice}")
-                        self.buy(data=d, size=size)
+                        self.buy(data=d,)
             if crossover < 0:
                 if position > 0:
                     stockprice = d.close[0]

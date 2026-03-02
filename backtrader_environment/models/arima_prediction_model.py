@@ -1,7 +1,7 @@
 
 from .prediction_models import PredictionModel
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA, ARIMAResults
 import numpy as np
 
 class ARIMAModel(PredictionModel):
@@ -13,6 +13,9 @@ class ARIMAModel(PredictionModel):
         self.order = order
         self.window = window
         self.model_fit = None
+
+    def append(self, data):
+        self.model_fit = self.model_fit.append(data)
 
     def predict(self, n=1):
         """
@@ -37,7 +40,7 @@ class ARIMAModel(PredictionModel):
         # fit
         try:
             model = ARIMA(data, order=self.order)
-            self.model_fit = model.fit()
+            self.model_fit: ARIMAResults = model.fit()
         except Exception as e:
             print(f"ARIMA fit failed: {e}")
             return np.nan
