@@ -25,10 +25,9 @@ class ARIMAStrategy(GeneralStrategy):
         self.current_prediction = {}
         self.predictions = {}
         self.prices = {}
-        self.day = 0
-
-        self.days = PlotLineIndicator()
-        self.days.plotinfo.plotname = "Days"
+        self._next_plot_prediction = {}
+        self.days = 0
+        self.prediction_today_difference = 0
 
         for d in self.datas:
             self.models[d] = ARIMAModel(order=self.p.arima_order, window=self.p.arima_window)
@@ -37,14 +36,19 @@ class ARIMAStrategy(GeneralStrategy):
             self.current_prediction[d] = None
             self.predictions[d] = []
             self.prices[d] = []
+            self._next_plot_prediction[d] = None
 
             self.forecast_lines[d] = PlotLineIndicator()
             self.forecast_lines[d].plotinfo.plotname = f"{d._name} ARIMA"
 
     def next(self):
-        self.day += 1
-        self.days.lines.line[0] = self.day
+        self.days += 1
         for d in self.datas:
+            delayed_prediction = self._next_plot_prediction[d]
+            self.forecast_lines[d].lines.line[0] = (
+                float("nan") if delayed_prediction is None else delayed_prediction
+            )
+
             self.prices[d].append(d.close[0])
 
             closes = pd.Series(d.close.get(size=self.p.arima_window + 20))
@@ -52,7 +56,7 @@ class ARIMAStrategy(GeneralStrategy):
             if len(closes) < self.p.arima_window:
                 self.current_prediction[d] = None
                 self.predictions[d].append(self.current_prediction[d])
-                self.forecast_lines[d].lines.line[0] = float("nan")
+                self._next_plot_prediction[d] = None
                 continue
 
             model = self.models[d]
@@ -70,22 +74,22 @@ class ARIMAStrategy(GeneralStrategy):
 
             self._fit_counters[d] += 1
 
-            if self._fit_counters[d] > 1 and model.model_fit is not None:
+            if (not do_fit) and self._fit_counters[d] > 1 and model.model_fit is not None:
                 model.append([d.close[0]])
 
             prediction = model.predict(n=1)
             if pd.isna(prediction):
                 self.current_prediction[d] = None
                 self.predictions[d].append(self.current_prediction[d])
-                self.forecast_lines[d].lines.line[0] = float("nan")
+                self._next_plot_prediction[d] = None
                 self.current_price[d] = d.close[0]
                 continue
-
+            
             self.current_prediction[d] = prediction
             self.predictions[d].append(self.current_prediction[d])
-
-            self.forecast_lines[d].lines.line[0] = prediction
+            self._next_plot_prediction[d] = prediction
             self.current_price[d] = d.close[0]
+            self.prediction_today_difference += (abs(prediction - self.current_price[d]))
 
             if not self.getposition(d).size:
                 if prediction >= self.current_price[d] * (1 + self.p.signal_threshold):
@@ -93,3 +97,8 @@ class ARIMAStrategy(GeneralStrategy):
             else:
                 if prediction <= self.current_price[d] * (1 - self.p.signal_threshold):
                     self.close(data=d)
+    
+    def stop(self):
+        print("stopped")
+        avg_price_prediction_diff = self.prediction_today_difference / self.days
+        print(f"average price-prediction difference: {avg_price_prediction_diff}")
