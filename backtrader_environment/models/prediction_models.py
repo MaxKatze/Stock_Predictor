@@ -1,9 +1,11 @@
-class PredictionModel:
-    def predict(self, data, n):
-        pass
+from abc import ABC, abstractmethod
 
-    def print(self):
-        pass
 
+class PredictionModel(ABC):
+    @abstractmethod
+    def predict(self, n):
+        raise NotImplementedError
+
+    @abstractmethod
     def fit(self, data, window):
-        pass
+        raise NotImplementedError

@@ -1,3 +1,4 @@
 from .mean_absolute_error_analyzer import MeanAbsoluteErrorAnalyzer
 from .mean_squared_error_analyzer import MeanSquaredErrorAnalyzer
 from .root_mean_squared_error_analyzer import RootMeanSquaredErrorAnalyzer
+from .r_squared_analyzer import RSquaredAnalyzer

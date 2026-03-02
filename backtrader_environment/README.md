@@ -1,23 +1,31 @@
-# Stock_Predictor
+# Stock Predictor (Backtrader + ARIMA)
 
-Stock Prediction
+Python project for running Backtrader strategies with custom prediction models and analyzers.
 
-Python 3.13.7
+## Requirements
 
-Run:
+- Python `>=3.13`
+- `uv` (recommended)
 
-just use uv or ask cursor how to run.
+## Run
 
-´´´bash
+```bash
 uv run main.py
+```
 
-Repo Structure:
+## Project Structure
 
-Entry Point: main.py
+- `main.py`: Entry point, registers strategy, analyzers, sizer, and data feeds.
+- `strategies/`: Trading logic (`ARIMAStrategy`, moving average, fixed date).
+- `models/`: Prediction model implementations (currently ARIMA).
+- `analyzer/`: Custom prediction error metrics.
+- `sizing/`: Position sizing logic.
+- `data_handling/`: Download and format market data.
+- `visualization/`: Custom Backtrader indicator lines for plotting.
 
-Registrates Strategy, Analyzer and Models
+## Flow
 
-Flow: Register Strategy in main. Strategy instantiates a Model, that is fitted and predicts.
-Use Analyzer to analyze trades and predictions, e.g. Lsq
-Use Sizers to determine sizing of trades. (sizer gets called when size attribute in trade call is not used)
-
+1. A strategy is added in `main.py`.
+2. The strategy builds/updates a prediction model.
+3. The strategy generates trade decisions from model output.
+4. Analyzers evaluate prediction quality and portfolio metrics.

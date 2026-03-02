@@ -1,38 +1,36 @@
 from .general_analyzer import GeneralAnalyzer
-import math
 
-#Error Analyzer, works on return prediction
-# => compares prediction to mean return => (near 1: excellent prediciton; 0: close to mean, negative: worse than taking just mean)
+
 class RSquaredAnalyzer(GeneralAnalyzer):
     def __init__(self):
         super().__init__()
-        self.price_sum = {}
         self.r2 = {}
         for d in self.strategy.datas:
-            self.price_sum[d] = 0
             self.r2[d._name] = 0
-        
-        
-    def next(self):
-        for d in self.strategy.datas:
-            self.price_sum[d] += self.strategy.current_price[d]
-
 
     def stop(self):
         for d in self.strategy.datas:
-            mean_price = self.price_sum[d] / len(self.strategy.current_price[d])
-            ss_tot = 0
-            ss_res = 0
             if len(self.strategy.prices[d]) != len(self.strategy.predictions[d]):
                 raise ValueError("Price-Prediction mismatch.")
-            for (price, prediction) in zip(self.strategy.prices[d], self.strategy.predictions[d]):
-                if prediction is not None:
-                    ss_tot += (price - mean_price) * (price - mean_price)
-                    ss_res += (price - prediction) * (price - prediction)
-            R2 = 1 - (ss_res / ss_tot)
-            self.r2[d._name] = R2
 
-            
+            pairs = [
+                (price, prediction)
+                for price, prediction in zip(self.strategy.prices[d], self.strategy.predictions[d])
+                if prediction is not None
+            ]
+            if len(pairs) < 3:
+                self.r2[d._name] = -1
+                continue
+
+            observed_prices = [price for price, _ in pairs]
+            mean_price = sum(observed_prices) / len(observed_prices)
+            ss_tot = sum((price - mean_price) ** 2 for price, _ in pairs)
+            if ss_tot == 0:
+                self.r2[d._name] = -1
+                continue
+
+            ss_res = sum((price - prediction) ** 2 for price, prediction in pairs)
+            self.r2[d._name] = 1 - (ss_res / ss_tot)
 
     def get_analysis(self):
         super_analysis = super().get_analysis()

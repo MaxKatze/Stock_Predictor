@@ -1,7 +1,7 @@
 from .general_analyzer import GeneralAnalyzer
 import math
 
-#Error Analyzer, works on price prediction and return prediction
+
 class RootMeanSquaredErrorAnalyzer(GeneralAnalyzer):
     def __init__(self):
         super().__init__()
@@ -14,8 +14,9 @@ class RootMeanSquaredErrorAnalyzer(GeneralAnalyzer):
     
     def next(self):
         for d in self.strategy.datas:
-            if self.previous_prediction[d] is not None:
-                self.current_error_sum[d] += (self.previous_prediction[d] - self.strategy.current_price[d]) * (self.previous_prediction[d] - self.strategy.current_price[d])
+            prev_prediction = self.previous_prediction[d]
+            if prev_prediction is not None and not math.isnan(prev_prediction):
+                self.current_error_sum[d] += (prev_prediction - self.strategy.current_price[d]) * (prev_prediction - self.strategy.current_price[d])
                 self.num_of_data_points[d] += 1
             self.previous_prediction[d] = self.strategy.current_prediction[d]
 

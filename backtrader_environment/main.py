@@ -3,53 +3,44 @@ from __future__ import (absolute_import, division, print_function,
 
 import backtrader as bt
 import pandas
-from strategies import MovingAverageStrategy, ARIMAStrategy
+from strategies import ARIMAStrategy
 from analyzer import MeanAbsoluteErrorAnalyzer, RootMeanSquaredErrorAnalyzer
 from sizing import PercentageSizer
+
+
+def load_csv_feed(symbol: str) -> tuple[bt.feeds.PandasData, float]:
+    datapath = f"data/assets/{symbol}.csv"
+    dataframe = pandas.read_csv(
+        datapath,
+        skiprows=0,
+        header=0,
+        parse_dates=True,
+        index_col=0,
+    )
+    begin_stock_price = dataframe["Close"].iloc[0]
+    end_stock_price = dataframe["Close"].iloc[-1]
+    percentage_price_increase = end_stock_price / begin_stock_price
+    return bt.feeds.PandasData(dataname=dataframe), percentage_price_increase
+
+
 if __name__ == '__main__':
-    # Create a cerebro entity
     cerebro = bt.Cerebro(stdstats=True)
-
-    # Add a strategy
     cerebro.addstrategy(ARIMAStrategy)
-
     cerebro.addanalyzer(MeanAbsoluteErrorAnalyzer, _name="mae")
     cerebro.addanalyzer(RootMeanSquaredErrorAnalyzer, _name="rmse")
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
-    
     cerebro.addsizer(PercentageSizer)
 
-    stocks = ["SAP"] #, "AAPL", "ORCL", "SAP"
+    stocks = ["SAP"]
 
     average_percentage_stock_increase = 0
     for stock in stocks:
-        # Get a pandas dataframe
-        datapath = (f"data/assets/{stock}.csv")
-
-        # Simulate the header row isn't there if noheaders requested
-        skiprows = 0
-        header = 0
-
-        dataframe = pandas.read_csv(datapath,
-                                        skiprows=skiprows,
-                                        header=header,
-                                        parse_dates=True,
-                                        index_col=0)
-
-
-        begin_stockprice = dataframe["Close"].iloc[0]
-        end_stockprice = dataframe["Close"].iloc[-1]
-        precentage_price = end_stockprice / begin_stockprice
-        average_percentage_stock_increase += precentage_price
-
-
-        data = bt.feeds.PandasData(dataname=dataframe)
-
+        data, percentage_price = load_csv_feed(stock)
+        average_percentage_stock_increase += percentage_price
         cerebro.adddata(data, name=stock)
 
     average_percentage_stock_increase /= len(stocks)
     cash = 100000.0
-
     buy_and_hold_ending_value = cash * average_percentage_stock_increase
 
     print(f"Buy and Hold Ending Portfolio Value: {buy_and_hold_ending_value}")
@@ -64,11 +55,10 @@ if __name__ == '__main__':
 
     sharpe = results[0].analyzers.sharpe.get_analysis()
     mae = results[0].analyzers.mae.get_analysis()
-    rsme = results[0].analyzers.rmse.get_analysis()
+    rmse = results[0].analyzers.rmse.get_analysis()
 
-    print(rsme)
+    print(rmse)
     print(sharpe)
     print(mae)
 
-    # Plot the result
     cerebro.plot(style='line')

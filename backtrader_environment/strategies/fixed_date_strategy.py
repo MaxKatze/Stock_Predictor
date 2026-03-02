@@ -3,6 +3,7 @@ from datetime import date
 
 from strategies import GeneralStrategy
 
+
 class FixedDateStrategy(GeneralStrategy):
     params = (
         ("buy_date", date(2000, 1, 5)),
@@ -19,14 +20,12 @@ class FixedDateStrategy(GeneralStrategy):
         
             current_date = data.datetime.date(0)
             
-            # Kaufen am Buy-Datum
             if current_date == self.params.buy_date:
                 if not self.getposition(data):
                     self.buy(exectype=bt.Order.Market, data=data, size=1)
-                    print(f"Kauf am {current_date} zum Open Preis des nächsten Tages: {self.data.open[1]}")
+                    print(f"Buy on {current_date}; next session open: {data.open[1]}")
                             
-            # Verkaufen am Sell-Datum
             elif current_date == self.params.sell_date:
                 if self.getposition(data):
                     self.sell(exectype=bt.Order.Market, data=data, size=1)
-                    print(f"Verkauf am {current_date} zum Open Preis des nächsten Tages {self.data.open[1]}")
+                    print(f"Sell on {current_date}; next session open: {data.open[1]}")
