@@ -13,9 +13,9 @@ In \ref{entwicklung} wird beschrieben, wie die Modelle aufgebaut sind und warum 
 In \ref{marktstrategie} wird behandelt, wie die Kaufs- und Verkaufsentscheidungen bei Prognose-Modellen getroffen werden. Außerdem werden Strategien und Analysen behandelt, die die Ordergröße berechnen und den Vorhersagehorizont der Modelle untersuchen.
 \section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
 
-Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S&P500 gelisteten Unternehmen.
+Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P500 gelisteten Unternehmen.
 Diese Auswahl stellt sicher, dass ein Survivorship Bias vermieden wird, da nur Unternehmen berücksichtigt werden, die zu Beginn des Analysezeitraums tatsächlich existierten und zum Zeitpunkt der Auswahl keine zukünftigen
-Informationen die Wahl der Trainings- oder Testaktien beeinflusst.
+Informationen die Wahl der Trainings- oder Testaktien beeinflussen.
 
 Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jede Zeitreihe wird eine Unterteilung in drei disjunkte Abschnitte vorgenommen:
 
@@ -31,7 +31,7 @@ Die finale Leistung wird schließlich auf dem Testzeitraum bewertet, um die zeit
 Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. 
 Durch diese Vorgehensweise wird sowohl die zeitliche Trennung der Daten als auch die Übertragbarkeit der Modelle innerhalb des ausgewählten Universums gewährleistet.
 Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit
-ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. 
+ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. 
 Die ausgewählten Aktien sind zu sehen in Tabelle \ref{tab:Aktienauswahl}.
 
 \begin{table}[h!]
@@ -66,7 +66,7 @@ Der Anpassungsfaktor wird rekursiv berechnet. Sei \(P_t\) für \(t=1,\dots,n\) g
 A_{t-1} = \frac{A_t}{s_t}.
 \]
 
-Beispielsweise führt ein \(2{:}1\)-Split (\(s_t = 2\)) dazu, dass alle historischen Preise vor dem Split durch zwei geteilt werden.
+Beispielsweise führt ein \(2{:}1\)-Split (\(s_t = 2\)) dazu, dass alle historischen Preise vor dem Split halbiert werden.
 
 Dividendenzahlungen werden ebenfalls berücksichtigt, um eine konsistente Renditereihe zu erhalten. Sei \(D_t\) die Dividende zum Zeitpunkt \(t\). Dann wird der Anpassungsfaktor wie folgt aktualisiert:
 
@@ -136,15 +136,62 @@ Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, 
 DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}) = \operatorname{sign}(\hat{x}_i - x_{i-1})\Big),
 \]
 
-wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst. Ein Wert von \(DA = 1\) bedeutet perfekte Richtungsprognose, während \(DA = 0.5\) einer Zufallsvorhersage entspricht.
+wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst.
 
 Da Klassifizierungsmodelle keinen Preis vorhersagen definieren wir \ac{DA} für diese anders.
-TODO
+
+\ac{DA} für Klassifizierungsmodelle misst, wie gut die vorhergesagten Signale mit den tatsächlichen Marktbewegungen übereinstimmen. 
+Sei \(y_i \in \{+1, -1\}\) das tatsächliche Marktsignal für den Zeitpunkt \(i\) 
+(+1 für Kursanstieg, -1 für Kursrückgang) und \(\hat{y}_i \in \{+1, -1\}\) die vom Modell prognostizierte Richtung. 
+Dann wird DA berechnet als
+
+\[
+DA = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}(\hat{y}_i = y_i),
+\]
+
+Ein Wert von \(DA = 1\) entspricht einer perfekten Klassifikation, während \(DA = 0.5\) einem zufälligen Raten entspricht.
 
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
 
 
+\textbf{Gesamtrendite}\\
 
+Die Gesamtrendite gibt die insgesamt erzielte Rendite über den gesamten Zeitraum an:
+
+\[
+R_{cum} = \frac{V_T - V_0}{V_0},
+\]
+
+wobei \(V_0\) der Anfangswert und \(V_T\) der Endwert des Portfolios ist. Sie zeigt die absolute Profitabilität der Strategie.
+
+Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie. Also die Rendite die erreicht wird, wenn die Aktie über den gesamten Betrachtungszeitraum gehalten wird:
+
+\[
+R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0}.
+\]
+
+Hiermit soll analysiert werden, ob die Modelle eine bessere Strategie darstellen als einfach "in den Markt zu investieren".
+
+
+\textbf{Sharpe Ratio}\\
+
+Die Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios und wird berechnet als
+
+\[
+S = \frac{\frac{1}{T} \sum_{t=1}^{T} (R_{p,t} - R_{f,t})}{\sigma(R_p)},
+\]
+
+wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Standardabweichung der Portfoliorenditen ist. Eine hohe Sharpe Ratio deutet auf eine hohe Rendite bei gleichzeitig niedrigem Risiko hin.
+
+\textbf{\ac{MDD}}\\
+
+Der \ac{MDD} beschreibt den größten kumulativen Verlust eines Portfolios vom höchsten Punkt (Peak) bis zum Tiefpunkt (Trough) innerhalb des betrachteten Zeitraums:
+
+\[
+MDD = \max_{t} \frac{Peak_t - Value_t}{Peak_t}.
+\]
+
+Ein niedriger Maximum Drawdown zeigt, dass die Strategie relativ robust gegenüber großen Verlusten ist.
 
 
 \section{Entwicklung} \label{entwicklung}
