@@ -1,7 +1,10 @@
 import os
 import yaml
 import yfinance as yf
-from .file_format_yahoo import header_row_real, header_row_adjusted
+
+
+header_row_real = "Date,Adj Close,Close,High,Low,Open,Volume\n"
+header_row_adjusted = "Date,Close,High,Low,Open,Volume\n"
 
 CACHE_DIR = "data/assets"
 os.makedirs(CACHE_DIR, exist_ok=True)

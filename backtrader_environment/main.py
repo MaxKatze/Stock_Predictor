@@ -3,9 +3,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import backtrader as bt
 import pandas
-from strategies import ARIMAStrategy
-from analyzer import MeanAbsoluteErrorAnalyzer, RootMeanSquaredErrorAnalyzer
+from strategies import ARIMAStrategy, MovingAverageStrategy 
+from analyzer import MeanAbsoluteErrorAnalyzer, RootMeanSquaredErrorAnalyzer 
 from sizing import PercentageSizer
+from pprint import pprint
 
 
 def load_csv_feed(symbol: str) -> tuple[bt.feeds.PandasData, float]:
@@ -25,9 +26,9 @@ def load_csv_feed(symbol: str) -> tuple[bt.feeds.PandasData, float]:
 
 if __name__ == '__main__':
     cerebro = bt.Cerebro(stdstats=True)
-    cerebro.addstrategy(ARIMAStrategy)
-    cerebro.addanalyzer(MeanAbsoluteErrorAnalyzer, _name="mae")
-    cerebro.addanalyzer(RootMeanSquaredErrorAnalyzer, _name="rmse")
+    cerebro.addstrategy(MovingAverageStrategy)
+    # cerebro.addanalyzer(MeanAbsoluteErrorAnalyzer, _name="mae")
+    # cerebro.addanalyzer(RootMeanSquaredErrorAnalyzer, _name="rmse")
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
     cerebro.addsizer(PercentageSizer)
 
@@ -53,12 +54,8 @@ if __name__ == '__main__':
     results = cerebro.run()
     print("--- Ending Portfolio Value:", cerebro.broker.getvalue(), " ---")
 
-    sharpe = results[0].analyzers.sharpe.get_analysis()
-    mae = results[0].analyzers.mae.get_analysis()
-    rmse = results[0].analyzers.rmse.get_analysis()
-
-    print(rmse)
-    print(sharpe)
-    print(mae)
+    for analyzer_name in results[0].analyzers.getnames():
+        analyzer = results[0].analyzers.getbyname(analyzer_name)
+        print(f"{analyzer_name}: {analyzer.get_analysis()}")
 
     cerebro.plot(style='line')

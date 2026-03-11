@@ -8,7 +8,7 @@ from analyzer import MeanAbsoluteErrorAnalyzer, RootMeanSquaredErrorAnalyzer, Me
 
 class ARIMAStrategy(GeneralStrategy):
     params = dict(
-        arima_order=(1, 1, 1),
+        arima_order=(2, 1, 1),
         arima_window=100,
         fit_interval=100,
         signal_threshold=0.001,

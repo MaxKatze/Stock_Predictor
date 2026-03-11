@@ -5,8 +5,8 @@ from strategies import GeneralStrategy
 
 class MovingAverageStrategy(GeneralStrategy):
     params = (
-        ("fast_period", 10),
-        ("slow_period", 30),
+        ("fast_period", 30),
+        ("slow_period", 100),
     )
 
     def __init__(self):

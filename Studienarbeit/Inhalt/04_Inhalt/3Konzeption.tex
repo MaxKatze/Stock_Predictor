@@ -1,24 +1,152 @@
 \chapter{Konzeption}
 \section{Überblick}\label{uberblick}
-Dieses Kapitel beschreibt die Konzeption der entwickelten Modelle. Diese Modelle gliedern sich zunächst in zwei Arten. Zum einen werden Modelle zur Prognose von Aktienkursen konzipiert. Außerdem werden Modelle entwickelt, die unter Einbeziehung der prognostizierten Aktienkurse Kauf- und Verkaufsentscheidungen treffen. Hierbei werden sowohl eigene Ansätze verfolgt, als auch Kombinationen von bereits existenten Ansätzen untersucht.\\
-\ref{daten_benchmarking} beschreibt welche Daten die Grundlage für unsere Modelle bilden. Dafür wird begründet welche Assets in welchem Zeitraum verwendet werden und deren zeitliche Granularität (Minütlich/Täglich) entschieden. Des Weiteren wird hier das Benchmarking diskutiert. Es werden die Verfahren erläutert, mit denen die verschiedenen Arten von Modellen evaluiert werden und was als Grundlage und Vergleichswert für die Evaluation dient.\\
-\ref{bewertungskriterien} beschreibt anhand welcher Kriterien Modelle bewertet werden. Zum einen wird eine \ac{DoS}-artige Definition eines funktionierenden Modells aufgestellt und definiert wann ein Modell gut ist. Des Weiteren wird erarbeitet, wie Modelle untereinander verglichen werden und mit welchen anderen Strategien Modelle verglichen werden.\\
-In \ref{entwicklung} wird beschrieben wie die Modelle aufgebaut sind und warum sie so aufgebaut sind. Bei kombinierten Modellen wird erläutert wieso sich für die konkrete Kombination entschieden wurde und wie diese die Modelle beeinflusst.\\
+Dieses Kapitel beschreibt die Konzeption der entwickelten Modelle. Diese Modelle gliedern sich zunächst in zwei Arten.
+Zum einen werden Modelle zur Prognose von Aktienkursen konzipiert. Außerdem werden Modelle entwickelt, die unter Einbeziehung der prognostizierten Aktienkurse Kauf- und Verkaufsentscheidungen treffen.
+Hierbei werden sowohl eigene Ansätze verfolgt, als auch Kombinationen von bereits existenten Ansätzen untersucht.
+
+In \ref{daten_benchmarking} wird beschrieben, welche Daten die Grundlage für unsere Modelle bilden. Dafür wird begründet, welche Assets in welchem Zeitraum verwendet werden und deren zeitliche Granularität (minütlich/täglich) entschieden. Des Weiteren wird hier das Benchmarking diskutiert; es werden die Verfahren erläutert, mit denen die verschiedenen Arten von Modellen evaluiert werden und was als Grundlage und Vergleichswert für die Evaluation dient.
+
+In \ref{bewertungskriterien} wird erläutert, anhand welcher Kriterien Modelle bewertet werden. Zum einen wird eine \ac{DoS}-artige Definition eines funktionierenden Modells aufgestellt und definiert, wann ein Modell gut ist. Des Weiteren wird erarbeitet, wie Modelle untereinander verglichen werden und mit welchen anderen Strategien Modelle verglichen werden.
+
+In \ref{entwicklung} wird beschrieben, wie die Modelle aufgebaut sind und warum sie so aufgebaut sind. Bei kombinierten Modellen wird erläutert, weshalb sich für die konkrete Kombination entschieden wurde und wie diese die Modelle beeinflusst.
+
 In \ref{marktstrategie} wird behandelt, wie die Kaufs- und Verkaufsentscheidungen bei Prognose-Modellen getroffen werden. Außerdem werden Strategien und Analysen behandelt, die die Ordergröße berechnen und den Vorhersagehorizont der Modelle untersuchen.
 \section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
-Die Auswahl der Daten erfolgt zunächst aus einzeln betrachteten Aktien. Es werden Aktien ausgewählt, die verschiedene Eigenschaften haben, zum Beispiel hohe Volatilität, steigende, fallend, großer Crash.
-Die Aktien werden als Zeitreihe gesehen und jeweils aufgeteilt, in einen Trainingszeitraum $T$, einen Parameterzeitraum $P$ und einen Testzeitraum $S$, die zu allen Zeiten disjunkt bleiben müssen.
-Die Modelle werden stets für eine Zeitreihe trainiert, die Parameter werden geschätzt anhand des Parameterzeitraums und danach werden die Modelle auf dem Testzeitraum derselben Reihe getestet.
-Hierfür werden 5 Aktien ausgewählt.
-\begin{tabular}{l c r c}
 
-Aktie & Trainingszeitraum & Parameterzeitraum & Testzeitraum & Eigenschaften \\
-\hline
-Tesla & Nov. 21 - Nov. 23 & Nov. 23 - Jan 24 & Jan 24 - Nov 24 \\
-1 & 2 & 3 & 4
-\end{tabular}
+Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S&P500 gelisteten Unternehmen.
+Diese Auswahl stellt sicher, dass ein Survivorship Bias vermieden wird, da nur Unternehmen berücksichtigt werden, die zu Beginn des Analysezeitraums tatsächlich existierten und zum Zeitpunkt der Auswahl keine zukünftigen
+Informationen die Wahl der Trainings- oder Testaktien beeinflusst.
 
-\section{Bewertungskriterien} \label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test), 
+Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jede Zeitreihe wird eine Unterteilung in drei disjunkte Abschnitte vorgenommen:
+
+\begin{itemize}
+    \item \textbf{Trainingszeitraum ($T$):} 01.2020--12.2023, in dem die Modelle auf den historischen Kursen trainiert werden.
+    \item \textbf{Validierungszeitraum ($P$):} 12.2023--06.2024, der zur Optimierung der Modellparameter dient.
+    \item \textbf{Testzeitraum ($S$):} 06.2024--12.2025, der ausschließlich für die abschließende Evaluierung der Modelle auf bisher ungesehenen Daten verwendet wird.
+\end{itemize}
+
+Die Modelle werden zunächst auf den Trainingsdaten trainiert. Anschließend erfolgt die Optimierung der Hyperparameter anhand des Validierungszeitraums. 
+Die finale Leistung wird schließlich auf dem Testzeitraum bewertet, um die zeitliche Generalisierbarkeit der Modelle zu überprüfen.
+
+Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. 
+Durch diese Vorgehensweise wird sowohl die zeitliche Trennung der Daten als auch die Übertragbarkeit der Modelle innerhalb des ausgewählten Universums gewährleistet.
+Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit
+ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. 
+Die ausgewählten Aktien sind zu sehen in Tabelle \ref{tab:Aktienauswahl}.
+
+\begin{table}[h!]
+    \centering
+    \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
+    \begin{tabular}{l c c}
+        Unternehmen & Tickersymbol & Kurs bei Trainingszeitraumbeginn\\
+        \hline
+        Tesla & TSLA & 100 \\
+        \ldots & \ldots & \ldots \\
+        \hline
+    \end{tabular}
+\end{table}
+
+
+Die verwendeten Zeitreihen bestehen aus Tagesöffnungs- und Tagesschlusskursen. Hierfür wird die öffentliche API von Yahoo Finance verwendet. Alle Kursdaten erfolgen in US\$, um unabhängig von Währungsänderungen zu sein.
+Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise im Zeitverlauf durch Ereignisse wie 
+Aktiensplits, Dividendenzahlungen oder andere Aktionen verändern können, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden 
+historische Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt.
+
+Die Bereinigung erfolgt durch die Anpassung historischer Preise, um Effekte von Aktiensplits und Dividendenzahlungen zu berücksichtigen. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\). 
+Der bereinigte Preis \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\):
+
+\[
+\tilde{P}_t = P_t \cdot A_t .
+\]
+
+Der Anpassungsfaktor wird rekursiv berechnet. Sei \(P_t\) für \(t=1,\dots,n\) gegeben, gilt \(A_n\) = 1. Bei einem Aktiensplit zum Zeitpunkt \(t\) mit Verhältnis 
+\(s_t = \frac{\text{neue Aktien}}{\text{alte Aktien}}\) gilt
+
+\[
+A_{t-1} = \frac{A_t}{s_t}.
+\]
+
+Beispielsweise führt ein \(2{:}1\)-Split (\(s_t = 2\)) dazu, dass alle historischen Preise vor dem Split durch zwei geteilt werden.
+
+Dividendenzahlungen werden ebenfalls berücksichtigt, um eine konsistente Renditereihe zu erhalten. Sei \(D_t\) die Dividende zum Zeitpunkt \(t\). Dann wird der Anpassungsfaktor wie folgt aktualisiert:
+
+\[
+A_{t-1} = A_t \cdot \frac{P_t - D_t}{P_t}.
+\]
+
+
+Somit ist der historische Preis mit dem die Modelle trainiert und getestet werden abhängig vom letzten betrachteten Wert. Der letzte Wert entspricht somit dem aktuellen, realisierbaren Aktienwert, alle anderen Werte potenziell aber nicht den damaligen Werten.
+Durch die Anwendung dieser Anpassungen entsteht eine konsistente Preisreihe \(\tilde{P}_t\), welche die tatsächliche Wertentwicklung der Aktie wiederspiegelt und somit eine geeignete Grundlage 
+für Modeltraining und Backtests darstellt.
+
+\section{Bewertungskriterien} \label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
+Da diese Arbeit sowohl Zeitreihenprognosemodelle als auch Klassifizierungsmodelle untersucht, erfolgt die Bewertung der Modelle sowohl anhand statistischer Kennzahlen (\ref{fehlermasse}) als auch finanzwirtschaftlicher Kennzahlen (\ref{finanzkennzahlen}).
+Für jedes Modell werden die möglichen Analysen berechnet und betrachtet. Anhand dieser werden die Modelle dann verglichen.
+
+\subsection{Fehlermaße}\label{fehlermasse}
+
+\textbf{\ac{RMSE}}\\
+
+Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) sowie eine zugehörige Vorhersage 
+\( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
+
+\[
+\mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(\hat{x}_i - x_i)^2}.
+\]
+
+Der RMSE wird häufig zur Bewertung von Regressionsmodellen verwendet, da größere Fehler aufgrund der Quadratisierung stärker gewichtet werden.
+
+
+\textbf{Bestimmtheitsmaß (\(R^2\)-Score)}\\
+
+Für das Signal \( [x_1, x_2, \dots, x_n] \) wird zunächst der Mittelwert berechnet:
+
+\[
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i .
+\]
+
+Darauf aufbauend wird die totale Quadratsumme
+
+\[
+SS_{\mathrm{tot}} = \sum_{i=1}^{n}(x_i - \bar{x})^2
+\]
+
+sowie die Residuenquadratsumme
+
+\[
+SS_{\mathrm{res}} = \sum_{i=1}^{n}(x_i - \hat{x}_i)^2
+\]
+
+bestimmt. Das Bestimmtheitsmaß ergibt sich daraus zu
+
+\[
+R^2 = 1 - \frac{SS_{\mathrm{res}}}{SS_{\mathrm{tot}}}.
+\]
+
+Ein Wert von \(R^2\) nahe \(1\) zeigt eine sehr gute Modellanpassung an die Daten an. Werte nahe \(0\) bedeuten, dass die Vorhersagen kaum besser sind als eine konstante Vorhersage des Mittelwerts. Negative Werte deuten darauf hin, dass das Modell schlechter abschneidet als diese einfache Baseline.
+Hierbei ist für diese Arbeit relevant dass Aktien meistens nicht stationär sind und dieses Fehlermaß demnach auf differenzierten Werten verwendet wird.
+
+
+\textbf{\ac{DA}}\\
+Die \ac{DA} misst, wie gut ein Modell die Richtung der Kursbewegung vorhersagt, unabhängig von der genauen Höhe des Preises.
+Diese Metrik ist sowohl für Vorhersage- als auch Klassifizierungsmodelle sinnvoll. Für Vorhersagemodelle definieren wir sie folgendermaßen.
+Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird DA berechnet als
+
+\[
+DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}) = \operatorname{sign}(\hat{x}_i - x_{i-1})\Big),
+\]
+
+wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst. Ein Wert von \(DA = 1\) bedeutet perfekte Richtungsprognose, während \(DA = 0.5\) einer Zufallsvorhersage entspricht.
+
+Da Klassifizierungsmodelle keinen Preis vorhersagen definieren wir \ac{DA} für diese anders.
+TODO
+
+\subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
+
+
+
+
+
 \section{Entwicklung} \label{entwicklung}
 \subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
 \subsection{Korrelationsmatrix} % Unternehmenskorrelation
@@ -36,4 +164,3 @@ Tage gewichten
 \subsection{Sentiment-Analyse mit Echtzeitinformationen} % Twitter/Trump scrape usw
 \subsection{SVMs mit Analyse Features} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
 \subsection{Marktstrategie} \label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
-
