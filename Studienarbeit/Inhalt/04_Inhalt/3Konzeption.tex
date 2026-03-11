@@ -94,7 +94,7 @@ Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) sowie eine zugehörige Vorhe
 \mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(\hat{x}_i - x_i)^2}.
 \]
 
-Der RMSE wird häufig zur Bewertung von Regressionsmodellen verwendet, da größere Fehler aufgrund der Quadratisierung stärker gewichtet werden.
+Der RMSE gewichtet Ausreißer durch die Quadratisierung stärker und ist durch die Wurzel interpretierbar, da er in derselbe Einheit wie die Werte der Zeitreihe angegeben wird.
 
 
 \textbf{Bestimmtheitsmaß (\(R^2\)-Score)}\\
@@ -138,7 +138,7 @@ DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}
 
 wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst.
 
-Da Klassifizierungsmodelle keinen Preis vorhersagen definieren wir \ac{DA} für diese anders.
+Da Klassifizierungsmodelle keinen Preis vorhersagen definieren wir \ac{DA} für diese folgendermaßen.
 
 \ac{DA} für Klassifizierungsmodelle misst, wie gut die vorhergesagten Signale mit den tatsächlichen Marktbewegungen übereinstimmen. 
 Sei \(y_i \in \{+1, -1\}\) das tatsächliche Marktsignal für den Zeitpunkt \(i\) 
