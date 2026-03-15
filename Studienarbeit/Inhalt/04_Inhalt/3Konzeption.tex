@@ -3,17 +3,24 @@
 
 In diesem Kapitel wird die Entwicklung der in dieser Arbeit verwendeten Modelle zur Vorhersage von Aktienkursen beschrieben. Dabei werden verschiedene Ansätze aus der Zeitreihenanalyse und dem maschinellen Lernen konzeptioniert.
 
-Der Aufbau erfolgt schrittweise. Zunächst werden einfache lineare Modelle betrachtet, die ausschließlich auf historischen Kursreihen basieren. Diese Modelle dienen als Referenzpunkt für spätere, komplexere Ansätze. Sie ermöglichen es, grundlegende zeitliche Strukturen wie Trends oder Autokorrelationen in den Daten zu untersuchen.
+Der Aufbau erfolgt schrittweise. 
+
+Zunächst wird das verwendete Datenset beschrieben. Hierzu gehören die Auswahl des Aktienuniversums, die Auswahl der tatsächlichen Aktien, die Aufteilung der Zeitreihen, sowie die Datenbereinigung.
+
+Daraufhin werden die Metriken und Bewertungskriterien definiert und erklärt. Der Erfolg eines Modells kann sowohl aus mathematischer, als auch finanzwirtschaftlicher Sicht bewertete werden, weshalb mehrere Metriken vorgestellt werden.
+
+
+Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Zunächst werden einfache lineare Modelle betrachtet, die ausschließlich auf historischen Kursreihen basieren. Diese Modelle dienen als Referenzpunkt für spätere, komplexere Ansätze. Sie ermöglichen es, grundlegende zeitliche Strukturen wie Trends oder Autokorrelationen in den Daten zu untersuchen.
 
 Anschließend wird untersucht, ob sich Informationen aus mehreren Aktien gleichzeitig nutzen lassen. Unternehmen innerhalb eines Marktes weisen häufig gemeinsame Bewegungen auf, beispielsweise durch Zusammenhänge oder Geschäftssektoren. Daher wird eine Korrelationsstruktur zwischen den betrachteten Aktien berechnet und als zusätzliches Merkmal für weitere Modelle verwendet.
 
 Unter anderem darauf aufbauend werden Verfahren des maschinellen Lernens eingesetzt. Es werden verschiedene nicht-lineare Vorhersagemethoden untersucht. Darunter Transformer, \ac{LSTM} und \ac{SVM}.
 
-Neben historischen Kursdaten werden auch externe Informationsquellen betrachtet. Finanzmärkte reagieren immer häufiger auf Nachrichten oder öffentliche Meinungen. Daher wird eine einfache Sentiment-Analyse von Echtzeitinformationen integriert, um mögliche Zusammenhänge zwischen öffentlichen Informationen und Kursbewegungen zu untersuchen. Hierbei sollen sowohl das allgemeine öffentliche Marktgefühl, ausgedrückt durch die Anzahl an Posts, als auch der Einfluss von Nachrichten, die von einflussreichen Personen veröffentlicht werden.
+Neben historischen Kursdaten werden auch externe Informationsquellen betrachtet. Finanzmärkte reagieren immer häufiger auf Nachrichten oder öffentliche Meinungen. Daher wird eine einfache Sentiment-Analyse von Echtzeitinformationen integriert, um mögliche Zusammenhänge zwischen öffentlichen Informationen und Kursbewegungen zu untersuchen. Hierbei sollen sowohl das allgemeine öffentliche Marktgefühl, ausgedrückt durch die Anzahl an Posts, als auch der Einfluss von Nachrichten, die von einflussreichen Personen veröffentlicht werden, untersucht werden.
 
 Abschließend werden Modelle betrachtet, die mehrere zuvor berechnete Merkmale kombinieren. Dazu gehören beispielsweise Ergebnisse aus Zeitreihenmodellen, Korrelations- oder Sentimentinformationen. Diese werden gemeinsam als Eingabe für maschinelle Lernverfahren verwendet, um zu prüfen, ob sich durch die Kombination verschiedener Informationsquellen bessere Vorhersagen erzielen lassen.
 
-Neben der Modellierung der Kursbewegungen wird am Ende des Kapitels auch die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Dabei werden insbesondere das Risikomanagements, der Positionsgrößen sowie des Vorhersagehorizonts betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
+Neben der Modellierung der Kursbewegungen wird am Ende des Kapitels auch die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Dabei werden analytisches Risikomanagements, Positionsgrößen sowie der Vorhersagehorizonts betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
 
 \section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
 
@@ -51,7 +58,7 @@ Die ausgewählten Aktien sind zu sehen in Tabelle \ref{tab:Aktienauswahl}.
 \end{table}
 
 
-Die verwendeten Zeitreihen bestehen aus Tagesöffnungs- und Tagesschlusskursen. Hierfür wird die öffentliche API von Yahoo Finance verwendet. Alle Kursdaten erfolgen in US\$, um unabhängig von Währungsänderungen zu sein.
+Die verwendeten Zeitreihen bestehen aus Tagesöffnungs- und Tagesschlusskursen. Hierfür wird die öffentliche API von Yahoo Finance verwendet. Alle Kursdaten sind in US\$ angegeben, um unabhängig von Währungsänderungen zu sein.
 Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise im Zeitverlauf durch Ereignisse wie 
 Aktiensplits, Dividendenzahlungen oder andere Aktionen verändern können, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden 
 historische Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt.
@@ -174,7 +181,7 @@ Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie. 
 R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0}.
 \]
 
-Hiermit soll analysiert werden, ob die Modelle eine bessere Strategie darstellen als einfach "in den Markt zu investieren".
+Hiermit soll analysiert werden, ob die Modelle eine bessere Strategie darstellen als einfach ``in den Markt zu investieren``.
 
 
 \textbf{Sharpe Ratio}\\
@@ -197,7 +204,7 @@ MDD = \max_{t} \frac{Peak_t - Value_t}{Peak_t}.
 
 Ein niedriger Maximum Drawdown zeigt, dass die Strategie relativ robust gegenüber großen Verlusten ist.
 
-
+\section{Einschränkungen und Nebenbedingungen}
 \section{Modellentwicklung}\label{entwicklung}
 \subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
 \subsection{Korrelationsmatrix} % Unternehmenskorrelation
