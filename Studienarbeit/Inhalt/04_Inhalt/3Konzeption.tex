@@ -1,28 +1,17 @@
 \chapter{Konzeption}
 \section{Überblick}\label{uberblick}
 
-In diesem Kapitel wird die Entwicklung der in dieser Arbeit verwendeten Modelle zur Vorhersage von Aktienkursen beschrieben. Dabei werden verschiedene Ansätze aus der Zeitreihenanalyse und dem maschinellen Lernen konzeptioniert.
+In diesem Kapitel wird die Entwicklung der in dieser Arbeit verwendeten Modelle zur Vorhersage von Aktienkursen beschrieben. Dabei werden Ansätze aus der Zeitreihenanalyse und dem maschinellen Lernen konzeptioniert.
 
-Der Aufbau erfolgt schrittweise. 
+Zunächst wird das Datenset erläutert: Auswahl des Aktienuniversums und der konkreten Aktien, Aufteilung der Zeitreihen sowie Datenbereinigung. Anschließend werden die Metriken und Bewertungskriterien vorgestellt, die sowohl mathematische als auch finanzwirtschaftliche Aspekte berücksichtigen.
 
-Zunächst wird das verwendete Datenset beschrieben. Hierzu gehören die Auswahl des Aktienuniversums, die Auswahl der tatsächlichen Aktien, die Aufteilung der Zeitreihen, sowie die Datenbereinigung.
+Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstands, der getroffenen Annahmen sowie der Nebenbedingungen und Einschränkungen. Diese Vereinfachungen dienen der Interpretierbarkeit, unterscheiden sich aber teilweise von realen Marktbedingungen.
 
-Daraufhin werden die Metriken und Bewertungskriterien definiert und erklärt. Der Erfolg eines Modells kann sowohl aus mathematischer, als auch finanzwirtschaftlicher Sicht bewertete werden, weshalb mehrere Metriken vorgestellt werden.
+Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Zunächst werden lineare Modelle betrachtet, um grundlegende zeitliche Strukturen zu erfassen. Darauf aufbauend werden Korrelationen zwischen Aktien analysiert, um zusätzliche Merkmale für weitere Modelle zu gewinnen. 
 
-Anschließend wird der Rahmen dieser Arbeit beschrieben. Es wird definiert, was genau in der Arbeit untersucht werden soll, und welche Gegenstände nicht Teil der Arbeit sind. Es werden Annahmen getroffen, die die Interpretierbarkeit der Arbeit verbessern, aber sich möglicherweiße von der Praxis unterscheiden. Außerdem werden Nebenbedingungen und Einschränkungen vorgestellt.
+Es folgen nicht-lineare Verfahren des maschinellen Lernens, darunter Transformer, \ac{LSTM} und \ac{SVM}. Zusätzlich werden externe Informationsquellen berücksichtigt, insbesondere einfache Sentiment-Analysen von Echtzeitinformationen, um mögliche Zusammenhänge mit Kursbewegungen zu untersuchen. Abschließend werden Modelle entwickelt, die mehrere Merkmale kombinieren, um die Vorhersagegenauigkeit zu erhöhen.
 
-Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Zunächst werden einfache lineare Modelle betrachtet, die ausschließlich auf historischen Kursreihen basieren. Diese Modelle dienen als Referenzpunkt für spätere, komplexere Ansätze. Sie ermöglichen es, grundlegende zeitliche Strukturen wie Trends oder Autokorrelationen in den Daten zu untersuchen.
-
-Anschließend wird untersucht, ob sich Informationen aus mehreren Aktien gleichzeitig nutzen lassen. Unternehmen innerhalb eines Marktes weisen häufig gemeinsame Bewegungen auf, beispielsweise durch Zusammenhänge oder Geschäftssektoren. Daher wird eine Korrelationsstruktur zwischen den betrachteten Aktien berechnet und als zusätzliches Merkmal für weitere Modelle verwendet.
-
-Unter anderem darauf aufbauend werden Verfahren des maschinellen Lernens eingesetzt. Es werden verschiedene nicht-lineare Vorhersagemethoden untersucht. Darunter Transformer, \ac{LSTM} und \ac{SVM}.
-
-Neben historischen Kursdaten werden auch externe Informationsquellen betrachtet. Finanzmärkte reagieren immer häufiger auf Nachrichten oder öffentliche Meinungen. Daher wird eine einfache Sentiment-Analyse von Echtzeitinformationen integriert, um mögliche Zusammenhänge zwischen öffentlichen Informationen und Kursbewegungen zu untersuchen. Hierbei sollen sowohl das allgemeine öffentliche Marktgefühl, ausgedrückt durch die Anzahl an Posts, als auch der Einfluss von Nachrichten, die von einflussreichen Personen veröffentlicht werden, untersucht werden.
-
-Abschließend werden Modelle betrachtet, die mehrere zuvor berechnete Merkmale kombinieren. Dazu gehören beispielsweise Ergebnisse aus Zeitreihenmodellen, Korrelations- oder Sentimentinformationen. Diese werden gemeinsam als Eingabe für maschinelle Lernverfahren verwendet, um zu prüfen, ob sich durch die Kombination verschiedener Informationsquellen bessere Vorhersagen erzielen lassen.
-
-Neben der Modellierung der Kursbewegungen wird am Ende des Kapitels auch die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Dabei werden analytisches Risikomanagements, Positionsgrößen sowie der Vorhersagehorizonts betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
-
+Zum Abschluss wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
 \section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
 
 Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P500 gelisteten Unternehmen.
