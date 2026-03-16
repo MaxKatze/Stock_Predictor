@@ -9,6 +9,7 @@ Zunächst wird das verwendete Datenset beschrieben. Hierzu gehören die Auswahl 
 
 Daraufhin werden die Metriken und Bewertungskriterien definiert und erklärt. Der Erfolg eines Modells kann sowohl aus mathematischer, als auch finanzwirtschaftlicher Sicht bewertete werden, weshalb mehrere Metriken vorgestellt werden.
 
+Anschließend wird der Rahmen dieser Arbeit beschrieben. Es wird definiert, was genau in der Arbeit untersucht werden soll, und welche Gegenstände nicht Teil der Arbeit sind. Es werden Annahmen getroffen, die die Interpretierbarkeit der Arbeit verbessern, aber sich möglicherweiße von der Praxis unterscheiden. Außerdem werden Nebenbedingungen und Einschränkungen vorgestellt.
 
 Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Zunächst werden einfache lineare Modelle betrachtet, die ausschließlich auf historischen Kursreihen basieren. Diese Modelle dienen als Referenzpunkt für spätere, komplexere Ansätze. Sie ermöglichen es, grundlegende zeitliche Strukturen wie Trends oder Autokorrelationen in den Daten zu untersuchen.
 
@@ -205,18 +206,42 @@ MDD = \max_{t} \frac{Peak_t - Value_t}{Peak_t}.
 Ein niedriger Maximum Drawdown zeigt, dass die Strategie relativ robust gegenüber großen Verlusten ist.
 
 \section{Einschränkungen und Nebenbedingungen}
+
+Da im Rahmen dieser Arbeit nicht alle möglichen Modellansätze und realistischen Marktszenarien berücksichtigt werden können, ist eine Eingrenzung des Untersuchungsgegenstands erforderlich. Zu diesem Zweck werden im Folgenden einige Annahmen und Nebenbedingungen festgelegt.
+
+\textbf{Komission}\\
+
+Komission ist eine Gebühr oder Provision, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an.
+Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1\$US pro Trade oder auch ganz kostenfrei.
+Da heute bereits ohne oder mit sehr geringer Komission gehandelt werden kann, und es auch in Zukunft erwartbar ist, wird bei den Backtests dieser Arbeit keine Komission betrachtet.
+
+\textbf{Spread}\\
+
+Der Spread ist die Differenz zwischen Kaufpreis und Verkaufspreis einer Aktie. Dieser ist an einer Börse meist unterschiedlich, wobei der Kaufpreis höher als der Verkaufspreis ist.
+Wird eine Aktie gekauft und sofort wieder verkauft entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs und -schlusskurse verwendet, wird kein Spread betrachtet. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet.
+Da kein Hochfrequenzhandel untersucht wird, führt dies nicht zu einer relevanten Abweichung.
+
+\textbf{Liquidität}\\
+
+Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen wäre. 
+Es wird daher angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können, auch wenn dies in der Realität möglicherweise nicht der Fall wäre. Um eine zusätzliche Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Orders, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. 
+Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren. Da in dieser Arbeit ausschließlich liquide Aktien aus dem S\&P500 untersucht werden, stellt diese Vereinfachung jedoch kein wesentliches Problem dar, da die Orderausführung bei diesen Aktien in der Praxis in der Regel ohne größere Abweichungen vom beobachteten Preis möglich ist.
+
+\textbf{}
+
+
 \section{Modellentwicklung}\label{entwicklung}
 \subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
 \subsection{Korrelationsmatrix} % Unternehmenskorrelation
-Matrix mit allen Unternehmen je auf x und y.
-Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
-über: Ri * Rj / abs(Ri) * abs(Rj)
-Mache das für die letzten x Tage (5)
-daraus ein Vektor
+% Matrix mit allen Unternehmen je auf x und y.
+% Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
+% über: Ri * Rj / abs(Ri) * abs(Rj)
+% Mache das für die letzten x Tage (5)
+% daraus ein Vektor
 
-und eine Matrix
-Tage gewichten
-=> Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
+% und eine Matrix
+% Tage gewichten
+% => Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
 
 \subsection{Support Vector Machines (SVM)} % mit Kursdaten als Features (5-20 RDP)
 \subsection{Sentiment-Analyse mit Echtzeitinformationen} % Twitter/Trump scrape usw
