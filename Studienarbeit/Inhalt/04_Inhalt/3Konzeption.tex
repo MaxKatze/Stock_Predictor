@@ -1,60 +1,90 @@
 \chapter{Konzeption}
 \section{Überblick}\label{uberblick}
-
+% Das Kapitel ist shit, und es macht keinen Sinn es zu schreiben bevor wir genau wissen welche Modelle wir haben. Hier sollen detailiert die Modelle beschrieben werden, wie in normalen Papern, wir sagen einfach Random Technologien. Bis zu Nebenbedingungen ist okay, aber Modellentwicklung beschreibung ist beschissen. Ziel wie es sein sollte: Wir stellen hiermit x Modelle vor, ein xyz, ein abc und ein vwx. Diese werden verglichen mit einander und mit einem klassichen ARIMA-Modell (Smart, weil das ist auch Arsch => unsere sehen besser aus). Daraufhin wird eine Marktstrategie implementiert (3.6) und auf die Modelle angewendet. Dann werden davon Finanzwirtschaftliche Kennzahlen genommen und untereinander, mit unserem Sentiment-Modell und mit irgendwas anderem (tbd) verglichen.
 In diesem Kapitel wird die Entwicklung der in dieser Arbeit verwendeten Modelle zur Vorhersage von Aktienkursen beschrieben. Dabei werden Ansätze aus der Zeitreihenanalyse und dem maschinellen Lernen konzeptioniert.
 
 Zunächst wird das Datenset erläutert: Auswahl des Aktienuniversums und der konkreten Aktien, Aufteilung der Zeitreihen sowie Datenbereinigung. Anschließend werden die Metriken und Bewertungskriterien vorgestellt, die sowohl mathematische als auch finanzwirtschaftliche Aspekte berücksichtigen.
 
 Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstands, der getroffenen Annahmen sowie der Nebenbedingungen und Einschränkungen. Diese Vereinfachungen dienen der Interpretierbarkeit, unterscheiden sich aber teilweise von realen Marktbedingungen.
 
-Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Zunächst werden lineare Modelle betrachtet, um grundlegende zeitliche Strukturen zu erfassen. Darauf aufbauend werden Korrelationen zwischen Aktien analysiert, um zusätzliche Merkmale für weitere Modelle zu gewinnen. 
+Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Wir stellen 4 Modelle vor: bla bla LSTM bla mit attention, bam bam\dots
 
-Es folgen nicht-lineare Verfahren des maschinellen Lernens, darunter Transformer, \ac{LSTM} und \ac{SVM}. Zusätzlich werden externe Informationsquellen berücksichtigt, insbesondere einfache Sentiment-Analysen von Echtzeitinformationen, um mögliche Zusammenhänge mit Kursbewegungen zu untersuchen. Abschließend werden Modelle entwickelt, die mehrere Merkmale kombinieren, um die Vorhersagegenauigkeit zu erhöhen.
 
 Zum Abschluss wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
-\section{Daten und Benchmarking} \label{daten_benchmarking} %Benchmarking überlegen (nicht so trivial), obviously werden die Modelle Gewinne machen, weil eben Aktien langfristig steigen.
 
-Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P500 gelisteten Unternehmen.
-Diese Auswahl stellt sicher, dass ein Survivorship Bias vermieden wird, da nur Unternehmen berücksichtigt werden, die zu Beginn des Analysezeitraums tatsächlich existierten und zum Zeitpunkt der Auswahl keine zukünftigen
-Informationen die Wahl der Trainings- oder Testaktien beeinflussen.
 
-Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jede Zeitreihe wird eine Unterteilung in drei disjunkte Abschnitte vorgenommen:
+\section{Daten und Benchmarking}\label{daten_benchmarking}
+
+
+Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus dem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P 500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
+
+Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. 
+Für jeden Handelstag enthält die Zeitreihe folgende Werte:
+\begin{itemize}
+    \item Open: erster Preis zu dem an diesem Tag gehandelt wurde
+    \item Close: letzter Preis zu dem an diesem Tag gehandelt wurde
+    \item High: höchter Preis zu dem an diesem Tag gehandelt wurde
+    \item Low: niedrigster Preis zu dem an diesem Tag gehandelt wurde
+    \item Volume: gesamtes kommuliertes Handelsvolumen an diesem Tag
+\end{itemize}
+
+Die Daten werden als CSV-Dateien von Yahoo Finance heruntergeladen. Sie werden dann in parquet-Dateien konvertiert, um Speicherplatz und Zeit zu sparen.
+
+\begin{table}[H]
+    \centering
+    \caption{Beispielhafte Rohdaten der Aktienpreise}\label{tab:beispiel_aktiendaten}
+    \begin{tabular}{l S[table-format=3.2] S[table-format=3.2] S[table-format=3.2] S[table-format=3.2] S[table-format=9.0]}
+        \toprule
+        \textbf{Datum} & \textbf{Close} & \textbf{High} & \textbf{Low} & \textbf{Open} & \textbf{Volume} \\
+        \midrule
+        2022-11-11 & 147.34 & 147.64 & 142.09 & 143.52 & 93979700 \\
+        2022-11-14 & 145.94 & 147.91 & 145.10 & 146.62 & 73374100 \\
+        \bottomrule
+    \end{tabular}
+    \caption*{\footnotesize \textit{Quelle: Yahoo Finance. Alle Preisangaben in USD.}}
+\end{table}
+
+
+
+Für jede Zeitreihe wird eine Unterteilung in drei disjunkte Abschnitte vorgenommen:
 
 \begin{itemize}
     \item \textbf{Trainingszeitraum ($T$):} 01.2020--12.2023, in dem die Modelle auf den historischen Kursen trainiert werden.
-    \item \textbf{Validierungszeitraum ($P$):} 12.2023--06.2024, der zur Optimierung der Modellparameter dient.
-    \item \textbf{Testzeitraum ($S$):} 06.2024--12.2025, der ausschließlich für die abschließende Evaluierung der Modelle auf bisher ungesehenen Daten verwendet wird.
+    \item \textbf{Validierungszeitraum ($P$):} 01.2024--06.2024, der zur Optimierung der Modellparameter dient.
+    \item \textbf{Testzeitraum ($S$):} 07.2024--12.2025, der ausschließlich für die abschließende Evaluierung der Modelle auf bisher ungesehenen Daten verwendet wird.
 \end{itemize}
 
 Die Modelle werden zunächst auf den Trainingsdaten trainiert. Anschließend erfolgt die Optimierung der Hyperparameter anhand des Validierungszeitraums. 
 Die finale Leistung wird schließlich auf dem Testzeitraum bewertet, um die zeitliche Generalisierbarkeit der Modelle zu überprüfen.
 
-Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. 
-Durch diese Vorgehensweise wird sowohl die zeitliche Trennung der Daten als auch die Übertragbarkeit der Modelle innerhalb des ausgewählten Universums gewährleistet.
-Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit
-ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. 
-Die ausgewählten Aktien sind zu sehen in Tabelle \ref{tab:Aktienauswahl}.
+Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. %Markus; Warum? Hierdurch kann ich doch einen systematischen Fehler generieren? Begründen. A: Warum, weiß nicht was er meint.
+Die ausgewählten Aktien sind zu sehen in Tabelle\ref{tab:Aktienauswahl}.
 
 \begin{table}[h!]
     \centering
     \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
     \begin{tabular}{l c c}
-        Unternehmen & Tickersymbol & Kurs bei Trainingszeitraumbeginn\\
+        Unternehmen & Tickersymbol\\
         \hline
-        Tesla & TSLA & 100 \\
-        \ldots & \ldots & \ldots \\
+        Amazon & AMZN\\
+        Adobe & ADBE\\
+        CVS Health & CVS\\
+        General Motors & GM\\
+        Micron Technology & MU\\
+        PayPal & PYPL\\
+        Walgreens Boots Alliance & WBA\\
+        PepsiCo & PEP\\
+        Salesforce & CRM\\
+        3M & MMM\\
         \hline
     \end{tabular}
 \end{table}
 
+Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise einer Aktie im Zeitverlauf durch Ereignisse wie 
+Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt.
 
-Die verwendeten Zeitreihen bestehen aus Tagesöffnungs- und Tagesschlusskursen. Hierfür wird die öffentliche API von Yahoo Finance verwendet. Alle Kursdaten sind in US\$ angegeben, um unabhängig von Währungsänderungen zu sein.
-Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise im Zeitverlauf durch Ereignisse wie 
-Aktiensplits, Dividendenzahlungen oder andere Aktionen verändern können, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden 
-historische Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt.
-
-Die Bereinigung erfolgt durch die Anpassung historischer Preise, um Effekte von Aktiensplits und Dividendenzahlungen zu berücksichtigen. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\). 
-Der bereinigte Preis \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\):
+Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\). 
+Der bereinigte Preis \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
 
 \[
 \tilde{P}_t = P_t \cdot A_t .
@@ -76,20 +106,17 @@ A_{t-1} = A_t \cdot \frac{P_t - D_t}{P_t}.
 \]
 
 
-Somit ist der historische Preis mit dem die Modelle trainiert und getestet werden abhängig vom letzten betrachteten Wert. Der letzte Wert entspricht somit dem aktuellen, realisierbaren Aktienwert, alle anderen Werte potenziell aber nicht den damaligen Werten.
-Durch die Anwendung dieser Anpassungen entsteht eine konsistente Preisreihe \(\tilde{P}_t\), welche die tatsächliche Wertentwicklung der Aktie wiederspiegelt und somit eine geeignete Grundlage 
-für Modeltraining und Backtests darstellt.
+Somit ist der historische Preis mit dem die Modelle trainiert und getestet werden abhängig vom letzten betrachteten Wert. Der letzte Wert entspricht somit dem aktuellen, realisierbaren Aktienwert, alle anderen Werte potenziell aber nicht den realen Aktienwerten zu dem Zeitpunkt.
 
-\section{Bewertungskriterien} \label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
-Da diese Arbeit sowohl Zeitreihenprognosemodelle als auch Klassifizierungsmodelle untersucht, erfolgt die Bewertung der Modelle sowohl anhand statistischer Kennzahlen (\ref{fehlermasse}) als auch finanzwirtschaftlicher Kennzahlen (\ref{finanzkennzahlen}).
+
+\section{Bewertungskriterien}\label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
+Da diese Arbeit sowohl Zeitreihenprognosemodelle als auch Klassifizierungsmodelle untersucht, erfolgt die Bewertung der Modelle sowohl anhand statistischer Kennzahlen als auch finanzwirtschaftlicher Kennzahlen.
 Für jedes Modell werden die möglichen Analysen berechnet und betrachtet. Anhand dieser werden die Modelle dann verglichen.
 
 \subsection{Fehlermaße}\label{fehlermasse}
 
-\textbf{\ac{RMSE}}\\
-
-Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) sowie eine zugehörige Vorhersage 
-\( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
+\subsubsection*{Root Mean Squared Error}
+Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) und eine zugehörige Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
 
 \[
 \mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(\hat{x}_i - x_i)^2}.
@@ -98,9 +125,9 @@ Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) sowie eine zugehörige Vorhe
 Der RMSE gewichtet Ausreißer durch die Quadratisierung stärker und ist durch die Wurzel interpretierbar, da er in derselbe Einheit wie die Werte der Zeitreihe angegeben wird.
 
 
-\textbf{Bestimmtheitsmaß (\(R^2\)-Score)}\\
+\subsubsection*{Bestimmtheitsmaß (\(R^2\)-Score)}
 
-Für das Signal \( [x_1, x_2, \dots, x_n] \) wird zunächst der Mittelwert berechnet:
+Für das Signal \( [x_1, x_2, \dots, x_n] \) und die Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird zunächst der Signalmittelwert berechnet:
 
 \[
 \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i .
@@ -125,10 +152,10 @@ R^2 = 1 - \frac{SS_{\mathrm{res}}}{SS_{\mathrm{tot}}}.
 \]
 
 Ein Wert von \(R^2\) nahe \(1\) zeigt eine sehr gute Modellanpassung an die Daten an. Werte nahe \(0\) bedeuten, dass die Vorhersagen kaum besser sind als eine konstante Vorhersage des Mittelwerts. Negative Werte deuten darauf hin, dass das Modell schlechter abschneidet als diese einfache Baseline.
-Hierbei ist für diese Arbeit relevant dass Aktien meistens nicht stationär sind und dieses Fehlermaß demnach auf differenzierten Werten verwendet wird.
+Hierbei ist für diese Arbeit relevant dass Aktien meistens nicht stationär sind. Das Signal und die Vorhersage werden stationär gemacht, indem Renditen oder Differenzen zum Vortag als Werte verwendet werden, anstatt von absoluten Preisen.
 
 
-\textbf{\ac{DA}}\\
+\subsubsection*{Directional Accuracy} %shit geschrieben, siehe Feedback => siehe Zeile 3 für neue Idee
 Die \ac{DA} misst, wie gut ein Modell die Richtung der Kursbewegung vorhersagt, unabhängig von der genauen Höhe des Preises.
 Diese Metrik ist sowohl für Vorhersage- als auch Klassifizierungsmodelle sinnvoll. Für Vorhersagemodelle definieren wir sie folgendermaßen.
 Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird DA berechnet als
@@ -155,7 +182,7 @@ Ein Wert von \(DA = 1\) entspricht einer perfekten Klassifikation, während \(DA
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
 
 
-\textbf{Gesamtrendite}\\
+\subsubsection*{Gesamtrendite}
 
 Die Gesamtrendite gibt die insgesamt erzielte Rendite über den gesamten Zeitraum an:
 
@@ -174,7 +201,7 @@ R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0}.
 Hiermit soll analysiert werden, ob die Modelle eine bessere Strategie darstellen als einfach ``in den Markt zu investieren``.
 
 
-\textbf{Sharpe Ratio}\\
+\subsubsection*{Sharpe Ratio}
 
 Die Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios und wird berechnet als
 
@@ -184,7 +211,7 @@ S = \frac{\frac{1}{T} \sum_{t=1}^{T} (R_{p,t} - R_{f,t})}{\sigma(R_p)},
 
 wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Standardabweichung der Portfoliorenditen ist. Eine hohe Sharpe Ratio deutet auf eine hohe Rendite bei gleichzeitig niedrigem Risiko hin.
 
-\textbf{\ac{MDD}}\\
+\subsubsection*{Maximum Drawdown}
 
 Der \ac{MDD} beschreibt den größten Verlust eines Portfolios vom höchsten Punkt (Peak) bis zum Tiefpunkt (Trough) innerhalb des betrachteten Zeitraums:
 
@@ -195,28 +222,27 @@ MDD = \max_{t} \frac{Peak_t - Value_t}{Peak_t}.
 Ein niedriger Maximum Drawdown zeigt, dass die Strategie relativ robust gegenüber großen Verlusten ist.
 
 \section{Einschränkungen und Nebenbedingungen}
-
+%Markus: Erstens: Warum schränken nachfolgende Abschnitte die Arbeit ein, zweitens: warum sollte das Eure Vorhersagestrategie beeinflussen, das ist doch vollkommen egal.  Abschnitt raus oder in den Anhang. A: Schränkt die Arbeit ein, weil es sich eben von der realen Welt unterscheidet. Beeinflusst die Strategie dahingehend, dass sie einfacher wird.
 Da im Rahmen dieser Arbeit nicht alle möglichen Modellansätze und realistischen Marktszenarien berücksichtigt werden können, ist eine Eingrenzung des Untersuchungsgegenstands erforderlich. Zu diesem Zweck werden im Folgenden einige Annahmen und Nebenbedingungen festgelegt.
 
-\textbf{Komission}\\
+\subsection*{Komission}
 
 Komission ist eine Gebühr oder Provision, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an.
-Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1\$US pro Trade oder auch ganz kostenfrei.
+Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1US\$ pro Trade oder auch ganz kostenfrei.
 Da heute bereits ohne oder mit sehr geringer Komission gehandelt werden kann, und es auch in Zukunft erwartbar ist, wird bei den Backtests dieser Arbeit keine Komission betrachtet.
 
-\textbf{Spread}\\
+\subsection*{Spread}
 
 Der Spread ist die Differenz zwischen Kaufpreis und Verkaufspreis einer Aktie. Dieser ist an einer Börse meist unterschiedlich, wobei der Kaufpreis höher als der Verkaufspreis ist.
 Wird eine Aktie gekauft und sofort wieder verkauft entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs und -schlusskurse verwendet, wird kein Spread betrachtet. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet.
 Da kein Hochfrequenzhandel untersucht wird, führt dies nicht zu einer relevanten Abweichung.
 
-\textbf{Liquidität}\\
+\subsection*{Liquidität}
 
 Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen wäre. 
 Es wird daher angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können, auch wenn dies in der Realität möglicherweise nicht der Fall wäre. Um eine zusätzliche Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Orders, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. 
 Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren. Da in dieser Arbeit ausschließlich liquide Aktien aus dem S\&P500 untersucht werden, stellt diese Vereinfachung jedoch kein wesentliches Problem dar, da die Orderausführung bei diesen Aktien in der Praxis in der Regel ohne größere Abweichungen vom beobachteten Preis möglich ist.
 
-\textbf{}
 
 
 \section{Modellentwicklung}\label{entwicklung}
