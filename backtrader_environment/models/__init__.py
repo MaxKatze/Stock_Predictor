@@ -1,1 +1,2 @@
 from .arima_prediction_model import ARIMAModel
+from .lstm_prediction_model import LSTMPredictionModel
