@@ -122,12 +122,13 @@ class LSTMPredictionModel(PredictionModel):
     1. Using unidirectional LSTM (not bidirectional)
     2. Fitting scaler only on training data
     3. Using only forward-fill for NaN values (not backward-fill)
-    4. Properly shifting targets for next-day prediction
+    4. Properly shifting targets for n-day ahead prediction
     """
 
     def __init__(
         self,
         lookback_window=60,
+        forecast_horizon=5,  # Predict n-day ahead return (default: 5 days)
         hidden_size_1=64,
         hidden_size_2=32,
         num_heads=4,
@@ -140,6 +141,7 @@ class LSTMPredictionModel(PredictionModel):
         device=None
     ):
         self.lookback_window = lookback_window
+        self.forecast_horizon = forecast_horizon
         self.hidden_size_1 = hidden_size_1
         self.hidden_size_2 = hidden_size_2
         self.num_heads = num_heads
@@ -234,12 +236,24 @@ class LSTMPredictionModel(PredictionModel):
         return features
 
     def _prepare_sequences(self, features, targets=None):
-        """Create sequences for LSTM input."""
+        """
+        Create sequences for LSTM input.
+
+        For each sequence at position i:
+        - X: Features from [i - lookback_window + 1, i + 1) = days ending at i (inclusive)
+        - y: Target at i = return from day i to day i+1
+
+        This means we use features UP TO AND INCLUDING day i to predict
+        the return from day i to day i+1. No lookahead bias.
+        """
         X = []
         y = [] if targets is not None else None
 
-        for i in range(self.lookback_window, len(features)):
-            X.append(features[i - self.lookback_window:i])
+        # Start from lookback_window - 1 so we can include index i in the sequence
+        for i in range(self.lookback_window - 1, len(features)):
+            # Sequence includes features from (i - lookback_window + 1) to i (inclusive)
+            # That's lookback_window elements: [i-59, i-58, ..., i-1, i] for lookback=60
+            X.append(features[i - self.lookback_window + 1:i + 1])
             if targets is not None:
                 y.append(targets[i])
 
@@ -279,21 +293,22 @@ class LSTMPredictionModel(PredictionModel):
             # Compute features
             features_df = self._compute_features(df)
 
-            # Target is NEXT DAY RETURN (shifted by -1)
-            # This is correct: we want to predict tomorrow's return using today's features
-            next_day_returns = df['close'].pct_change().shift(-1)
+            # Target is N-DAY AHEAD RETURN (shifted by -forecast_horizon)
+            # e.g., forecast_horizon=5: predict return from day i to day i+5
+            future_returns = df['close'].pct_change(self.forecast_horizon).shift(-self.forecast_horizon)
 
-            # Remove last row (no target available) and rows with NaN targets
-            valid_idx = ~next_day_returns.isna()
+            # Remove rows without valid target
+            valid_idx = ~future_returns.isna()
             features_df = features_df[valid_idx]
-            next_day_returns = next_day_returns[valid_idx]
+            future_returns = future_returns[valid_idx]
 
             # Get feature values and targets
             feature_values = features_df.values
-            targets = next_day_returns.values
+            targets = future_returns.values
 
-            # Clip extreme returns
-            targets = np.clip(targets, -0.2, 0.2)
+            # Clip extreme returns (adjusted for longer horizon)
+            max_return = 0.2 * (self.forecast_horizon / 5)  # Scale with horizon
+            targets = np.clip(targets, -max_return, max_return)
 
             # Train/validation split BEFORE scaling (to avoid lookahead)
             split_idx = int(len(feature_values) * 0.8)
@@ -446,7 +461,7 @@ class LSTMPredictionModel(PredictionModel):
             return np.nan
 
     def predict_return(self):
-        """Predict next day's return directly."""
+        """Predict n-day ahead return directly (where n = forecast_horizon)."""
         if not self.is_fitted or self.model is None or self.data_buffer is None:
             return np.nan
 

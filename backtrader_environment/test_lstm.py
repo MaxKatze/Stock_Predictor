@@ -42,22 +42,49 @@ def load_csv_data(symbol, data_dir='data/assets'):
 
 
 def run_backtest(symbol, df, strategy_params, train_ratio=0.7,
-                 initial_cash=100000.0, commission=0.001):
+                 initial_cash=100000.0, commission=0.0):
     """
     Run LSTM backtest on a single asset with train/test split.
-    Model is trained on training period, tested without refitting.
+
+    IMPORTANT: Model is pre-trained on training data BEFORE backtest starts.
+    Backtest runs ONLY on test data for fair comparison with buy-and-hold.
     """
-    # Calculate buy-and-hold return for test period
+    # Split data
     split_idx = int(len(df) * train_ratio)
-    train_df = df.iloc[:split_idx]
-    test_df = df.iloc[split_idx:]
+    train_df = df.iloc[:split_idx].copy()
+    test_df = df.iloc[split_idx:].copy()
+
+    # Calculate buy-and-hold return for test period
     bh_return = ((test_df['Close'].iloc[-1] - test_df['Close'].iloc[0]) / test_df['Close'].iloc[0]) * 100
 
-    # Create Cerebro
-    cerebro = bt.Cerebro(stdstats=False)
+    # Pre-train the LSTM model on training data
+    from models.lstm_prediction_model import LSTMPredictionModel
 
-    # Ensure no refitting
-    strategy_params['fit_interval'] = 0
+    pretrained_model = LSTMPredictionModel(
+        lookback_window=strategy_params.get('lookback_window', 60),
+        forecast_horizon=strategy_params.get('forecast_horizon', 5),
+        hidden_size_1=strategy_params.get('hidden_size_1', 64),
+        hidden_size_2=strategy_params.get('hidden_size_2', 32),
+        num_heads=strategy_params.get('num_heads', 4),
+        dropout=strategy_params.get('dropout', 0.2),
+        dense_units=strategy_params.get('dense_units', 64),
+        epochs=strategy_params.get('epochs', 50),
+        batch_size=strategy_params.get('batch_size', 32),
+        learning_rate=strategy_params.get('learning_rate', 0.001),
+        early_stopping_patience=strategy_params.get('early_stopping_patience', 5)
+    )
+
+    # Train on training data only
+    train_df_lower = train_df.copy()
+    train_df_lower.columns = [c.lower() for c in train_df_lower.columns]
+    pretrained_model.fit(train_df_lower)
+
+    # Pass pre-trained model to strategy
+    strategy_params['pretrained_model'] = pretrained_model
+    strategy_params['fit_interval'] = 0  # No refitting
+
+    # Create Cerebro with standard stats for plotting
+    cerebro = bt.Cerebro(stdstats=True)
     cerebro.addstrategy(LSTMStrategy, **strategy_params)
 
     # Add analyzers
@@ -70,9 +97,9 @@ def run_backtest(symbol, df, strategy_params, train_ratio=0.7,
     cerebro.addanalyzer(RSquaredAnalyzer, _name='r2')
     cerebro.addsizer(PercentageSizer)
 
-    # Add data feed
+    # Add ONLY TEST DATA to backtest (fair comparison with buy-and-hold)
     data = bt.feeds.PandasData(
-        dataname=df, datetime=None,
+        dataname=test_df, datetime=None,
         open='Open', high='High', low='Low', close='Close', volume='Volume',
         openinterest=-1
     )
@@ -119,6 +146,7 @@ def run_backtest(symbol, df, strategy_params, train_ratio=0.7,
         'mse': mse.get('mean_squared_error', {}).get(symbol, -1),
         'rmse': rmse.get('root_mean_squared_error', {}).get(symbol, -1),
         'r2': r2.get('r_squared_analysis', {}).get(symbol, -1),
+        'cerebro': cerebro,  # Return cerebro for plotting
     }
 
 
@@ -190,22 +218,24 @@ def main():
     print(f"\nAssets: {', '.join(assets)}")
     print(f"Train/Test Split: 70%/30%")
     print(f"Initial Cash: $100,000 per asset")
-    print(f"Commission: 0.1%")
+    print(f"Commission: 0.0%")
 
     # LSTM parameters
     lstm_params = {
         'lookback_window': 30,
+        'forecast_horizon': 5,   # Predict 5-day ahead return
         'hidden_size_1': 16,
         'hidden_size_2': 8,
         'num_heads': 2,
         'epochs': 15,
         'batch_size': 16,
-        'warmup_period': 60,
-        'signal_threshold': 0.003,
+        'warmup_period': 30,     # Same as lookback_window since model is pre-trained
+        'signal_threshold': 0.01, # 1% threshold
     }
 
     print(f"\nLSTM Parameters:")
     print(f"  Lookback Window: {lstm_params['lookback_window']}")
+    print(f"  Forecast Horizon: {lstm_params['forecast_horizon']} days")
     print(f"  Hidden Layers:   {lstm_params['hidden_size_1']} -> {lstm_params['hidden_size_2']}")
     print(f"  Attention Heads: {lstm_params['num_heads']}")
     print(f"  Training Epochs: {lstm_params['epochs']}")
@@ -230,6 +260,18 @@ def main():
 
     if results:
         print_results(results)
+
+        # Plot each asset separately using Backtrader's plotting
+        print("\nGenerating plots for each asset...")
+        for result in results:
+            print(f"  Plotting {result['symbol']}...")
+            result['cerebro'].plot(
+                style='line',
+                barup='green',
+                bardown='red',
+                volume=True,
+                figsize=(16, 10)
+            )
     else:
         print("No results to display.")
 
