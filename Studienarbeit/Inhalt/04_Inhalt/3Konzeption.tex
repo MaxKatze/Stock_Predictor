@@ -58,7 +58,7 @@ Die Modelle werden zunächst auf den Trainingsdaten trainiert. Anschließend erf
 Die finale Leistung wird schließlich auf dem Testzeitraum bewertet, um die zeitliche Generalisierbarkeit der Modelle zu überprüfen.
 
 Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. %Markus; Warum? Hierdurch kann ich doch einen systematischen Fehler generieren? Begründen. A: Warum, weiß nicht was er meint.
-Die ausgewählten Aktien sind zu sehen in Tabelle\ref{tab:Aktienauswahl}.
+Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
 
 \begin{table}[h!]
     \centering
@@ -110,12 +110,17 @@ Somit ist der historische Preis mit dem die Modelle trainiert und getestet werde
 
 
 \section{Bewertungskriterien}\label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
-% Neu schreiben, siehe zeile 1 für ideen. Außerdem: Was haben andere gemacht, was machen wir und wieso.
 
-Da diese Arbeit sowohl Zeitreihenprognosemodelle als auch Klassifizierungsmodelle untersucht, erfolgt die Bewertung der Modelle sowohl anhand statistischer Kennzahlen als auch finanzwirtschaftlicher Kennzahlen.
-Für jedes Modell werden die möglichen Analysen berechnet und betrachtet. Anhand dieser werden die Modelle dann verglichen.
+Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung}, vorgestellt wurden, werden sie auf den genannten Testzeitraum angewendet und es werden jeweils Vorhersagen erstellt. Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
+
+Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden auf den Testzeitraum angewendet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
+
+Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Außerdem wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein etabliertes ARIMA Modell getestet, um einen weiteren Vergleichsparameter zu haben.
 
 \subsection{Fehlermaße}\label{fehlermasse}
+
+%Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
+Die Extrapolation von 
 
 \subsubsection*{Root Mean Squared Error}
 Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) und eine zugehörige Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
@@ -183,6 +188,8 @@ Ein Wert von \(DA = 1\) entspricht einer perfekten Klassifikation, während \(DA
 
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
 
+%Was machen andere, was machen wir und warum?
+Die meisten Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. % Andere Arbeiten, Und sonst Fehlermaße erklären
 
 \subsubsection*{Gesamtrendite}
 
