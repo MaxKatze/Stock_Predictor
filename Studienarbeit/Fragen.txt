@@ -1,0 +1,8 @@
+Meeting Markus:
+
+In Evaluation muss später festgehalten werden, was und WARUM es funktioniert. (Oder besser/schlechter)
+Es ist nicht schlimm wenn die Modelle nicht funktionieren.
+Implementierung nicht viel Code, aber von außen zeigen, wie es funktioinert
+Klare Trennung zwischen Stand der Technik und unserem Kapitel (vor allem aktuell noch shit haha, man merkt wir haben noch nichts eigenes)
+
+Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kommentare.
