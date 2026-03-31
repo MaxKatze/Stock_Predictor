@@ -10,7 +10,7 @@ Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstan
 Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Wir stellen 4 Modelle vor: bla bla LSTM bla mit attention, bam bam\dots
 
 
-Zum Abschluss wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet, um die praktische Anwendbarkeit der Modelle zu analysieren.
+Anschließend wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet. Aus den Preisvorhersagen wird eine Marktentscheidung getroffen, um die praktische Anwendbarkeit der Modelle zu analysieren.
 
 
 \section{Daten und Benchmarking}\label{daten_benchmarking}
@@ -18,8 +18,7 @@ Zum Abschluss wird die Umsetzung der Vorhersagen in einer Handelsstrategie besch
 
 Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus dem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P 500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
 
-Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. 
-Für jeden Handelstag enthält die Zeitreihe folgende Werte:
+Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jeden Handelstag enthält die Zeitreihe folgende Werte:
 \begin{itemize}
     \item Open: erster Preis zu dem an diesem Tag gehandelt wurde
     \item Close: letzter Preis zu dem an diesem Tag gehandelt wurde
@@ -28,7 +27,7 @@ Für jeden Handelstag enthält die Zeitreihe folgende Werte:
     \item Volume: gesamtes kommuliertes Handelsvolumen an diesem Tag
 \end{itemize}
 
-Die Daten werden als CSV-Dateien von Yahoo Finance heruntergeladen. Sie werden dann in parquet-Dateien konvertiert, um Speicherplatz und Zeit zu sparen.
+Die Daten werden als CSV-Dateien von Yahoo Finance heruntergeladen. Sie werden dann in parquet-Dateien konvertiert, um Speicherplatz und Rechenzeit zu sparen.
 
 \begin{table}[H]
     \centering
@@ -46,7 +45,7 @@ Die Daten werden als CSV-Dateien von Yahoo Finance heruntergeladen. Sie werden d
 
 
 
-Für jede Zeitreihe wird eine Unterteilung in drei disjunkte Abschnitte vorgenommen:
+Die Unterteilung der Zeitreihen erfolgt in einem 80:20-Verhältnis, wobei 80\% der Daten als Trainingsdaten verwendet werden und 20\% als Validierungs- und Testdaten:
 
 \begin{itemize}
     \item \textbf{Trainingszeitraum ($T$):} 01.2020--12.2023, in dem die Modelle auf den historischen Kursen trainiert werden.
@@ -64,7 +63,7 @@ Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
     \centering
     \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
     \begin{tabular}{l c c}
-        Unternehmen & Tickersymbol\\
+        Unternehmen & Tickersymbol\\ %TODO: Wenn wir wissen, welche Features wir verwenden wollen, dann die für den Traininszeitraum berechnen und in diese Tabelle, zb Mittelwert, Standardabweichung usw
         \hline
         Amazon & AMZN\\
         Adobe & ADBE\\
@@ -81,16 +80,13 @@ Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
 \end{table}
 
 Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise einer Aktie im Zeitverlauf durch Ereignisse wie 
-Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt.
-
-Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\). 
-Der bereinigte Preis \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
+Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\) und \(\tilde{P_t}\) der bereinigte Preis auf dem ein Modell trainiert werden kann. \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
 
 \[
 \tilde{P}_t = P_t \cdot A_t .
 \]
 
-Der Anpassungsfaktor wird rekursiv berechnet. Sei \(P_t\) für \(t=1,\dots,n\) gegeben, gilt \(A_n\) = 1. Bei einem Aktiensplit zum Zeitpunkt \(t\) mit Verhältnis 
+Der Anpassungsfaktor wird rekursiv rückwärts berechnet. Sei \(P_t\) für \(t=1,\dots,n\) gegeben, gilt \(A_n\) = 1. Bei einem Aktiensplit zum Zeitpunkt \(t\) mit Verhältnis 
 \(s_t = \frac{\text{neue Aktien}}{\text{alte Aktien}}\) gilt
 
 \[
@@ -113,59 +109,53 @@ Somit ist der historische Preis mit dem die Modelle trainiert und getestet werde
 
 Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung}, vorgestellt wurden, werden sie auf den genannten Testzeitraum angewendet und es werden jeweils Vorhersagen erstellt. Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden auf den Testzeitraum angewendet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
+Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden auf den Testzeitraum angewendet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kapitel~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
 
-Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Außerdem wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein etabliertes ARIMA Modell getestet, um einen weiteren Vergleichsparameter zu haben.
+Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Außerdem wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein etabliertes ARIMA Modell getestet, um einen weiteren Vergleichsparameter zu liefern.
 
 \subsection{Fehlermaße}\label{fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von 
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird auch das \ac{OOS-$R^2$} Maß genommen mit einem Random Walk als Baseline. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind, und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentliche Modellqualität vorgaukelt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als selbstständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score danach aber auch sinnlos, da der Informationsgehalt nach Formel~\ref{R2eqRMSE} dem RMSE-Maß entspricht. 
+\begin{equation}
+R^2 = 1 - \frac{\text{RMSE}^2 \cdot n}{\text{SS}_{tot}}, \text{SS}_{tot} = const, n = const.\label{R2eqRMSE} %eventuell Beweis führen hätte Aura
+\end{equation}
+Sinnvoll wäre nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$} Maß verwendet, wird diese Ungenauigkeit eliminiert.
 
 \subsubsection*{Root Mean Squared Error}
 Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) und eine zugehörige Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
 
 \[
-\mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(\hat{x}_i - x_i)^2}.
+\mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}{(\hat{x}_i - x_i)}^2}.
 \]
 
 Der RMSE gewichtet Ausreißer durch die Quadratisierung stärker und ist durch die Wurzel interpretierbar, da er in derselbe Einheit wie die Werte der Zeitreihe angegeben wird.
 
 
-\subsubsection*{Bestimmtheitsmaß (\(R^2\)-Score)}
-
-Für das Signal \( [x_1, x_2, \dots, x_n] \) und die Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird zunächst der Signalmittelwert berechnet:
-
+\subsubsection*{Mean Absolute Percentage Error}
+Der \ac{MAPE} misst die durchschnittliche prozentuale Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
 \[
-\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i .
+\mathrm{MAPE} = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \hat{x}_i}{x_i}\right|.
 \]
+Da der MAPE relativ zum tatsächlichen Wert $x_i$ normiert ist, ermöglicht er einen skaleninvarianten Vergleich über verschiedene Zeitreihen hinweg. Theoretisch neigt er dazu negative Fehler assymetrisch zu bestrafen. Dies ist praktisch im Falle von Aktienkursen aber vernachlässigbar.
 
-Darauf aufbauend wird die totale Quadratsumme
-
+\subsubsection*{Out-of-Sample $R^2$}
+Der \ac{OOS-$R^2$} nach~\cite{campbell2008predicting} misst, ob ein Modell bessere Vorhersagen liefert als ein naiver Benchmark. Sei $\hat{x}_i$ die Modellvorhersage und $\hat{x}^{\text{RW}}_i = x_{i-1}$ die Vorhersage eines Random-Walk-Modells, welches den letzten bekannten Wert als Schätzung verwendet. Der \ac{OOS-$R^2$} ist definiert als
 \[
-SS_{\mathrm{tot}} = \sum_{i=1}^{n}(x_i - \bar{x})^2
+R^2_{\mathrm{OOS}} = 1 - \frac{\sum_{i=1}^{n}{(x_i - \hat{x}_i)}^2}
+                               {\sum_{i=1}^{n}{(x_i - \hat{x}^{\text{RW}}_i)}^2}.
 \]
-
-sowie die Residuenquadratsumme
-
-\[
-SS_{\mathrm{res}} = \sum_{i=1}^{n}(x_i - \hat{x}_i)^2
-\]
-
-bestimmt. Das Bestimmtheitsmaß ergibt sich daraus zu
-
-\[
-R^2 = 1 - \frac{SS_{\mathrm{res}}}{SS_{\mathrm{tot}}}.
-\]
-
-Ein Wert von \(R^2\) nahe \(1\) zeigt eine sehr gute Modellanpassung an die Daten an. Werte nahe \(0\) bedeuten, dass die Vorhersagen kaum besser sind als eine konstante Vorhersage des Mittelwerts. Negative Werte deuten darauf hin, dass das Modell schlechter abschneidet als diese einfache Baseline.
-Hierbei ist für diese Arbeit relevant dass Aktien meistens nicht stationär sind. Das Signal und die Vorhersage werden stationär gemacht, indem Renditen oder Differenzen zum Vortag als Werte verwendet werden, anstatt von absoluten Preisen.
+Ein Wert $R^2_{\mathrm{OOS}} > 0$ zeigt an, dass das Modell den Random Walk
+übertrifft, während $R^2_{\mathrm{OOS}} \leq 0$ bedeutet, dass die naive
+Baseline mindestens gleichwertig ist.
 
 
-\subsubsection*{Directional Accuracy} %shit geschrieben, siehe Feedback => siehe Zeile 3 für neue Idee
+\subsubsection*{Directional Accuracy}
+
+Alle bisher vorgestellten Fehlermaße unterscheiden nicht zwischen überschätzem oder unterschätztem Wert. Bei der Vorhersage von Aktienkursen ist dieser Unterschied aber von signifikanter Relevanz, da eine Unterschätzung, die zu einem Kauf führt, weit weniger problematisch ist als eine Überschätzung. Hierfür wird die Directional Accuracy eingeführt.
+
 Die \ac{DA} misst, wie gut ein Modell die Richtung der Kursbewegung vorhersagt, unabhängig von der genauen Höhe des Preises.
-Diese Metrik ist sowohl für Vorhersage- als auch Klassifizierungsmodelle sinnvoll. Für Vorhersagemodelle definieren wir sie folgendermaßen.
-Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird DA berechnet als
+Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird \ac{DA} definiert nach
 
 \[
 DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}) = \operatorname{sign}(\hat{x}_i - x_{i-1})\Big),
@@ -173,23 +163,12 @@ DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}
 
 wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst.
 
-Da Klassifizierungsmodelle keinen Preis vorhersagen definieren wir \ac{DA} für diese folgendermaßen.
-
-\ac{DA} für Klassifizierungsmodelle misst, wie gut die vorhergesagten Signale mit den tatsächlichen Marktbewegungen übereinstimmen. 
-Sei \(y_i \in \{+1, -1\}\) das tatsächliche Marktsignal für den Zeitpunkt \(i\) 
-(+1 für Kursanstieg, -1 für Kursrückgang) und \(\hat{y}_i \in \{+1, -1\}\) die vom Modell prognostizierte Richtung. 
-Dann wird DA berechnet als
-
-\[
-DA = \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}(\hat{y}_i = y_i),
-\]
-
-Ein Wert von \(DA = 1\) entspricht einer perfekten Klassifikation, während \(DA = 0.5\) einem zufälligen Raten entspricht.
+Ein Wert von \(\text{DA} = 1\) entspricht einer perfekten Klassifikation, während \(\text{DA} = 0.5\) einem zufälligen Raten entspricht.
 
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
 
 %Was machen andere, was machen wir und warum?
-Die meisten Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. % Andere Arbeiten, Und sonst Fehlermaße erklären
+Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}. Metriken hierfür befassen sich mit der prozentuale Rendite und der Volatitilität. Um diese beiden Werte einer Strategie abzubilden werden die prozentuale Rendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern eher im Gegenteil sich häufig beeinflussen, wird ebenso die Sharpe Ratio evaluiert. %TODO: Vergleich zu Papern welche verwendet werden.
 
 \subsubsection*{Gesamtrendite}
 
