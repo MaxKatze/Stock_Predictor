@@ -107,9 +107,9 @@ Somit ist der historische Preis mit dem die Modelle trainiert und getestet werde
 
 \section{Bewertungskriterien}\label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
 
-Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung}, vorgestellt wurden, werden sie auf den genannten Testzeitraum angewendet und es werden jeweils Vorhersagen erstellt. Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
+Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung}, vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward getestet. Das bedeutet es wird die tatsächliche Historie simuliert und es werden jeweils Vorhersagen erstellt. Die dabei erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden auf den Testzeitraum angewendet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kapitel~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
+Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kapitel~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
 
 Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Außerdem wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein etabliertes ARIMA Modell getestet, um einen weiteren Vergleichsparameter zu liefern.
 
@@ -168,7 +168,9 @@ Ein Wert von \(\text{DA} = 1\) entspricht einer perfekten Klassifikation, währe
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{finanzkennzahlen}
 
 %Was machen andere, was machen wir und warum?
-Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}. Metriken hierfür befassen sich mit der prozentuale Rendite und der Volatitilität. Um diese beiden Werte einer Strategie abzubilden werden die prozentuale Rendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern eher im Gegenteil sich häufig beeinflussen, wird ebenso die Sharpe Ratio evaluiert. %TODO: Vergleich zu Papern welche verwendet werden.
+Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}.
+
+Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}. Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatitilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden werden die Gesamtrendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe Ratio evaluiert.
 
 \subsubsection*{Gesamtrendite}
 
@@ -180,56 +182,57 @@ R_{cum} = \frac{V_T - V_0}{V_0},
 
 wobei \(V_0\) der Anfangswert und \(V_T\) der Endwert des Portfolios ist. Sie zeigt die absolute Profitabilität der Strategie.
 
-Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie. Also die Rendite die erreicht wird, wenn die Aktie über den gesamten Betrachtungszeitraum gehalten wird:
+Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie.
 
 \[
-R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0}.
+R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0},
 \]
 
-Hiermit soll analysiert werden, ob die Modelle eine bessere Strategie darstellen als einfach ``in den Markt zu investieren``.
-
+wobei $P_0$ der Anfangspreis und $P_T$ der Endpreis der Aktie im Testzeitraum ist.
 
 \subsubsection*{Sharpe Ratio}
 
-Die Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios und wird berechnet als
+Das Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios, indem es die Portfolio Rendite ohne die risikofreie Rendite ins Verhältnis zur Volatilität setzt. Es wird berechnet nach
 
 \[
-S = \frac{\frac{1}{T} \sum_{t=1}^{T} (R_{p,t} - R_{f,t})}{\sigma(R_p)},
+S = \frac{R_p - R_f}{\sigma(R_p)},
 \]
 
-wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Standardabweichung der Portfoliorenditen ist. Eine hohe Sharpe Ratio deutet auf eine hohe Rendite bei gleichzeitig niedrigem Risiko hin.
+wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Volatilität der Portfoliorendite ist. Die Volatilität $\sigma(R_p)$ wird über die empirische Standardabweichung ermittelt: 
+
+
+\[
+\sigma(R_p) = \sqrt{ \frac{1}{T - 1} \sum_{t=1}^{T}{( R_{P,t} - \bar{R_P})}^2}
+\]
+
+Ein hohes Sharpe Ratio bedeutet eine hohe Rendite im Vergleich zum Risiko.
 
 \subsubsection*{Maximum Drawdown}
 
 Der \ac{MDD} beschreibt den größten Verlust eines Portfolios vom höchsten Punkt (Peak) bis zum Tiefpunkt (Trough) innerhalb des betrachteten Zeitraums:
 
 \[
-MDD = \max_{t} \frac{Peak_t - Value_t}{Peak_t}.
+\text{MDD} = \max_{t} \frac{\text{Peak}_t - \text{Value}_t}{\text{Peak}_t}.
 \]
 
-Ein niedriger Maximum Drawdown zeigt, dass die Strategie relativ robust gegenüber großen Verlusten ist.
+Ein niedriger Maximum Drawdown zeigt, dass das untersuchte Investment nur geringe zwischenzeitliche Verluste erlitt.
 
 \section{Einschränkungen und Nebenbedingungen}
 %Markus: Erstens: Warum schränken nachfolgende Abschnitte die Arbeit ein, zweitens: warum sollte das Eure Vorhersagestrategie beeinflussen, das ist doch vollkommen egal.  Abschnitt raus oder in den Anhang. A: Schränkt die Arbeit ein, weil es sich eben von der realen Welt unterscheidet. Beeinflusst die Strategie dahingehend, dass sie einfacher wird.
-Da im Rahmen dieser Arbeit nicht alle möglichen Modellansätze und realistischen Marktszenarien berücksichtigt werden können, ist eine Eingrenzung des Untersuchungsgegenstands erforderlich. Zu diesem Zweck werden im Folgenden einige Annahmen und Nebenbedingungen festgelegt.
+Da im Rahmen dieser Arbeit nicht alle realistischen Marktszenarien berücksichtigt werden können, müssen einige Annahmen getroffen werden.
 
 \subsection*{Komission}
 
-Komission ist eine Gebühr oder Provision, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an.
-Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1US\$ pro Trade oder auch ganz kostenfrei.
-Da heute bereits ohne oder mit sehr geringer Komission gehandelt werden kann, und es auch in Zukunft erwartbar ist, wird bei den Backtests dieser Arbeit keine Komission betrachtet.
+Komission ist eine Gebühr, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an. Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1US\$ pro Trade. Um die Arbeit unabhängig von Änderungen in der Praxis im Bezug auf Komissionen zu halten, wird bei den Backtests dieser Arbeit keine Komission berechnet.~\cite{jones2002century}
 
 \subsection*{Spread}
 
 Der Spread ist die Differenz zwischen Kaufpreis und Verkaufspreis einer Aktie. Dieser ist an einer Börse meist unterschiedlich, wobei der Kaufpreis höher als der Verkaufspreis ist.
-Wird eine Aktie gekauft und sofort wieder verkauft entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs und -schlusskurse verwendet, wird kein Spread betrachtet. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet.
-Da kein Hochfrequenzhandel untersucht wird, führt dies nicht zu einer relevanten Abweichung.
+Wird eine Aktie gekauft und sofort wieder verkauft entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs und -schlusskurse verwendet, wird kann kein Spread betrachtet werden. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet.~\cite{jones2002century}
 
 \subsection*{Liquidität}
 
-Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen wäre. 
-Es wird daher angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können, auch wenn dies in der Realität möglicherweise nicht der Fall wäre. Um eine zusätzliche Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Orders, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. 
-Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren. Da in dieser Arbeit ausschließlich liquide Aktien aus dem S\&P500 untersucht werden, stellt diese Vereinfachung jedoch kein wesentliches Problem dar, da die Orderausführung bei diesen Aktien in der Praxis in der Regel ohne größere Abweichungen vom beobachteten Preis möglich ist.
+Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen wäre. Da auschließlich liquide Aktien aus dem S\&P500 verwendet werden, wird angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können. Um eine Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Kaufentscheidungen, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren.~\cite{loras2024slippage}
 
 
 
