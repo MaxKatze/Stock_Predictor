@@ -248,8 +248,17 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 
 \section{Modellentwicklung}\label{entwicklung}
-\subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
-\subsection{Korrelationsmatrix} % Unternehmenskorrelation
+\subsection{ARIMA-GARCH} % ARIMA, GARCH, moving average, lineare Reggression
+\subsection{Preprocessed SVR}
+
+\subsection{Stochastische Differentialgleichungen} % Twitter/Trump scrape usw
+
+\subsection{StockTimesFM} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
+
+\section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
+
+
+ % Unternehmenskorrelation
 % Matrix mit allen Unternehmen je auf x und y.
 % Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
 % über: Ri * Rj / abs(Ri) * abs(Rj)
@@ -259,8 +268,3 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 % und eine Matrix
 % Tage gewichten
 % => Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
-
-\subsection{Support Vector Machines (SVM)} % mit Kursdaten als Features (5-20 RDP)
-\subsection{Sentiment-Analyse mit Echtzeitinformationen} % Twitter/Trump scrape usw
-\subsection{SVMs mit Analyse Features} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
-\section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
