@@ -7,8 +7,19 @@ Zunächst wird das Datenset erläutert: Auswahl des Aktienuniversums und der kon
 
 Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstands, der getroffenen Annahmen sowie der Nebenbedingungen und Einschränkungen. Diese Vereinfachungen dienen der Interpretierbarkeit, unterscheiden sich aber teilweise von realen Marktbedingungen.
 
-Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Wir stellen 4 Modelle vor: bla bla LSTM bla mit attention, bam bam\dots
+Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Es werden 4 Modelle vorgestellt:
 
+\subsection*{ARIMA-GARCH}
+\ac{ARIMA} ist ein etabliertes statistisches Modell zur Vorhersage von Zeitreihen. Während Deep-Learning-Modelle oft als Black-Box agieren und dadurch viele Freiheitsgrade bieten, sind lineare Modelle besser nachvollziehbar und interpretierbar. In dieser Arbeit wird ein lineares Vorhersagemodell auf Basis von ARIMA vorgestellt. Um die Prognosegenauigkeit zu erhöhen, wird die Preisvorhersage mit einer Volatilitätsbetrachtung durch ein \ac{GARCH}-Modell kombiniert.
+
+\subsection*{Preprocessed SVR} %Alles auf Renditen
+Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \ac{SVM} und \ac{NN} eingesetzt werden. In einigen wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen, um die Zeitreihen annähernd stationär zu machen.
+
+\subsection*{Stochastische Differentialgleichungen}
+Aktienkurse setzen sich aus einem Trend und starkem zufälligem Rauschen zusammen. In dieser Arbeit wird ein Modell vorgestellt, das das zufällige Rauschen eines Aktienkurses als Brownsche Bewegung beschreibt und den Trend als Funktion abbildet. Auf Basis einer stochastischen Differentialgleichung soll der zukünftige Kurs über Simulationen vorhergesagt werden.
+
+\subsection*{StockTimesFM}
+Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Vor diesem Hintergrund wird in dieser Arbeit ein alternativer Ansatz verfolgt, bei dem ein Foundation Model eingesetzt wird, um dessen Übertragbarkeit auf die Vorhersage von Aktienkursen zu untersuchen. Im Zuge der zunehmenden Verbreitung von Transformer-Architekturen im Bereich des \ac{NLP} haben Abhimanyu Das et al. in~\cite{das2024timesfm} ein transformerbasiertes Foundation Model für Zeitreihen vorgestellt. Aufbauend auf diesem Modell wird in der vorliegenden Arbeit analysiert, inwieweit sich damit verlässliche Vorhersagen für Aktienkurse erzielen lassen.
 
 Anschließend wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet. Aus den Preisvorhersagen wird eine Marktentscheidung getroffen, um die praktische Anwendbarkeit der Modelle zu analysieren.
 
@@ -63,18 +74,18 @@ Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
     \centering
     \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
     \begin{tabular}{l c c}
-        Unternehmen & Tickersymbol\\ %TODO: Wenn wir wissen, welche Features wir verwenden wollen, dann die für den Traininszeitraum berechnen und in diese Tabelle, zb Mittelwert, Standardabweichung usw
+        Unternehmen & Tickersymbol & Branche\\ %TODO: Wenn wir wissen, welche Features wir verwenden wollen, dann die für den Traininszeitraum berechnen und in diese Tabelle, zb Mittelwert, Standardabweichung usw
         \hline
-        Amazon & AMZN\\
-        Adobe & ADBE\\
-        CVS Health & CVS\\
-        General Motors & GM\\
-        Micron Technology & MU\\
-        PayPal & PYPL\\
-        Walgreens Boots Alliance & WBA\\
-        PepsiCo & PEP\\
-        Salesforce & CRM\\
-        3M & MMM\\
+        Amazon & AMZN & xx\\
+        Adobe & ADBE & xx\\
+        CVS Health & CVS & xx\\
+        General Motors & GM & xx\\
+        Micron Technology & MU & xx\\
+        PayPal & PYPL & xx\\
+        Walgreens Boots Alliance & WBA & xx\\
+        PepsiCo & PEP & xx\\
+        Salesforce & CRM & xx\\
+        3M & MMM & xx\\
         \hline
     \end{tabular}
 \end{table}
@@ -116,7 +127,7 @@ Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle unt
 \subsection{Fehlermaße}\label{fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird auch das \ac{OOS-$R^2$} Maß genommen mit einem Random Walk als Baseline. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind, und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentliche Modellqualität vorgaukelt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als selbstständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score danach aber auch sinnlos, da der Informationsgehalt nach Formel~\ref{R2eqRMSE} dem RMSE-Maß entspricht. 
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird auch das \ac{OOS-$R^2$} Maß genommen mit einem Random Walk als Baseline. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentliche Modellqualität vorgaukelt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als selbstständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score danach aber auch sinnlos, da der Informationsgehalt nach Formel~\ref{R2eqRMSE} dem RMSE-Maß entspricht. 
 \begin{equation}
 R^2 = 1 - \frac{\text{RMSE}^2 \cdot n}{\text{SS}_{tot}}, \text{SS}_{tot} = const, n = const.\label{R2eqRMSE} %eventuell Beweis führen hätte Aura
 \end{equation}
@@ -237,8 +248,17 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 
 \section{Modellentwicklung}\label{entwicklung}
-\subsection{Lineare Modelle} % ARIMA, GARCH, moving average, lineare Reggression
-\subsection{Korrelationsmatrix} % Unternehmenskorrelation
+\subsection{ARIMA-GARCH} % ARIMA, GARCH, moving average, lineare Reggression
+\subsection{Preprocessed SVR}
+
+\subsection{Stochastische Differentialgleichungen} % Twitter/Trump scrape usw
+
+\subsection{StockTimesFM} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
+
+\section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
+
+
+ % Unternehmenskorrelation
 % Matrix mit allen Unternehmen je auf x und y.
 % Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
 % über: Ri * Rj / abs(Ri) * abs(Rj)
@@ -248,8 +268,3 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 % und eine Matrix
 % Tage gewichten
 % => Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
-
-\subsection{Support Vector Machines (SVM)} % mit Kursdaten als Features (5-20 RDP)
-\subsection{Sentiment-Analyse mit Echtzeitinformationen} % Twitter/Trump scrape usw
-\subsection{SVMs mit Analyse Features} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
-\section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
