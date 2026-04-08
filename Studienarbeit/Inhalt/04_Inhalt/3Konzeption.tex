@@ -9,16 +9,16 @@ Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstan
 
 Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Es werden 4 Modelle vorgestellt:
 
-\subsection*{ARIMA-GARCH}
+\subsubsection*{ARIMA-GARCH}
 \ac{ARIMA} ist ein etabliertes statistisches Modell zur Vorhersage von Zeitreihen. Während Deep-Learning-Modelle oft als Black-Box agieren und dadurch viele Freiheitsgrade bieten, sind lineare Modelle besser nachvollziehbar und interpretierbar. In dieser Arbeit wird ein lineares Vorhersagemodell auf Basis von ARIMA vorgestellt. Um die Prognosegenauigkeit zu erhöhen, wird die Preisvorhersage mit einer Volatilitätsbetrachtung durch ein \ac{GARCH}-Modell kombiniert.
 
-\subsection*{Preprocessed SVR} %Alles auf Renditen
-Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \ac{SVM} und \ac{NN} eingesetzt werden. In einigen wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen, um die Zeitreihen annähernd stationär zu machen.
+\subsubsection*{Preprocessed SVR} %Alles auf Renditen
+Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \acp{SVM} und \acp{NN} eingesetzt werden. In wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen, um die Zeitreihen annähernd stationär zu machen.
 
-\subsection*{Stochastische Differentialgleichungen}
+\subsubsection*{Stochastische Differentialgleichungen}
 Aktienkurse setzen sich aus einem Trend und starkem zufälligem Rauschen zusammen. In dieser Arbeit wird ein Modell vorgestellt, das das zufällige Rauschen eines Aktienkurses als Brownsche Bewegung beschreibt und den Trend als Funktion abbildet. Auf Basis einer stochastischen Differentialgleichung soll der zukünftige Kurs über Simulationen vorhergesagt werden.
 
-\subsection*{StockTimesFM}
+\subsubsection*{StockTimesFM}
 Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Vor diesem Hintergrund wird in dieser Arbeit ein alternativer Ansatz verfolgt, bei dem ein Foundation Model eingesetzt wird, um dessen Übertragbarkeit auf die Vorhersage von Aktienkursen zu untersuchen. Im Zuge der zunehmenden Verbreitung von Transformer-Architekturen im Bereich des \ac{NLP} haben Abhimanyu Das et al. in~\cite{das2024timesfm} ein transformerbasiertes Foundation Model für Zeitreihen vorgestellt. Aufbauend auf diesem Modell wird in der vorliegenden Arbeit analysiert, inwieweit sich damit verlässliche Vorhersagen für Aktienkurse erzielen lassen.
 
 Anschließend wird die Umsetzung der Vorhersagen in einer Handelsstrategie beschrieben. Hierbei werden Risikomanagement, Positionsgrößen und Vorhersagehorizont betrachtet. Aus den Preisvorhersagen wird eine Marktentscheidung getroffen, um die praktische Anwendbarkeit der Modelle zu analysieren.
@@ -27,7 +27,7 @@ Anschließend wird die Umsetzung der Vorhersagen in einer Handelsstrategie besch
 \section{Daten und Benchmarking}\label{daten_benchmarking}
 
 
-Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus dem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P 500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
+Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus einem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P 500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
 
 Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jeden Handelstag enthält die Zeitreihe folgende Werte:
 \begin{itemize}
@@ -106,7 +106,7 @@ A_{t-1} = \frac{A_t}{s_t}.
 
 Beispielsweise führt ein \(2{:}1\)-Split (\(s_t = 2\)) dazu, dass alle historischen Preise vor dem Split halbiert werden.
 
-Dividendenzahlungen werden ebenfalls berücksichtigt, um eine konsistente Renditereihe zu erhalten. Sei \(D_t\) die Dividende zum Zeitpunkt \(t\). Dann wird der Anpassungsfaktor wie folgt aktualisiert:
+Dividendenzahlungen werden ebenfalls berücksichtig. Sei \(D_t\) die Dividende zum Zeitpunkt \(t\). Dann wird der Anpassungsfaktor wie folgt aktualisiert:
 
 \[
 A_{t-1} = A_t \cdot \frac{P_t - D_t}{P_t}.
@@ -118,16 +118,16 @@ Somit ist der historische Preis mit dem die Modelle trainiert und getestet werde
 
 \section{Bewertungskriterien}\label{bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
 
-Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung}, vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward getestet. Das bedeutet es wird die tatsächliche Historie simuliert und es werden jeweils Vorhersagen erstellt. Die dabei erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
+Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in Kapitel~\ref{entwicklung} vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward jeweils für jede asugewählte Aktie getestet. Das bedeutet es wird die tatsächliche Historie der Aktienkursbewegung simuliert und es werden jeweils Vorhersagen erstellt. Die dabei erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in Kapitel~\ref{fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kapitel~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
+Mithilfe der in Kapitel~\ref{marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in~\ref{marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kapitel~\ref{finanzkennzahlen} vorgestellten Kennzahlen.
 
-Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Außerdem wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein etabliertes ARIMA Modell getestet, um einen weiteren Vergleichsparameter zu liefern.
+Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander. Außerdem erfolgt bei ausgewählten Kennzahlen ein Vergleich zu einer jeweils angegebenen Baseline, um die Interpretierbarkeit zu erhöhen. Des Weiteren wird, um eine weitere Benchmark zu haben, bei jedem Modellvergleich auch ein \ac{ARIMA} Modell getestet, um einen weiteren Vergleich zu liefern.
 
 \subsection{Fehlermaße}\label{fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird auch das \ac{OOS-$R^2$} Maß genommen mit einem Random Walk als Baseline. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentliche Modellqualität vorgaukelt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als selbstständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score danach aber auch sinnlos, da der Informationsgehalt nach Formel~\ref{R2eqRMSE} dem RMSE-Maß entspricht. 
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den häufigstverwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird auch das \ac{OOS-$R^2$} Maß genommen mit einem Random Walk als Baseline. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentliche Modellqualität vorgaukelt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als selbstständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score danach aber auch sinnlos, da der Informationsgehalt nach Formel~\ref{R2eqRMSE} dem RMSE-Maß entspricht. 
 \begin{equation}
 R^2 = 1 - \frac{\text{RMSE}^2 \cdot n}{\text{SS}_{tot}}, \text{SS}_{tot} = const, n = const.\label{R2eqRMSE} %eventuell Beweis führen hätte Aura
 \end{equation}
@@ -181,7 +181,7 @@ Ein Wert von \(\text{DA} = 1\) entspricht einer perfekten Klassifikation, währe
 %Was machen andere, was machen wir und warum?
 Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}.
 
-Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}. Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatitilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden werden die Gesamtrendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe Ratio evaluiert.
+Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}. Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatitilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden werden in dieser Arbeit die Gesamtrendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe-Ratio evaluiert.
 
 \subsubsection*{Gesamtrendite}
 
@@ -193,13 +193,14 @@ R_{cum} = \frac{V_T - V_0}{V_0},
 
 wobei \(V_0\) der Anfangswert und \(V_T\) der Endwert des Portfolios ist. Sie zeigt die absolute Profitabilität der Strategie.
 
-Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie.
+% Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie.
 
-\[
-R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0},
-\]
+% \[
+% R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0},
+% \]
 
-wobei $P_0$ der Anfangspreis und $P_T$ der Endpreis der Aktie im Testzeitraum ist.
+% wobei $P_0$ der Anfangspreis und $P_T$ der Endpreis der Aktie im Testzeitraum ist.
+%nicht sure ob ich das schreiben würde, weil wir es dann vergleichen müssen, und es wird vermutlich besser sein. Außerdem ist die Frage des unterschieds nach Portfolio-Wert neq Aktienwert.
 
 \subsubsection*{Sharpe Ratio}
 
