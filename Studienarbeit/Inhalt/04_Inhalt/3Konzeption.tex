@@ -1,9 +1,9 @@
 \chapter{Konzeption}
 \section{Überblick}\label{uberblick}
-% Das Kapitel ist shit, und es macht keinen Sinn es zu schreiben bevor wir genau wissen welche Modelle wir haben. Hier sollen detailiert die Modelle beschrieben werden, wie in normalen Papern, wir sagen einfach Random Technologien. Bis zu Nebenbedingungen ist okay, aber Modellentwicklung beschreibung ist beschissen. Ziel wie es sein sollte: Wir stellen hiermit x Modelle vor, ein xyz, ein abc und ein vwx. Diese werden verglichen mit einander und mit einem klassichen ARIMA-Modell (Smart, weil das ist auch Arsch => unsere sehen besser aus). Daraufhin wird eine Marktstrategie implementiert (3.6) und auf die Modelle angewendet. Dann werden davon Finanzwirtschaftliche Kennzahlen genommen und untereinander, mit unserem Sentiment-Modell und mit irgendwas anderem (tbd) verglichen.
+%Idee, falls wir zu wenig haben und noch mehr Inhalt brauchen: Anstatt die Aktien die wir untersuchen zufällig aus dem S&P auszuwählen, verwenden wir stochastische Differentialgleichungen, um die Stocks auszusuchen. Dann die stochastische Differentialgleichungen Methode zum Vorhersagen austauschen. Deshalb den Ansatz zur Vorhersage als letztes bearbeiten. => Maybe eine ganz geile Idee, gibt der Arbeit einen roten Faden.
 In diesem Kapitel wird die Entwicklung der in dieser Arbeit verwendeten Modelle zur Vorhersage von Aktienkursen beschrieben. Dabei werden Ansätze aus der Zeitreihenanalyse und dem maschinellen Lernen konzeptioniert.
 
-Zunächst wird das Datenset erläutert: Auswahl des Aktienuniversums und der konkreten Aktien, Aufteilung der Zeitreihen sowie Datenbereinigung. Anschließend werden die Metriken und Bewertungskriterien vorgestellt, die sowohl mathematische als auch finanzwirtschaftliche Aspekte berücksichtigen.
+Zunächst wird das Datenset erläutert. Es erfolgt die Auswahl des Aktienuniversums. Danach wird die konkrete Auswahl der untersuchten Aktien auf Basis von stochastischen Differentialgleichungen beschrieben. Die Daten werden unterteilt und bereinigt. Anschließend werden die Metriken und Bewertungskriterien vorgestellt, die sowohl mathematische als auch finanzwirtschaftliche Aspekte berücksichtigen.
 
 Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstands, der getroffenen Annahmen sowie der Nebenbedingungen und Einschränkungen. Diese Vereinfachungen dienen der Interpretierbarkeit, unterscheiden sich aber teilweise von realen Marktbedingungen.
 
@@ -12,11 +12,13 @@ Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Es werden 4 Model
 \subsubsection*{ARIMA-GARCH}
 \ac{ARIMA} ist ein etabliertes statistisches Modell zur Vorhersage von Zeitreihen. Während Deep-Learning-Modelle oft als Black-Box agieren und dadurch viele Freiheitsgrade bieten, sind lineare Modelle besser nachvollziehbar und interpretierbar. In dieser Arbeit wird ein lineares Vorhersagemodell auf Basis von ARIMA vorgestellt. Um die Prognosegenauigkeit zu erhöhen, wird die Preisvorhersage mit einer Volatilitätsbetrachtung durch ein \ac{GARCH}-Modell kombiniert.
 
-\subsubsection*{Preprocessed SVR} %Alles auf Renditen
-Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \acp{SVM} und \acp{NN} eingesetzt werden. In wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen, um die Zeitreihen annähernd stationär zu machen.
+\subsubsection*{Preprocessed SVR}
+Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \acp{SVM} und \acp{NN} eingesetzt werden. In wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen.
 
-\subsubsection*{Stochastische Differentialgleichungen}
-Aktienkurse setzen sich aus einem Trend und starkem zufälligem Rauschen zusammen. In dieser Arbeit wird ein Modell vorgestellt, das das zufällige Rauschen eines Aktienkurses als Brownsche Bewegung beschreibt und den Trend als Funktion abbildet. Auf Basis einer stochastischen Differentialgleichung soll der zukünftige Kurs über Simulationen vorhergesagt werden.
+%\subsubsection*{Stochastische Differentialgleichungen}
+%Aktienkurse setzen sich aus einem Trend und starkem zufälligem Rauschen zusammen. In dieser Arbeit wird ein Modell vorgestellt, das das zufällige Rauschen eines Aktienkurses als Brownsche Bewegung beschreibt und den Trend als Funktion abbildet. Auf Basis einer %stochastischen Differentialgleichung soll der zukünftige Kurs über Simulationen vorhergesagt werden.
+
+%noch ein Modell, falls wir noch Inhalt brauchen haha
 
 \subsubsection*{StockTimesFM}
 Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Vor diesem Hintergrund wird in dieser Arbeit ein alternativer Ansatz verfolgt, bei dem ein Foundation Model eingesetzt wird, um dessen Übertragbarkeit auf die Vorhersage von Aktienkursen zu untersuchen. Im Zuge der zunehmenden Verbreitung von Transformer-Architekturen im Bereich des \ac{NLP} haben Abhimanyu Das et al. in~\cite{das2024timesfm} ein transformerbasiertes Foundation Model für Zeitreihen vorgestellt. Aufbauend auf diesem Modell wird in der vorliegenden Arbeit analysiert, inwieweit sich damit verlässliche Vorhersagen für Aktienkurse erzielen lassen.
@@ -26,8 +28,9 @@ Anschließend wird die Umsetzung der Vorhersagen in einer Handelsstrategie besch
 
 \section{Daten und Benchmarking}\label{daten_benchmarking}
 
+\subsection{Daten}
 
-Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus einem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P 500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
+Unter dem Survivorship Bias versteht man die statistische Verzerrung, die entsteht, wenn nur überlebende Unternehmen ausgewählt werden und insolvente oder aus einem Index entfernte Aktien unberücksichtigt bleiben, was historische Renditen systematisch nach oben verzerrt. Für die Analyse wird ein festes Aktienuniversum herangezogen, bestehend aus den im Jahr 2020 im S\&P500 gelisteten Unternehmen, wodurch ein Survivorship Bias vermieden wird.
 
 Die Kursdaten jeder Aktie werden als Zeitreihe betrachtet. Für jeden Handelstag enthält die Zeitreihe folgende Werte:
 \begin{itemize}
@@ -67,28 +70,194 @@ Die Unterteilung der Zeitreihen erfolgt in einem 80:20-Verhältnis, wobei 80\% d
 Die Modelle werden zunächst auf den Trainingsdaten trainiert. Anschließend erfolgt die Optimierung der Hyperparameter anhand des Validierungszeitraums. 
 Die finale Leistung wird schließlich auf dem Testzeitraum bewertet, um die zeitliche Generalisierbarkeit der Modelle zu überprüfen.
 
-Für die Analyse werden 10 Aktien verwendet. Somit sollen Ausreißer einzelner Unternehmen den Gesamterfolg der Modelle nicht übermäßig beeinflussen. Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias zu verhindern. Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P500 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. %Markus; Warum? Hierdurch kann ich doch einen systematischen Fehler generieren? Begründen. A: Warum, weiß nicht was er meint.
-Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
+
+\subsection{Aktienauswahl}
+Für die Analyse sollen 10 Aktien aus dem Gesamtuniversum ausgewählt werden. Die Auswahl dieser Aktien muss stets anhand von Informationen erfolgen, die vor dem Trainingszeitraum bekannt waren, um einen Lookahead Bias und Selection Bias zu verhindern. Diese Arbeit stellt eine Strategie vor, welche auf Basis von stochastischen Differentialgleichungen (SDEs) mögliche Bewegungen aller Aktien im gewählten Universum simuliert und jene Aktien, welche im Mittel am wahrscheinlichsten den höchsten \ac{ROI} erzielen, auswählt.
+
+
+%TODO: Wie funktioniert die Auswahl von Aktien über SDEs
+Aktienkurse setzen sich aus einem Trend und zufälligem Rauschen zusammen. Eine Aktienkursbewegung $dS(t)$ wird beschrieben durch einen Trend $\mu$ und ein Rauschen als Wienerprozess $W_t$, verstärkt durch einen Volatilitätskoeffizienten $\sigma$.
+
+\begin{equation}\label{sde}
+dS(t) = \mu dt + \sigma dW(t)
+\end{equation}
+
+
+%Vorstellung des Verfahrens, wie aus x Aktien mit SDEs die rentablste ausgewählt wird.
+
+Der in dieser Arbeit gewählte Ansatz lässt sich als eine Verallgemeinerung des Modells von Ofomata et al.~\cite{Ofomataetal2017} verstehen. Ein wesentlicher Nachteil ihrer Methode liegt in der Beschränkung auf eine sehr kleine Auswahl an Aktien, die vorab durch externe Verfahren selektiert werden müssen. Das hier vorgestellte Modell hebt diese Notwendigkeit auf, um das Verfahren breiter anwendbar zu machen. Ein weiterer Aspekt betrifft die Berechnung der Parameter $\mu$ und $\sigma$ und die Kovarianz der Aktien untereinander. In der Praxis folgen Kursbewegungen externen Treibern wie dem Ölpreis oder dem aktuellen Leitzins. Dass Aktien innerhalb desselben Index miteinander korrelieren, kann eine logische Folge ihrer gemeinsamen Reaktion auf diese makroökonomischen Einflüsse sein. Anstatt die Einflüsse der Aktien untereinander zu beobachten, beobachtet der folgende Ansatz die Einflüsse der makroökonomischen Faktoren auf die Aktien einzeln.
+
+Der Ansatz in~\cite{Ofomataetal2017} teilt eine Aktienbewegung in drei Richtungen auf: Anstieg~$(+1)$, Rückgang~$(-1)$ und Stagnation~$(0)$. Bei $n$ betrachteten Aktien ergibt sich daraus ein Ergebnisraum von $3^n$ möglichen Bewegungskombinationen innerhalb eines Handelstages. Für $n = 4$ also bereits $3^4 = 81$ zu berücksichtigende Szenarien. Dies führt bei 60 betrachteten Handelstagen bei vielen Bewegungen zu einer Wahrscheinlichkeit von 0. Wenn mehr Aktien betrachten werden sollen, wächst die benötigte Datenmenge exponentiell, bis die vorhandenen Börsendaten nicht mehr ausreichen.
+
+Der hier vorgestellte Ansatz behält die grundlegende Struktur bei, ersetzt jedoch den ursprünglichen $3^n$-dimensionalen Aktienvektor durch einen $3^{g+f}$-dimensionalen Einflussvektor. Das Verfahren lässt sich in folgende Schritte unterteilen:
+Zunächst wird das gesamte Aktienuniversum in Gruppen zu je $g$ Aktien aufgeteilt. Die Zuordnung erfolgt dabei auf Basis der höchsten Korrelation zu einem der makroökonomischen Faktoren $f$ aus Tabelle~\ref{tab:makrofaktoren}. Innerhalb dieser Gruppen werden anschließend Trend und Korrelation der Aktien sowie des jeweiligen Faktors analysiert, um $\mu$ und $\sigma$ zu bestimmen und mögliche Kursverläufe zu simulieren. Die Aktie, die nach dem Trainingszeitraum $T$ den höchsten \ac{ROI} in der Simulation erzielt, geht als „Gewinner“ aus ihrer Gruppe hervor. Dieser Auswahlprozess wird über das gesamte Aktienuniversum durchgeführt. Danach werden diese „Gewinner“ wieder in Gruppen zu je $g$ Aktien aufgeteilt. Durch diesen hierarchischen Prozess bleibt der Ansatz unabhängig von der Gesamtzahl der Aktien ($n$). Er lässt sich somit auf beliebig große Universen anwenden und berücksichtigt direkt den Einfluss makroökonomischer Faktoren.
 
 \begin{table}[h!]
     \centering
-    \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
+    \caption{Makroökonomische Faktoren}\label{tab:makrofaktoren}
     \begin{tabular}{l c c}
-        Unternehmen & Tickersymbol & Branche\\ %TODO: Wenn wir wissen, welche Features wir verwenden wollen, dann die für den Traininszeitraum berechnen und in diese Tabelle, zb Mittelwert, Standardabweichung usw
+        Faktor & Erklärung\\
         \hline
-        Amazon & AMZN & xx\\
-        Adobe & ADBE & xx\\
-        CVS Health & CVS & xx\\
-        General Motors & GM & xx\\
-        Micron Technology & MU & xx\\
-        PayPal & PYPL & xx\\
-        Walgreens Boots Alliance & WBA & xx\\
-        PepsiCo & PEP & xx\\
-        Salesforce & CRM & xx\\
-        3M & MMM & xx\\
+        Ölpreis & Öl Future-Kontrakt Preis an der NYMEX\\
+        Goldpreis & Gold Future-Kontrakt Preis an der COMEX\\
+        Staatsanleihe & 10-Jahre-Staatsanleihe der USA\\
+        Gesamtindex & Marktindex des S\&P500\\
+        US-Dollar & US-Dollar Index DXY\\
+        Inflation & 10-Jahre Break-Even-Inflationsrate\\
         \hline
     \end{tabular}
 \end{table}
+
+\subsubsection*{Aufstellen der SDEs}
+
+Die Bewegung der Aktien und Faktoren innerhalb eines Zeitschritts t wird diskretisiert. Ein Zeitschritt $\Delta t$ entspricht dabei einem Tag, also von Tagesschlusskurs zu Tagesschlusskurs.
+
+\[
+\Delta X_j(t) = 
+\begin{cases} 
++1 & \text{wenn } X_j(t) > X_j(t-1) \\ 
+0 & \text{wenn } X_j(t) = X_j(t-1) \\ 
+-1 & \text{wenn } X_j(t) < X_j(t-1) 
+\end{cases}
+\]
+
+Daraus ergibt sich ein Einflussvektor aus Aktienbewegungen S und Faktorbewegungen F
+
+\[
+\Delta X(t) = {[\Delta S_1(t), \Delta S_2(t), \dots, \Delta S_g(t), \Delta F_1(t), \Delta F_2(t), \dots, \Delta F_f(t)]}^T.
+\]
+
+Der bereits definierte Trainingszeitraum $T$ hat etwa 1000 Handelstage $(H_t = 1000)$. Um eine sinnvolle Wahrscheinlichkeitsverteilung zu liefern, sollten die möglichen Kombinationen des Einflussvektors mindestens der Anzahl an Handelstagen entsprechen.
+
+\begin{align*}
+&1000 = 3^k => k \approx 6 = g+f\\
+&g := 4\\
+&f := 2
+\end{align*}
+
+Es werden pro Gruppe demnach 4 Aktien und 2 Faktoren gewählt. Mit $k=6$ Einflüssen gibt es $3^6 = 729$ mögliche Kombinationen $C$ an Einflussvektorbewegungen pro Zeitschritt. Für jede Kombination $c \in C$ wird die Wahrscheinlichkeit aus dem Trainingszeitraum T nach Formel~\ref{wkeitKombination} geschätzt. Außerdem wird eine Laplace-Glättung eingeführt. Dies soll das Problem eliminieren, dass Kombinationen die im Traininszeitraum aus statistischen Gründen nicht aufgetreten sind, als unmöglich angesehen werden.
+
+\begin{equation}\label{wkeitKombination}
+    p(c) = \frac{\#\{t: \Delta X(t) = c\}+1}{T + |C|}
+\end{equation}
+
+Der Trend der Aktien und Faktoren ergibt sich aus dem Erwartungswert der Wahrscheinlichkeiten über alle möglichen Ereignisse
+
+\[
+\mu = \mathbb{E}[\Delta X] = \sum_{c \in C}^{} p(c) \cdot c.
+\]
+
+Danach ergibt sich der Vektor der Trends der Aktien $\mu \in \mathbb{R}^6$ zu
+
+\[
+\mu = 
+\begin{pmatrix}
+    \mu_{S_1} \\
+    \mu_{S_2} \\
+    \mu_{S_3} \\
+    \mu_{S_4} \\
+    \mu_{F_1} \\
+    \mu_{F_2} \\
+\end{pmatrix}
+\]
+
+Es soll die Kovarianz der Aktien untereinander, die Kovarianz der Faktoren und Aktien und die Kovarianz der Faktoren untereinander betrachtet werden. Die Kovarianzmatrix ergibt sich nach 
+
+\[
+\Sigma = \mathbb{E}[\Delta X \cdot \Delta X^T] = \sum_{c \in C}^{} p(c) \cdot c \cdot c^T.
+\]
+
+Da $\Delta X \in \mathbb{R}^6$ ergibt sich eine symmetrische $6 \times 6$ Matrix:
+
+\[
+\Sigma =
+\begin{pmatrix}
+    \Sigma_{SS} & \Sigma_{SF} \\
+    \Sigma_{FS} & \Sigma_{FF} \\
+\end{pmatrix}
+\]
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Block} & \textbf{Dimension} & \textbf{Bedeutung} \\ \midrule
+$\Sigma_{SS}$ & $4 \times 4$ & Kovarianzen der Aktien untereinander \\ \addlinespace
+$\Sigma_{FF}$ & $2 \times 2$ & Kovarianzen der Faktoren untereinander \\ \addlinespace
+$\Sigma_{SF} = \Sigma_{FS}^T$ & $4 \times 2$ & Kovarianzen zwischen Aktien und Faktoren \\ \bottomrule
+\end{tabular}
+\end{table}
+
+Der Volitalitätskoeffizient $\sigma$ der SDE wird bestimmt als Cholesky-Zerlegung von $\Sigma$. Da $\Sigma$ mit nicht-negativen Wahrscheinlichkeiten $p(c)$ konstrukiert ist, ist $\Sigma$ positiv semidefinit, womit die Zerlegung existiert.
+
+\[
+B \cdot B^T = \Sigma
+\]
+
+Die gesamte \ac{SDE} ergibt sich zu
+
+\[
+dS_i(t) = \mu_{S_i} dt + \sum_{j=1}^{6}B_{ij} dW_j(t),\quad i=1, 2, 3, 4,
+\]
+wobei $W(t) \in \mathbb{R}^6$ ein sechsdimensionaler Wiener-Prozess ist. Die Faktoren $F_1$ und $F_2$ gehen nicht in die Auswertung ein, da sie lediglich für die Modellierung der Aktien $S$ verwendet werden.
+
+Zur Lösung der \ac{SDE} wird das Euler-Maruyama-Schema verwendet. Der Startwert ist der Aktienkurs der jeweiligen Aktie am Begin des Testzeitraumes $T$. Danach wird die diskrete Annäherung simuliert nach der Rechenvorschrift~\ref{euler}.
+
+\begin{equation}\label{euler}
+S_i(t+1) = S_i(t) + \mu_{S_i} \Delta t + \sum_{j=1}^{6}B_{ij} \Delta W_{j,t}
+\end{equation}
+Hierbei ist $\Delta W_{j,t}$ die Zunahme des Wiener-Prozesses $W_j$ im Intervall [t,t+1]:
+
+\[
+\Delta W_{j,t} \sim \mathcal{N} (0, \Delta t) \Longrightarrow \Delta W_{j,t} = Z_{j, t} \sqrt{\Delta t},
+\]
+
+wobei $Z_{j,t}$ unabhängige, standardnormalverteilte Zufallsvariablen sind.
+
+
+
+%Vorstellen wie die Aktien und Faktoren gruppiert werden und wie ein Sieger bestimmt wird
+\subsubsection*{Grupperierung}
+
+Um das vorgestellte Verfahren auf ein gesamtes Aktienuniversum anwenden zu können, muss eine Gruppierung der Aktien und Faktoren vorgenommen werden. Es werden je 4 Aktien und 2 Faktoren gruppiert. Da der S\&P500 500 Aktien enthält, werden sich in Stufe $S=1$ 125 Gruppen ergeben. Da insgesamt 10 Aktien gewählt werden, werden 3 Runden benötigt.
+
+
+
+
+
+%Herleitung die wie vielt besten Aktien wir damit bekommen, wenn das Verfahren perfekt wäre (quasi wie viel wir maximal verlieren)
+
+
+
+
+
+
+%Hier war die Zufallsauswahl beschrieben => jetzt über SDE
+
+%Da die Auswahl geeigneter Zeitreihen nicht Teil dieser Arbeit ist, werden die hier verwendeten untersuchten Aktien zufällig aus dem S\&P100 vom Jahresbeginn 2020 ausgewählt. Diese Auswahl bleibt über den Gesamtzeitraum der Arbeit bestehen. %Markus; Warum? Hierdurch kann ich doch einen systematischen Fehler generieren? Begründen. A: Warum, weiß nicht was er meint.
+%Die ausgewählten Aktien sind zu sehen in Tabelle~\ref{tab:Aktienauswahl}.
+
+% \begin{table}[h!]
+%     \centering
+%     \caption{Ausgewählte Aktien}\label{tab:Aktienauswahl}
+%     \begin{tabular}{l c c}
+%         Unternehmen & Tickersymbol & Branche\\ %TODO: Wenn wir wissen, welche Features wir verwenden wollen, dann die für den Traininszeitraum berechnen und in diese Tabelle, zb Mittelwert, Standardabweichung usw
+%         \hline
+%         Amazon & AMZN & xx\\
+%         Adobe & ADBE & xx\\
+%         CVS Health & CVS & xx\\
+%         General Motors & GM & xx\\
+%         Micron Technology & MU & xx\\
+%         PayPal & PYPL & xx\\
+%         Walgreens Boots Alliance & WBA & xx\\
+%         PepsiCo & PEP & xx\\
+%         Salesforce & CRM & xx\\
+%         3M & MMM & xx\\
+%         \hline
+%     \end{tabular}
+% \end{table}
+
+\subsection{Bereinigung}
 
 Da die Analysen stets auf Backtests basieren, ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise einer Aktie im Zeitverlauf durch Ereignisse wie 
 Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\) und \(\tilde{P_t}\) der bereinigte Preis auf dem ein Modell trainiert werden kann. \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
