@@ -79,7 +79,7 @@ Für die Analyse sollen 10 Aktien aus dem Gesamtuniversum ausgewählt werden. Di
 Aktienkurse setzen sich aus einem Trend und zufälligem Rauschen zusammen. Eine Aktienkursbewegung $dS(t)$ wird beschrieben durch einen Trend $\mu$ und ein Rauschen als Wienerprozess $W_t$, verstärkt durch einen Volatilitätskoeffizienten $\sigma$.
 
 \begin{equation}\label{sde}
-dS(t) = \mu dt + \sigma dW(t)
+dS(t) = \mu S(t) dt + \sigma S(t)dW(t)
 \end{equation}
 
 
@@ -89,8 +89,8 @@ Der in dieser Arbeit gewählte Ansatz lässt sich als eine Verallgemeinerung des
 
 Der Ansatz in~\cite{Ofomataetal2017} teilt eine Aktienbewegung in drei Richtungen auf: Anstieg~$(+1)$, Rückgang~$(-1)$ und Stagnation~$(0)$. Bei $n$ betrachteten Aktien ergibt sich daraus ein Ergebnisraum von $3^n$ möglichen Bewegungskombinationen innerhalb eines Handelstages. Für $n = 4$ also bereits $3^4 = 81$ zu berücksichtigende Szenarien. Dies führt bei 60 betrachteten Handelstagen bei vielen Bewegungen zu einer Wahrscheinlichkeit von 0. Wenn mehr Aktien betrachten werden sollen, wächst die benötigte Datenmenge exponentiell, bis die vorhandenen Börsendaten nicht mehr ausreichen.
 
-Der hier vorgestellte Ansatz behält die grundlegende Struktur bei, ersetzt jedoch den ursprünglichen $3^n$-dimensionalen Aktienvektor durch einen $3^{g+f}$-dimensionalen Einflussvektor. Das Verfahren lässt sich in folgende Schritte unterteilen:
-Zunächst wird das gesamte Aktienuniversum in Gruppen zu je $g$ Aktien aufgeteilt. Die Zuordnung erfolgt dabei auf Basis der höchsten Korrelation zu einem der makroökonomischen Faktoren $f$ aus Tabelle~\ref{tab:makrofaktoren}. Innerhalb dieser Gruppen werden anschließend Trend und Korrelation der Aktien sowie des jeweiligen Faktors analysiert, um $\mu$ und $\sigma$ zu bestimmen und mögliche Kursverläufe zu simulieren. Die Aktie, die nach dem Trainingszeitraum $T$ den höchsten \ac{ROI} in der Simulation erzielt, geht als „Gewinner“ aus ihrer Gruppe hervor. Dieser Auswahlprozess wird über das gesamte Aktienuniversum durchgeführt. Danach werden diese „Gewinner“ wieder in Gruppen zu je $g$ Aktien aufgeteilt. Durch diesen hierarchischen Prozess bleibt der Ansatz unabhängig von der Gesamtzahl der Aktien ($n$). Er lässt sich somit auf beliebig große Universen anwenden und berücksichtigt direkt den Einfluss makroökonomischer Faktoren.
+Der hier vorgestellte Ansatz behält die grundlegende Struktur bei, ersetzt jedoch den ursprünglichen $3^n$-dimensionalen Aktienvektor durch einen $3^{g+f}$-dimensionalen Einflussvektor aus $g$ Aktien und $f$ Faktoren. Das Verfahren lässt sich in folgende Schritte unterteilen:
+Zunächst wird das gesamte Aktienuniversum in Simulationsgruppen zu je $g$ Aktien aufgeteilt. Die Zuordnung erfolgt dabei auf Basis der höchsten Korrelation zu einem der makroökonomischen Faktoren $f$ aus Tabelle~\ref{tab:makrofaktoren}. Innerhalb dieser Simulationsgruppen werden anschließend Trend und Korrelation der Aktien sowie des jeweiligen Faktors analysiert, um $\mu$ und $\sigma$ zu bestimmen und mögliche Kursverläufe zu simulieren. Die Aktie, die nach dem Trainingszeitraum $T$ den höchsten \ac{ROI} in der Simulation erzielt, geht als „Gewinner“ aus ihrer Simulationsgruppe hervor. Dieser Auswahlprozess wird über das gesamte Aktienuniversum durchgeführt. Danach werden diese „Gewinner“ wieder in Simulationsgruppen zu je $g$ Aktien aufgeteilt. Durch diesen hierarchischen Prozess bleibt der Ansatz unabhängig von der Gesamtzahl der Aktien ($n$). Er lässt sich somit auf beliebig große Universen anwenden und berücksichtigt direkt den Einfluss makroökonomischer Faktoren.
 
 \begin{table}[h!]
     \centering
@@ -121,21 +121,19 @@ Die Bewegung der Aktien und Faktoren innerhalb eines Zeitschritts t wird diskret
 \end{cases}
 \]
 
-Daraus ergibt sich ein Einflussvektor aus Aktienbewegungen S und Faktorbewegungen F
+Durch die Diskretisierung der Aktienbewegung degeneriert die \ac{SDE} zu 
+
+\begin{equation}\label{degen_sde}
+dS(t) = \mu dt + \sigma dW(t).
+\end{equation}
+
+Aus der Diskretisierung ergibt sich weiter ein Einflussvektor aus Aktienbewegungen S und Faktorbewegungen F
 
 \[
 \Delta X(t) = {[\Delta S_1(t), \Delta S_2(t), \dots, \Delta S_g(t), \Delta F_1(t), \Delta F_2(t), \dots, \Delta F_f(t)]}^T.
 \]
 
-Der bereits definierte Trainingszeitraum $T$ hat etwa 1000 Handelstage $(H_t = 1000)$. Um eine sinnvolle Wahrscheinlichkeitsverteilung zu liefern, sollten die möglichen Kombinationen des Einflussvektors mindestens der Anzahl an Handelstagen entsprechen.
-
-\begin{align*}
-&1000 = 3^k => k \approx 6 = g+f\\
-&g := 4\\
-&f := 2
-\end{align*}
-
-Es werden pro Gruppe demnach 4 Aktien und 2 Faktoren gewählt. Mit $k=6$ Einflüssen gibt es $3^6 = 729$ mögliche Kombinationen $C$ an Einflussvektorbewegungen pro Zeitschritt. Für jede Kombination $c \in C$ wird die Wahrscheinlichkeit aus dem Trainingszeitraum T nach Formel~\ref{wkeitKombination} geschätzt. Außerdem wird eine Laplace-Glättung eingeführt. Dies soll das Problem eliminieren, dass Kombinationen die im Traininszeitraum aus statistischen Gründen nicht aufgetreten sind, als unmöglich angesehen werden.
+Für alle Kombinationen des Einflussvektors $c \in C$ wird die Wahrscheinlichkeit aus dem Trainingszeitraum T nach Formel~\ref{wkeitKombination} geschätzt. Außerdem wird eine Laplace-Glättung eingeführt. Dies soll das Problem eliminieren, dass Kombinationen die im Traininszeitraum aus statistischen Gründen nicht aufgetreten sind, als unmöglich angesehen werden.
 
 \begin{equation}\label{wkeitKombination}
     p(c) = \frac{\#\{t: \Delta X(t) = c\}+1}{T + |C|}
@@ -147,17 +145,18 @@ Der Trend der Aktien und Faktoren ergibt sich aus dem Erwartungswert der Wahrsch
 \mu = \mathbb{E}[\Delta X] = \sum_{c \in C}^{} p(c) \cdot c.
 \]
 
-Danach ergibt sich der Vektor der Trends der Aktien $\mu \in \mathbb{R}^6$ zu
+Danach ergibt sich der Vektor der Trends der Aktien $\mu \in \mathbb{R}^g$, mit $g$ als Simulationsgruppengröße zu
 
 \[
 \mu = 
 \begin{pmatrix}
     \mu_{S_1} \\
     \mu_{S_2} \\
-    \mu_{S_3} \\
-    \mu_{S_4} \\
+    \vdots \\
+    \mu_{S_g} \\
     \mu_{F_1} \\
-    \mu_{F_2} \\
+    \vdots \\
+    \mu_{F_f} \\
 \end{pmatrix}
 \]
 
@@ -167,7 +166,7 @@ Es soll die Kovarianz der Aktien untereinander, die Kovarianz der Faktoren und A
 \Sigma = \mathbb{E}[\Delta X \cdot \Delta X^T] = \sum_{c \in C}^{} p(c) \cdot c \cdot c^T.
 \]
 
-Da $\Delta X \in \mathbb{R}^6$ ergibt sich eine symmetrische $6 \times 6$ Matrix:
+Da $\Delta X \in \mathbb{R}^{f+g}$ ergibt sich eine symmetrische $(f+g) \times (f+g)$ Matrix:
 
 \[
 \Sigma =
@@ -182,9 +181,9 @@ Da $\Delta X \in \mathbb{R}^6$ ergibt sich eine symmetrische $6 \times 6$ Matrix
 \begin{tabular}{lll}
 \toprule
 \textbf{Block} & \textbf{Dimension} & \textbf{Bedeutung} \\ \midrule
-$\Sigma_{SS}$ & $4 \times 4$ & Kovarianzen der Aktien untereinander \\ \addlinespace
-$\Sigma_{FF}$ & $2 \times 2$ & Kovarianzen der Faktoren untereinander \\ \addlinespace
-$\Sigma_{SF} = \Sigma_{FS}^T$ & $4 \times 2$ & Kovarianzen zwischen Aktien und Faktoren \\ \bottomrule
+$\Sigma_{SS}$ & $g \times g$ & Kovarianzen der Aktien untereinander \\ \addlinespace
+$\Sigma_{FF}$ & $f \times f$ & Kovarianzen der Faktoren untereinander \\ \addlinespace
+$\Sigma_{SF} = \Sigma_{FS}^T$ & $g \times f$ & Kovarianzen zwischen Aktien und Faktoren \\ \bottomrule
 \end{tabular}
 \end{table}
 
@@ -197,14 +196,14 @@ B \cdot B^T = \Sigma
 Die gesamte \ac{SDE} ergibt sich zu
 
 \[
-dS_i(t) = \mu_{S_i} dt + \sum_{j=1}^{6}B_{ij} dW_j(t),\quad i=1, 2, 3, 4,
+dS_i(t) = \mu_{S_i} dt + \sum_{j=1}^{f+g}B_{ij} dW_j(t),\quad i=1, 2, \dots, g,
 \]
-wobei $W(t) \in \mathbb{R}^6$ ein sechsdimensionaler Wiener-Prozess ist. Die Faktoren $F_1$ und $F_2$ gehen nicht in die Auswertung ein, da sie lediglich für die Modellierung der Aktien $S$ verwendet werden.
+wobei $W(t) \in \mathbb{R}^{f+g}$ ein Wiener-Prozess der Dimension $f+g$ ist. Die Faktoren $F$ gehen nicht in die Auswertung ein, da sie lediglich für die Modellierung der Aktien $S$ verwendet werden.
 
 Zur Lösung der \ac{SDE} wird das Euler-Maruyama-Schema verwendet. Der Startwert ist der Aktienkurs der jeweiligen Aktie am Begin des Testzeitraumes $T$. Danach wird die diskrete Annäherung simuliert nach der Rechenvorschrift~\ref{euler}.
 
 \begin{equation}\label{euler}
-S_i(t+1) = S_i(t) + \mu_{S_i} \Delta t + \sum_{j=1}^{6}B_{ij} \Delta W_{j,t}
+S_i(t+1) = S_i(t) + \mu_{S_i} \Delta t + \sum_{j=1}^{f+g}B_{ij} \Delta W_{j,t}
 \end{equation}
 Hierbei ist $\Delta W_{j,t}$ die Zunahme des Wiener-Prozesses $W_j$ im Intervall [t,t+1]:
 
@@ -219,14 +218,59 @@ wobei $Z_{j,t}$ unabhängige, standardnormalverteilte Zufallsvariablen sind.
 %Vorstellen wie die Aktien und Faktoren gruppiert werden und wie ein Sieger bestimmt wird
 \subsubsection*{Grupperierung}
 
-Um das vorgestellte Verfahren auf ein gesamtes Aktienuniversum anwenden zu können, muss eine Gruppierung der Aktien und Faktoren vorgenommen werden. Es werden je 4 Aktien und 2 Faktoren gruppiert. Da der S\&P500 500 Aktien enthält, werden sich in Stufe $S=1$ 125 Gruppen ergeben. Da insgesamt 10 Aktien gewählt werden, werden 3 Runden benötigt.
+Um das vorgestellte Verfahren auf ein gesamtes Aktienuniversum anwenden zu können, muss eine Gruppierung der Aktien und Faktoren vorgenommen werden. Der bereits definierte Trainingszeitraum $T$ hat etwa 1000 Handelstage $(H_t = 1000)$. Um eine sinnvolle Wahrscheinlichkeitsverteilung zu liefern, sollten die möglichen Kombinationen des Einflussvektors mindestens der Anzahl an Handelstagen entsprechen.
 
+\begin{align*}
+&1000 = 3^k => k \approx 6 = g+f\\
+&g := 4\\
+&f := 2
+\end{align*}
 
+Es werden pro Simulationsgruppe demnach 4 Aktien und 2 Faktoren gewählt. Mit $k=6$ Einflüssen gibt es $3^6 = 729$ mögliche Kombinationen $C$ an Einflussvektorbewegungen pro Zeitschritt. Da der S\&P500 500 Aktien enthält, werden sich in Stufe $S=1$ 125 Simulationsgruppen ergeben. Da im Endeffekt 10 Aktien gewählt werden, werden 3 Stufen benötigt.
 
+Es wird nun eine Methode vorgestellt, die Aktien und die dazu am besten passenden Faktoren zu wählen. Um die Sensitivität jeder Aktie gegenüber den Makrofaktoren zu bestimmen wird für jede Aktie eine lineare Regression auf die diskrete Faktorbewegung geschätzt.
+
+\begin{equation}
+    \Delta S_i(t) = \alpha_i + \sum_{j=1}^{7} \beta_{i,j} \cdot \Delta F_j(t) + \varepsilon_i(t)
+\end{equation},
+
+wobei $\alpha_i$ den faktorunabhängigen Trend der Aktie bezeichnet, $\beta_{i,j}$ die Sensitivität der Aktie $i$ gegenüber Faktor $j$ und $\varepsilon_i(t)$ einen aktienspezifischen Zufallsterm.
+
+Die Koeffizient werden dabei mittels \ac{OLS} bestimmt:
+
+\begin{equation}
+    \hat{\beta}_i = (X^T X)^{-1} X^T \Delta S_i, 
+\end{equation}
+wobei $X \in \mathbb{R}^{T \times 8}$ die Designmatrix der Faktorbewegungen über $T = 1000$ Handelstage bezeichnet.
+
+Da jede Simulationsgruppe genau zwei Faktoren enthalten soll, wird jeder Aktie das Faktorpaar $(f_1, f_2)$ zugewiesen, für das die Summe der $\beta$-Koeffizienten maximal ist.
+
+\begin{equation}
+    (f_1^*, f_2^*) = \underset{j_1 \neq j_2}{\arg\max} \left( |\beta_{if_1}| + |\beta_{if_2}| \right)
+\end{equation}
+
+Dieses Paar wird als dominantes Faktorpaar $(f_{i,1}^*, f_{i,2}^*)$ der Aktie $i$ bezeichnet. Alle Aktien die dasselbe dominante Faktorpaar haben, werden in einem Pool zusammengefasst.
+
+\begin{equation}
+    \mathcal{P}_{j_1, j_2} = \left\{ S_i : (j_1^*, j_2^*) = (j_1, j_2) \right\}
+\end{equation}
+
+Bei den gewählten 7 Faktoren gibt es somit $\binom{7}{2} = 21$ mögliche Faktorpools. Jeder Pool enthält dabei Aktien, die auf dasselbe Faktorpaar am stärksten reagieren, wodurch auch die Korrelation unter den Aktien hoch sein sollte. Aus den Pools müssen nun noch Simulationsgruppen zu je 4 Aktien gebildet werden.
+
+Es sei anzumerken, dass die Zuteilung der dominanten Faktorpaare von der Qualität der Regressionsschätzung abhängt und davon, infwiefern die Bewegung der Aktien überhaupt über die Faktoren zu bestimmen ist. Für eine qualitative Aussage zwischen verschiedenen Aktien sollte die Schätzung aber funktionieren. 
 
 
 %Herleitung die wie vielt besten Aktien wir damit bekommen, wenn das Verfahren perfekt wäre (quasi wie viel wir maximal verlieren)
+Durch das hierarchische Format der Aktienauswahl kann es durch die lokalen Verlgeiche passieren, dass Aktien in früheren Stufen eliminiert werden, obwohl sie im Vergleich der Grundgesamtheit unter den Top 10 vielversprechendensten Aktien gewesen wären. Wie negativ das ins das Gesamtergebnis eingeht, hängt davon ab, wie gut die Aktien eines Pools auf die Simulationsgruppen aufgeteilt werden können.
 
+\subsubsection*{Best Case}
+Für den Best Case müsste eine Verteilung so vorliegen, dass 
+
+
+
+
+
+%Herleitung wie die Aktien von Pools auf Gruppen aufgeteilt werden.
 
 
 
@@ -418,23 +462,9 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 
 \section{Modellentwicklung}\label{entwicklung}
-\subsection{ARIMA-GARCH} % ARIMA, GARCH, moving average, lineare Reggression
-\subsection{Preprocessed SVR}
+\subsection{ARIMA-GARCH} % ARIMA, GARCH, moving average, lineare Reggression iwi kombinieren
+\subsection{Preprocessed SVR} % SVR wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
 
-\subsection{Stochastische Differentialgleichungen} % Twitter/Trump scrape usw
-
-\subsection{StockTimesFM} % SVM wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
+\subsection{StockTimesFM} 
 
 \section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
-
-
- % Unternehmenskorrelation
-% Matrix mit allen Unternehmen je auf x und y.
-% Dann berechne den Einfluss der Rendite von x in t-1 auf die von y für t
-% über: Ri * Rj / abs(Ri) * abs(Rj)
-% Mache das für die letzten x Tage (5)
-% daraus ein Vektor
-
-% und eine Matrix
-% Tage gewichten
-% => Wird wohl besser auf Intraday Daten funktionieren, aber können wir ja trotzdem schonmal implementieren
