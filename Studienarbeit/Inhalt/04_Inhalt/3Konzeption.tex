@@ -10,7 +10,7 @@ Der Rahmen der Arbeit wird definiert, einschließlich des Untersuchungsgegenstan
 Aufbauend auf diesen Grundlagen erfolgt die Modellentwicklung. Es werden 4 Modelle vorgestellt:
 
 \subsubsection*{LinearSeparation}
-Deep-Learning-Modelle agieren oft als Black-Box und bieten dadurch viele Freiheitsgrade. Lineare Modelle sind besser nachvollziehbar und interpretierbar. In dieser Arbeit wird ein lineares Modell vorgestellt, welches den Aktienkurs in mehrere lineare Teile zerlegt und so extrapoliert. Das Verfahren basiert auf \ac{ARIMA} und \ac{HP}-Filtern. Um die Prognosegenauigkeit zu erhöhen, wird die Preisvorhersage mit einer Volatilitätsbetrachtung durch ein \ac{GARCH}-Modell kombiniert.
+Deep-Learning-Modelle agieren oft als Black-Box und bieten dadurch viele Freiheitsgrade. Lineare Modelle sind besser nachvollziehbar und interpretierbar. In dieser Arbeit wird ein lineares Modell vorgestellt, welches den Aktienkurs in mehrere lineare Teile zerlegt und so extrapoliert. Das Verfahren basiert auf \ac{ARMA} und \ac{HP}-Filtern. Um die Prognosegenauigkeit zu erhöhen, wird die Preisvorhersage mit einer Volatilitätsbetrachtung durch ein \ac{GARCH}-Modell kombiniert.
 
 \subsubsection*{Preprocessed SVR}
 Viele Studien untersuchen den Einsatz von Deep Learning zur Vorhersage von Aktienkursen, wobei häufig \acp{SVM} und \acp{NN} eingesetzt werden. In wenigen Arbeiten wird auch \ac{SVR} angewendet.~\cite{2022_Kumar} In dieser Arbeit wird ein Ansatz untersucht, der \ac{SVR} mit zusätzlichen Analyseverfahren kombiniert. Die Eingabedaten für das \ac{SVR}-Modell bestehen aus vorverarbeiteten und normalisierten Kennzahlen, darunter technische Preisindikatoren, Social-Media-Sentiment-Analysen sowie Einflussgrößen anderer Unternehmen. Die \ac{SVR} erfolgt hierbei vollständig auf Log-Renditen.
@@ -458,40 +458,86 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 
 \section{Modellentwicklung}\label{entwicklung}
+
 \subsection{LinearSeparation} % ARIMA, GARCH, moving average, lineare Reggression iwi kombinieren
 
-Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning oder ähnliches auskommen soll. Es wird sich dafür an vorhandenen linearen Verfahren wie \ac{ARIMA} oder \ac{GARCH} orientieren. Diese werden sinnvoll kombiniert, um eine Vorhersage zu treffen.
-Dieser Ansatz stellt die Behauptung auf, dass sich ein Aktienkurs aus den Komponenten in Formel~\ref{linearerKurs} zusammensetzt.
+Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning oder ähnliches auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} oder \ac{HP} orientiert. Diese werden sinnvoll kombiniert, um eine Vorhersage zu treffen. Dieser Ansatz stellt die Behauptung auf, dass sich ein Aktienkurs aus den Komponenten in Formel~\ref{linearerKurs} zusammensetzt.
 
-\begin{equation}\label{linearerKurs}
-    P_t = T_t^{\text{lang}} \cdot T_t^{\text{kurz}} \cdot C_t \cdot \epsilon_t
+\begin{equation}
+\label{linearerKurs}
+P_t = T_t^{\text{lang}} \cdot T_t^{\text{kurz}} \cdot C_t \cdot \epsilon_t
 \end{equation}
 
 \begin{table}[h]
 \centering
 \begin{tabularx}{\textwidth}{lllX}
 \toprule
-\textbf{Variable} & \textbf{Bedeutung} & \textbf{Zeitrahmen} & \textbf{Begründung}\\ 
+\textbf{Variable} & \textbf{Bedeutung} & \textbf{Zeitrahmen} & \textbf{Begründung} \\
 \midrule
-$T_t^{\text{lang}}$ & langfristiger Trend & Jahre  & Aktienmärkte bewegen sich durch Inflation und Konjunktur langfristig gleichmäßig\\ 
+$T_t^{\text{lang}}$ & langfristiger Trend & Jahre & Aktienmärkte bewegen sich durch Inflation und Konjunktur langfristig gleichmäßig \\
 \addlinespace
-$T_t^{\text{kurz}}$ & aktueller Trend & Wochen & aktienspezifische Bewegung abhängig von Earnings, Nachrichten usw. \\ 
+$T_t^{\text{kurz}}$ & aktueller Trend & Wochen & aktienspezifische Bewegung abhängig von Earnings, Nachrichten usw. \\
 \addlinespace
-$C_t$ & kurzfristige Schwankungen & Tage & Autokorrelation in wenigen Tagen, teilweise begründbar \\ 
+$C_t$ & kurzfristige Schwankungen & Tage & Autokorrelation in wenigen Tagen, teilweise begründbar \\
 \addlinespace
-$\epsilon_t$ & Rauschen & $\mathbb{E}[\epsilon_t] = 0$  & nicht erklärbar, nicht vorhersagbar \\ 
+$\epsilon_t$ & Rauschen & $\mathbb{E}[\epsilon_t] = 0$ & nicht erklärbar, nicht vorhersagbar \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-Der Zusammenhang ist dabei multiplikativ, da Aktienkurse prozentual schwanken. Rauschen also beispielweise bei teuren Aktien größer ist. Da die Berechnung auf Log-Renditen erfolgt, wird der Zusammenhang später additiv.
+Der Zusammenhang ist dabei multiplikativ, da Aktienkurse prozentual schwanken. Rauschen also beispielweise bei teuren Aktien größer ist. Da die Berechnung auf Log-Preisen $p_t = \ln(P_t)$ erfolgt, wird der Zusammenhang additiv.
 
-\begin{equation}\label{lineareRenditen}
-    r_t = \tau_t^{\text{lang}} + \tau_t^{\text{kurz}} + c_t + \epsilon_t
+\begin{equation}
+\label{lineareRenditen}
+p_t = \tau_t^{\text{lang}} + \tau_t^{\text{kurz}} + c_t + \epsilon_t
 \end{equation}
 
-Die Komponenten des Preises werden dabei über verschiedene Wege modelliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} und \ac{OLS} geschätzt. Die rohen Log-Renditen im Trainingszeitraum werden mit einem \ac{HP}-Filter geglättet. Anschließend wird diese Reihe über \ac{OLS} extrapoliert, um die zukünftige Entwicklung der konstanten Terme vorherzusagen.
+Die Komponenten des Preises werden dabei über verschiedene Wege modelliert und dann extrapoliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} modelliert und mittels \ac{OLS} extrapoliert. Das zentrale Problem liegt hierbei bei der Unterscheidung zwischen langfristigem Trend und kurzfristigem Trend. Als signifikanter Unterschied zwischen den beiden Trends wird in diesem Ansatz der Zeithorizont $\lambda$ verwendet.
 
+Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_t = \ln(P_t)$ der langfristige Trend $\tau^\text{lang}$ extrahiert. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda$. Die genaue Wahl von $\lambda$ wird im Kapitel~\ref{impl} diskutiert, sollte aber zwischen $10^7$ und $10^9$ liegen.
+
+\begin{equation}
+\min_{\{\hat{\tau}_t\}} \left(
+\sum_{t=1}^{T} (p_t - \hat{\tau}_t)^2
++ \lambda \sum_{t=2}^{T-1} (\hat{\tau}_{t+1} - 2\hat{\tau}_t + \hat{\tau}_{t-1})^2
+\right)
+\end{equation}
+
+Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t$ werden die Residuen gebildet.
+
+\[
+\tilde{p}_t = p_t - \hat{\tau}^{\text{lang}}_t
+\]
+
+Auf der Residuenzeitreihe $\tilde{p}_t$ wird ein weiterer HP-Filter mit einem kleineren $\lambda$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Hierfür wird ein Lambda der Größenordnung $10^5$ diskutiert. Nach der Glättung ergeben sich die Residuen nach beiden Trendfiltern zu
+
+\[
+c_t = \tilde{p}_t - \hat{\tau}^{\text{kurz}}_t.
+\]
+
+Die \ac{HP}-Filter liefern somit geglätte Trendverläufe $\hat{\tau}^{\text{lang}}_t$ und $\hat{\tau}^{\text{kurz}}_t$ für die historischen Daten bis zum Zeitpunkt $T$. Um Vorhersagen treffen zu können müssen die Trends extrapoliert werden. Da beide Trends im Kontext von Tagespreisen langfristig sind, können sie lokal über ein lineares Modell approximiert werden. Dafür werden sie über ein gleitendes Fenster der Länge $w$ gefittet. Mittels \ac{OLS} werden die Parameter $\hat{a}$ und $\hat{b}$ geschätzt:
+
+\begin{align}
+\hat{\tau}^{\text{lang}}_{T+k} &= \hat{a}_1 + \hat{b}_1 \cdot (T+k), \\
+\hat{\tau}^{\text{kurz}}_{T+k} &= \hat{a}_2 + \hat{b}_2 \cdot (T+k).
+\end{align}
+
+Die Fenstergröße $w$ bestimmt dabei, wie aktuelle Bewegungen in die Schätzung eingehen. Für $\tau^\text{lang}_t$ wird $w=252$ (1 Handelsjahr) und für $\tau^\text{kurz}_t$ wird $w=60$ gewählt.
+
+Nach der Trendentfernung verbleiben die Residuen $c_t$ als kurzfristige Muster. Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorrausgesetzt, dass die zugrundeliegenden Daten stationär sind. Dies sollte nach der Trendentfernung der Fall sein, sollte aber noch überprüft werden. Um Stationarität zu prüfen wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Es wird die Nullhypothese geprüft, ob eine Unit Root vorliegt. Bei einem p-Wert kleiner als $0.05$ kann die Stationarität angenommen werden. Sollte Stationarität nicht gewährleistet werden können, wird die Wahl der \ac{HP}-Filter Parameter $\lambda$ variiert.
+Zur Modellierung wird ein Standard \ac{ARMA}(p,q)-Modell verwendet:
+
+\begin{equation}
+c_t = a + \sum_{i=1}^{p} \phi_i c_{t-i} + \sum_{j=1}^{q} \theta_j \epsilon_{t-j} + \epsilon_t,
+\end{equation}
+
+mit den Autokorrelationskoeffizienten $\phi_i$ und Fehlerkoeffizienten $\theta_j$.
+Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Für alle Kombinationen $(p,q)$ mit $p,q \in {1, 2, \ldots, 5}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
+
+\begin{equation}
+    \text{AIC}(p,q) = 2(p+q) - 2\ln(\hat{L}),
+\end{equation}
+wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.
 
 
 \subsection{Preprocessed SVR} % SVR wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
