@@ -494,7 +494,7 @@ p_t = \tau_t^{\text{lang}} + \tau_t^{\text{kurz}} + c_t + \epsilon_t
 
 Die Komponenten des Preises werden dabei über verschiedene Wege modelliert und dann extrapoliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} modelliert und mittels \ac{OLS} extrapoliert. Das zentrale Problem liegt hierbei bei der Unterscheidung zwischen langfristigem Trend und kurzfristigem Trend. Als signifikanter Unterschied zwischen den beiden Trends wird in diesem Ansatz der Zeithorizont $\lambda$ verwendet.
 
-Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_t = \ln(P_t)$ der langfristige Trend $\tau^\text{lang}$ extrahiert. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda$. Die genaue Wahl von $\lambda$ wird im Kapitel~\ref{impl} diskutiert, sollte aber zwischen $10^7$ und $10^9$ liegen.
+Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_1, \ldots, p_T$ (mit $t=1,\ldots,T$) der langfristige Trend $\tau^\text{lang}$ extrahiert. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda$. Die genaue Wahl von $\lambda$ wird im Kapitel~\ref{impl} diskutiert, sollte aber zwischen $10^7$ und $10^9$ liegen.
 
 \begin{equation}
 \min_{\{\hat{\tau}_t\}} \left(
@@ -531,13 +531,40 @@ Zur Modellierung wird ein Standard \ac{ARMA}(p,q)-Modell verwendet:
 c_t = a + \sum_{i=1}^{p} \phi_i c_{t-i} + \sum_{j=1}^{q} \theta_j \epsilon_{t-j} + \epsilon_t,
 \end{equation}
 
-mit den Autokorrelationskoeffizienten $\phi_i$ und Fehlerkoeffizienten $\theta_j$.
+mit den Autokorrelationskoeffizienten $\phi_i$ und Fehlerkoeffizienten $\theta_j$. Nach der Trendentfernung
 Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Für alle Kombinationen $(p,q)$ mit $p,q \in {1, 2, \ldots, 5}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
 
 \begin{equation}
     \text{AIC}(p,q) = 2(p+q) - 2\ln(\hat{L}),
 \end{equation}
 wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.
+
+Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
+
+\begin{equation}
+\hat{c}_{T+k}
+= \sum_{i=1}^{p^*} \phi_i \hat{c}_{T+k-i}
++ \sum_{j=1}^{q^*} \theta_j \hat{\varepsilon}_{T+k-j}
+\end{equation}
+
+Dabei werden für alle $k>1$ die bereits vorhergesagten Werte als Eingabe verwendet. Außerdem werden alle zukünftigen Fehlerterme auf ihrem Erwartungswert $\hat{\varepsilon}_{T+k} = \mathbb{E}[\varepsilon] = 0$ gesetzt.
+
+Dies führt dazu, dass der ARMA-Beitrag zur Gesamtvorhersage für große Horizonte $k$ exponentiell gegen null konvergiert, und die Vorhersage zunehmend von den extrapolierten Trendkomponenten dominiert wird, was genau der Modellierung entspricht.
+
+Die gesamte Vorhersage des Log-Preises zum Zeitpunkt $T+h$ ergibt sich aus der Summe aller drei modellierten Komponenten.
+
+\begin{equation}
+\hat{p}_{T+h}
+= \hat{\tau}^{\text{lang}}_{T+h}
++ \hat{\tau}^{\text{kurz}}_{T+h}
++ \hat{c}_{T+h}
+\end{equation}
+
+Die Rücktransformation in den ursprünglichen Preisraum erfolgt durch Exponentiation.
+
+\begin{equation}
+\hat{P}_{T+h} = \exp(\hat{p}_{T+h})
+\end{equation}
 
 
 \subsection{Preprocessed SVR} % SVR wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
