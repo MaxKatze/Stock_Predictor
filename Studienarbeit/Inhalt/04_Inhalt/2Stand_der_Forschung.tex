@@ -1,11 +1,57 @@
+\chapter{Stand der Forschung}
+Dieses Kapitel gibt einen Überblick über den aktuellen Stand der Forschung im Bereich der mathematischen Vorhersage von Aktienkursen. Um einen Überblick zu erhalten, werden Arbeiten und Studien analysiert, die verschiedene Ansätze verwenden um Aktienkursen, Aktienkursbewegungen und Aktienkursrenditen vorherzusagen.
+Wie der Survey von \textcite{rundo2019machine} zeigt, lassen sich die verschiedenen Ansätze in die zwei Hauptkategorien der klassischen statistischen Verfahren und der Machine-Learning-Ansätze unterteilt werden können.
+Während die klassischen Verfahren auf traditionellen Zeitreihen- und Regressionsmodellen basieren, setzen die Machine-Learning-Ansätze auf datengetriebene Methoden mit manuellem Feature Engineering oder tiefen neuronalen Netzen.
+Werden beide Ansätze kombiniert, entstehen hybride Modelle, die versuchen, die Stärken beider Ansätze zu kombinieren. Diese werden in einem weiteren Abschnitt behandelt. Ein zusätzlicher Abschnitt behandelt die Performance-Metriken, die in der Forschung verwendet werden. Abschließend wird ein Vergleich der verschiedenen Ansätze gezogen und eine Forschungslücke identifiziert, die den Bedarf für den eigenen Ansatz begründet.
+\section{Klassische statistische Verfahren}\label{klassische_verfahren}
+% Schwerpunkt auf traditionellen Zeitreihen- und Regressionsmodellen
+\subsection{Lineare Zeitreihenmodelle}
+% ARIMA, SARIMA, GARCH, gleitende Durchschnitte, lineare Regression
+
+ARIMA\\
+GARCH
+\subsection{Nichtlineare und stochastische Modelle}
+% stochastische Differentialgleichungen, Regimewechsel, State-Space-Modelle
+%(https://journaljamcs.com/index.php/JAMCS/article/view/93) muss so ein bisschen hier rein, würde das quasi einfach gerne copien, aber soll nicht so dastehen, aber Grundlagen müssen halt schon rein
+\section{Machine-Learning-Ansätze}\label{machine_learning}
+% Datengetriebene Verfahren mit manuellem Feature Engineering
+\subsection{Feature-basierte Verfahren}
+% SVR, Random Forest, XGBoost, kNN
+
+kNN\\
+SVR\\
+
+\textcite{ballings2015evaluating} vergleicht in seinem Paper \ac{SVM} mit \ac{kNN} und Random Forest. Zur Bewertung der Ergebnisse wird die Area Under the Curve (AUC) verwendet, die eine Aussage darüber trifft, wie gut die Modelle im Vergleich zu Zufall abschneiden. In diesem Vergleich schneidet Random Forest am besten ab, gefolgt von \ac{SVM}.
+\subsection{Deep-Learning-Modelle}
+% LSTM, GRU, CNN, Transformer
+Das Paper von \textcite{lu2021cnn} gibt stellt ein neues \ac{CNN}-basiertes Modell vor, das eine Kombination verschiedener Deep-Learning-Architekturen verwendet. Dafür wird das neue Modell auch mit den Architekturen \ac{LSTM}, \ac{RNN} und \ac{CNN} verglichen. Verglichen werden die Modelle mit den Metriken \ac{MAE}, \ac{RMSE} und R-squared. Aus dem Paper geht hervor, dass das neue \ac{CNN}-basierte Modell in allen drei Metriken besser abschneidet als die anderen Modelle. Das \ac{LSTM}-Modell schneidet am zweitbesten ab, gefolgt von \ac{RNN} und \ac{CNN}.
+
+LSTM\\
+CNN\\
+RNN\\
+GRU
+
+\section{Hybride Modelle}\label{hybride_modelle}
+% Historische Kursdaten, Volumen, technische Indikatoren, Fundamentaldaten
+% Optional: News, Sentiment, makroökonomische Daten
+
+\section{Performance-Metriken}\label{performance_metriken}
+Das Review von \textcite{kumar2022systematic} beschreibt diese fünf Metriken aus die am häufigsten verwendeten Metriken in der Literatur zur Vorhersage von Aktienkursen:
+\begin{itemize}
+    \item \textbf{Accuracy}: Wird hauptsächlich bei Klassifikationsmodellen verwendet, um den Anteil der korrekt vorhergesagten Bewegungen (z.B. Aufwärts/Abwärts) zu messen.
+    \item \textbf{\acf{RMSE}}: Wird verwendet, um die durchschnittliche Abweichung der vorhergesagten Werte von den tatsächlichen Werten zu quantifizieren.
+    \item \textbf{Mean Absolute Error (MAE)}: Wird vor allem bei Regressionsmodellen verwendet, um die durchschnittliche absolute Abweichung der Vorhersagen von den tatsächlichen Werten zu messen.
+    \item \textbf{Mean squared error (MSE)}: Wird ebenfalls bei Regressionsmodellen verwendet, um die durchschnittliche quadratische Abweichung der Vorhersagen von den tatsächlichen Werten zu quantifizieren.
+    \item \textbf{\acf{MAPE}}: Wird verwendet, um die durchschnittliche prozentuale Abweichung der Vorhersagen von den tatsächlichen Werten zu messen, was besonders nützlich ist, wenn die Werte stark variieren. Außerdem ist \ac{MAPE} die am häufigsten verwendete Metrik in der Literatur.
+\end{itemize}
+\section{Vergleich und Forschungslücke}\label{forschungsluecke_ueberleitung}
+Der Survey von \textcite{rundo2019machine} kommt zu dem Schluss, dass Machine-Learning-Modelle tendenziell akkuratere Vorhersagen liefern als klassische statistische Modelle.
+Allerdings weisen sie auch darauf hin, dass die Leistung von Machine-Learning-Modellen stark von der Qualität und Quantität der verfügbaren Daten abhängt. In vielen Fällen können klassische Modelle aufgrund ihrer Einfachheit und Interpretierbarkeit bevorzugt werden, insbesondere wenn die Daten begrenzt oder verrauscht sind.
+
+Die Analyse von \textcite{gandhmal2019systematic} sieht eine Forschungslücke in der Integration von alternativen Datenquellen, wie z.B. Nachrichten, Sentiment-Analysen und makroökonomischen Indikatoren, in die Vorhersagemodelle. Während viele Studien sich auf historische Kursdaten und technische Indikatoren konzentrieren, gibt es nur wenige Arbeiten, die diese zusätzlichen Datenquellen systematisch in ihre Modelle integrieren.
+% Zusammenfassung des Stands der Forschung
+% Ableitung, warum der eigene Ansatz notwendig ist und welche Lücke er adressiert
 %TODO: Klarer Unterteilung zwischen Stand der Forschung und Konzeption aber Zusammenhang trotzdem vorstellen (das gibt es, deshalb machen wir das)
 % Zum einen in jedem Kapitel kurz formal beschreiben was das überhaupt ist, und zum anderen Arbeiten und Paper suchen die diese Methoden verwendet haben, wie diese funktioniert haben und was deren Clou war und was der Takeaway war.
-\chapter{Stand der Forschung}\label{standderforschung}
-\section{Grundlagen}
-\section{Zeitreihenanalyse} % mathematische Grundlagen
-\subsection{Lineare Modelle} %ARIMA GARCH etc...
-\subsection{Nichtlineare Modelle} %LSTM, Transformer usw
-\subsection{Stochastische Differentialgleichungen}
-%(https://journaljamcs.com/index.php/JAMCS/article/view/93) muss so ein bisschen hier rein, würde das quasi einfach gerne copien, aber soll nicht so dastehen, aber Grundlagen müssen halt schon rein
-\vdots
+
 \subsection{Zusammenfassung} % Übergang: Das ist State of the Art => Deshalb machen wir das:
