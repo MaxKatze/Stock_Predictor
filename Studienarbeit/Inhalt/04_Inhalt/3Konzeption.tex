@@ -311,9 +311,11 @@ Somit ist der historische Preis mit dem die Modelle trainiert und getestet werde
 
 \section{Modellentwicklung}\label{entwicklung}
 
+In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelnen Aktie operieren und auf Basis historischer Kursdaten sowie weiterer Eingabegrößen den Aktienkurs des nächsten Handelstages vorhersagen.
+
 \subsection{LinearSeparation}\label{linearesModell}
 
-Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning oder ähnliches auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert. Diese werden sinnvoll kombiniert, um eine Vorhersage zu treffen. Dieser Ansatz stellt die Behauptung auf, dass sich ein Aktienkurs durch die Komponenten in Tabelle~\ref{stock_components} durch den Zusammenhang in Formel~\ref{linearerKurs} beschreiben lässt.
+Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert. Diese werden sinnvoll kombiniert, um eine Vorhersage zu treffen. Es wird die Behauptung aufgestellt, dass sich ein Aktienkurs durch die Komponenten in Tabelle~\ref{stock_components} durch den Zusammenhang in Formel~\ref{linearerKurs} beschreiben lässt.
 
 \begin{equation}
 \label{linearerKurs}
@@ -352,13 +354,13 @@ Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_1, \ldots, 
 \begin{equation}\label{hpFilter}
 \min_{\{\hat{\tau}_t^\text{lang}\}} \left(
 \sum_{t=1}^{T} (p_t - \hat{\tau}_t^\text{lang})^2
-+ \lambda \sum_{t=2}^{T-1} (\hat{\tau}_{t+1}^\text{lang} - 2\hat{\tau}_t^\text{lang} + \hat{\tau}_{t-1}^\text{lang})^2
++ \lambda_\text{lang} \sum_{t=2}^{T-1} (\hat{\tau}_{t+1}^\text{lang} - 2\hat{\tau}_t^\text{lang} + \hat{\tau}_{t-1}^\text{lang})^2
 \right),
 \end{equation}
 
-wobei $\lambda$ der Glättungsparameter ist, der bestimmt wie stark die kurzfristigen Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl von $\lambda_\text{lang}$ wird im Kapitel~\ref{impl} diskutiert.
+wobei $\lambda_\text{lang}$ der Glättungsparameter ist, der bestimmt wie stark die kurzfristigen Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl wird im Kapitel~\ref{impl} diskutiert.
 
-Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t$ werden die Residuen gebildet.
+Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang}$ werden die Residuen gebildet.
 
 \[
 \tilde{p}_t = p_t - \hat{\tau}^{\text{lang}}_t
@@ -381,9 +383,7 @@ mit den Mittelwerten $\bar{t} = \frac{1}{w}\sum_{t=T-w+1}^{T} t$ und $\bar{\tau}
 \hat{\tau}^{\text{kurz}}_{T+k} &= \hat{a}_2 + \hat{b}_2 \cdot (T+k).
 \end{align}
 
-Die Fenstergröße $w$ bestimmt dabei, über welchen Zeitraum die lokale Steigung des Trends geschätzt wird. Ein zu kleines Fenster führt zu verrauschten Schätzungen und ein zu großes Fenster lässt aktuelle Richtungsänderungen nur langsam einfließen.
-
-Da $\tau^{\text{lang}}$ den strukturellen Trend über mehrere Jahre abbilden soll, wird die Steigung über ein Fenster von $w_{\text{lang}} = 252$ Handelstagen (einem Börsenjahr) geschätzt. Kurzfristige Schwankungen werden so herausgemittelt, und es verbleibt die mittelfristige Richtung des Marktes. $\tau^{\text{kurz}}$ soll Trendbewegungen im Bereich weniger Wochen erfassen. Deshalb wird $w_{\text{kurz}} = 40$ Handelstage (ca. zwei Monate) gewählt. Dieses kürzere Fenster erlaubt es, aktienspezifische Bewegungen zeitnah in die Extrapolation einfließen zu lassen.
+Die Fenstergröße $w$ bestimmt dabei, über welchen Zeitraum die lokale Steigung des Trends geschätzt wird. Ein zu kleines Fenster führt zu verrauschten Schätzungen und ein zu großes Fenster lässt aktuelle Richtungsänderungen nur langsam einfließen. Da $\tau^{\text{lang}}$ den strukturellen Trend über mehrere Jahre abbilden soll, wird die Steigung über ein Fenster von $w_{\text{lang}} = 252$ Handelstagen (einem Börsenjahr) geschätzt. Kurzfristige Schwankungen werden so herausgemittelt, und es verbleibt die mittelfristige Richtung des Marktes. $\tau^{\text{kurz}}$ soll Trendbewegungen im Bereich weniger Wochen erfassen. Deshalb wird $w_{\text{kurz}} = 40$ Handelstage (ca. zwei Monate) gewählt. Dieses kürzere Fenster erlaubt es, aktienspezifische Bewegungen zeitnah in die Extrapolation einfließen zu lassen.
 
 Nach der Trendentfernung verbleiben die Residuen $c_t$ als kurzfristige Muster. 
 
@@ -391,18 +391,20 @@ Nach der Trendentfernung verbleiben die Residuen $c_t$ als kurzfristige Muster.
 c_t = \tilde{p}_t - \hat{\tau}^{\text{kurz}}_t.
 \]
 
-Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorrausgesetzt, dass die zugrundeliegenden Daten stationär sind. Um zu prüfen, ob dies nach der Trendentfernung der Fall ist, wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Es wird die Nullhypothese geprüft, ob eine Unit Root vorliegt. Bei einem p-Wert kleiner als $0.05$ kann die Stationarität angenommen werden. Sollte Stationarität nicht gewährleistet werden können, wird die Wahl der \ac{HP}-Filter Parameter $\lambda$ variiert.
+Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorrausgesetzt, dass die zugrundeliegenden Daten stationär sind. Um zu prüfen, ob dies nach der Trendentfernung der Fall ist, wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Der \ac{ADF}-Test~\cite{dickey1979distribution} prüft die Nullhypothese, dass eine Unit Root vorliegt, die Zeitreihe also nicht stationär ist. Wird diese bei einem p-Wert kleiner als $0{,}05$ verworfen, kann 
+Stationarität angenommen werden. Sollte Stationarität nicht gewährleistet werden können, wird die Wahl der \ac{HP}-Filter Parameter $\lambda$ variiert.
 Zur Modellierung der Residuen $c_t$ wird ein Standard \ac{ARMA}(p,q)-Modell verwendet:
 
 \begin{equation}
 \hat{c_t} = a + \sum_{i=1}^{p} \phi_i c_{t-i} + \sum_{j=1}^{q} \theta_j \epsilon_{t-j} + \epsilon_t,
 \end{equation}
 
-mit den Autokorrelationskoeffizienten $\phi_i$ und Fehlerkoeffizienten $\theta_j$. Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Das heißt, für alle Kombinationen $(p,q)$ mit $p,q \in {0, 1, \ldots, 5}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
+mit den Autokorrelationskoeffizienten $\phi_i$, Fehlerkoeffizienten $\theta_j$ und einem Konstanten Achsenabschnitt $a$. Die Parameter $\phi_i$ und $\theta_j$ werden dabei für jede Kombination $(p,q)$ mittels Maximum-Likelihood-Schätzung bestimmt. Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Das heißt, für alle Kombinationen $(p,q)$ mit $p,q \in \{0, 1, \ldots, 5\}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
 
 \begin{equation}
     \text{AIC}(p,q) = 2(p+q) - 2\ln(\hat{L}),
 \end{equation}
+
 wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.
 
 Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
@@ -434,20 +436,20 @@ Die Rücktransformation in den ursprünglichen Preisraum erfolgt durch Exponenti
 
 % SVR wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
 %Einmal Markus fragen: Müssen wir so etwas wie theoretische Grundlagen von SVRs auch schreiben, oder kann man das vorraussetzen
-\subsection{Preprocessed SVR} 
+\subsection{Preprocessed SVR}
 
 \ac{SVR}s wurden schon häufig verwendet, um Aktienkurse vorherzusagen. In dieser Arbeit stehen zwei Unterschiede zu den bisherigen Verfahren im Vordergrund. Zunächst wird auf Log-Renditen trainiert und vorhergesagt, da diese annähernd stationär sind, additiv über die Zeit und symmetrischer verteilt. Außerdem werden in diesem Ansatz vorher berechnete technische Indikatoren und News-Sentiments als Features für die \ac{SVR} verwendet, anstatt roher Lag-Preise. Die Featureauswahl wird in Anhang~\ref{anhang:svr_features} gezeigt.
 
-Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwendet. Es ist das Ziel aus einem Feature-Vektor $x_t$ mit $d$ Features, die Log-Rendite vorherzusagen.
+Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwendet. Es ist das Ziel aus einem Feature-Vektor $x_t$ mit $d$ Features, die Log-Rendite $\hat{r}_{t+1}$ vorherzusagen.
 
 \begin{equation}
-    \hat{r}_{t} = f(x_t), \quad x_t \in \mathbb{R}^d
+    \hat{r}_{t+1} = f(x_t), \quad x_t \in \mathbb{R}^d
 \end{equation}
 
-Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele. Die Vorhesage der Rendite zum Zeitpunkt $t$ erfolgt nach Formel~\ref{renditeSVR}.
+Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele. Die Vorhersage der Rendite erfolgt nach Formel~\ref{renditeSVR}.
 
 \begin{equation}\label{renditeSVR}
-    \hat{r}_t = \langle\mathbf{w}, \phi(\mathbf{x_t})\rangle + b,
+    \hat{r}_{t+1} = \langle\mathbf{w}, \phi(\mathbf{x_t})\rangle + b,
 \end{equation}
 
 wobei
@@ -490,11 +492,11 @@ Die Abbildungsfunktion $\phi(\mathbf{x})$ transformiert die Eingabedaten in eine
 wobei $\alpha_i, \alpha_i^* \geq 0$ die dualen Variablen sind. Damit lässt sich die Vorhersagefunktion schreiben als:
 
 \begin{equation}
-    \hat{r}_t = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_t)\rangle + b.
+    \hat{r}_{t+1} = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_t)\rangle + b.
 \end{equation}
 
 In dieser Form tritt $\phi(\mathbf{x})$ ausschließlich in Skalarprodukten der Form $\langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ auf. Diese Skalarprodukte können direkt durch eine Kernel-Funktion $K(\mathbf{x}_i, \mathbf{x}_j) = \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ berechnet werden, ohne $\phi$ explizit zu kennen. 
-Als Kernel-Funktion wird der \ac{RBF}-Kernel~\cite{Burges1998} nach Formel~\ref{rbf} gewählt, da Aktienrenditen hochgradig nichtlineare und zeitvariante Abhängigkeiten aufweisen, die polynomiale Kernel nicht flexibel genug abbilden können, weil diese einen festen Grad der Nichtlinearität voraussetzen. Der \ac{RBF}-Kernel bildet die Eingabedaten in einen unendlich-dimensionalen Merkmalsraum ab und kann dadurch beliebig komplexe Abhängigkeiten erfassen, ohne dass deren funktionale Form vorab spezifiziert werden muss.
+Als Kernel-Funktion wird der \ac{RBF}-Kernel~\cite{Burges1998} nach Formel~\ref{rbf} gewählt, da Aktienrenditen hochgradig nichtlineare und zeitvariante Abhängigkeiten aufweisen. Ein polynomialer Kernel setzt einen festen Grad der Nichtlinearität voraus und ist deshalb nicht geeignet. Der \ac{RBF}-Kernel bildet die Eingabedaten in einen unendlich-dimensionalen Merkmalsraum ab und kann dadurch beliebig komplexe Abhängigkeiten erfassen, ohne dass deren funktionale Form vorab spezifiziert werden muss.
 
 
 \begin{equation}\label{rbf}
@@ -507,6 +509,12 @@ wobei $\gamma$ ein Hyperparameter ist, der bestimmt wie stark der Kernel auf Rau
     G_\gamma = \{0.01, 0.1, 1, 10, 50, 100\}.
 \end{equation*}
 
+Aus dem Ergebnis der \ac{SVR} $\hat{r}_{t+1}$ ergibt sich die Preisvorhersage nach
+
+\begin{equation}
+    \hat{P}_{t+1} = P_t * \exp(\hat{r}_{t+1}).
+\end{equation}
+
 
 \subsection{StockTimesFM}
 Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Vor diesem Hintergrund wird ein alternativer Ansatz verfolgt, bei dem ein Foundation Model eingesetzt wird, um dessen Übertragbarkeit auf die Vorhersage von Aktienkursen zu untersuchen.
@@ -518,7 +526,7 @@ TimesFM basiert auf einer Decoder-only Transformer-Architektur, die auf einem gr
 \mathbf{p}_k = (x_{(k-1)\cdot p + 1}, \ldots, x_{k \cdot p}), \quad k = 1, \ldots, \left\lfloor \frac{T}{p} \right\rfloor.
 \end{equation}
 
-Die Patch-Sequenz $(\mathbf{p}_1, \ldots, \mathbf{p}_K)$ wird anschließend durch einen Stack von Transformer-Decoder-Blöcken verarbeitet. Jeder Block besteht aus einer Masked-Self-Attention-Schicht, die sicherstellt, dass bei der Vorhersage von $\mathbf{p}_{k+1}$ ausschließlich vergangene Patches $\mathbf{p}_1, \ldots, \mathbf{p}_k$ berücksichtigt werden und einer nachgelagerten Feed-Forward-Schicht. Die Vorhersage für den Horizont $h$ ergibt sich dann als
+Die Patch-Sequenz $(\mathbf{p}_1, \ldots, \mathbf{p}_K)$ wird anschließend durch mehrere Transformer-Decoder-Blöcken verarbeitet. Jeder Block besteht aus einer Masked-Self-Attention-Schicht, die sicherstellt, dass bei der Vorhersage von $\mathbf{p}_{k+1}$ ausschließlich vergangene Patches $\mathbf{p}_1, \ldots, \mathbf{p}_k$ berücksichtigt werden und einer nachgelagerten Feed-Forward-Schicht. Die Vorhersage für den Horizont $h$ ergibt sich dann als
 
 \begin{equation}
 \hat{x}_{T+h} = f_{\theta}(\mathbf{p}_1, \ldots, \mathbf{p}_K),
@@ -526,9 +534,15 @@ Die Patch-Sequenz $(\mathbf{p}_1, \ldots, \mathbf{p}_K)$ wird anschließend durc
 
 wobei $f_\theta$ das Modell TimesFM mit Parametern $\theta$ bezeichnet. Da die Zero-Shot-Fähigkeit des Modells untersucht werden soll, bleiben $\theta$ unverändert.
 
-Für die Anwendung auf Aktienkurse wird TimesFM auf Log-Renditen angewendet, um Vergleichbarkeit mit den anderen Modellen herzustellen. Da TimesFM eine variable Kontextlänge unterstützt, wird als Kontextfenster ein rollierendes Fenster der letzten $T$ Beobachtungen verwendet, analog zum Vorgehen bei den anderen Modellen dieser Arbeit. Das Modell gibt eine Renditenprognose für den nächsten Zeitschritt aus, also
+Für die Anwendung auf Aktienkurse wird TimesFM auf Log-Renditen angewendet, um Vergleichbarkeit mit den anderen Modellen herzustellen. Da TimesFM eine variable Kontextlänge unterstützt, wird als Kontextfenster ein rollierendes Fenster der letzten $w$ Beobachtungen verwendet. Das heißt, zum Zeitpunkt $t$ fließen die $w$ vorausgehenden Preisbeobachtungen als Eingabe in das Modell ein. Das Modell gibt dann eine Renditenprognose für den nächsten Zeitschritt aus, also
 \begin{equation}
-\hat{r}_{t+1} = f_\theta(r_{t-T+1}, \ldots, r_t).
+\hat{r}_{t+1} = f_\theta(r_{t-w+1}, \ldots, r_t).
+\end{equation}
+
+Die Preisvorhersage ergibt sich nach
+
+\begin{equation}
+    \hat{P}_{t+1} = P_t * \exp(\hat{r}_{t+1}).
 \end{equation}
 
 \section{Marktstrategie}\label{marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
