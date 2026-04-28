@@ -352,7 +352,7 @@ Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_1, \ldots, 
     \right),
 \end{equation}
 
-wobei $\lambda_\text{lang}$ der Glättungsparameter ist, der bestimmt wie stark die kurzfristigen Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl wird im \cref{chap:implementation} diskutiert.
+wobei $\lambda_\text{lang}$ der Glättungsparameter ist, der bestimmt wie stark die kurzfristigen Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl wird im \cref{chap:implementierung} diskutiert.
 
 Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang}$ werden die Residuen gebildet.
 
@@ -360,7 +360,7 @@ Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang
     \tilde{p}_t = p_t - \hat{\tau}^{\text{lang}}_t
 \]
 
-Auf der Residuenzeitreihe $\tilde{p}_t$ wird ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird im \cref{chap:implementation} bestimmt.
+Auf der Residuenzeitreihe $\tilde{p}_t$ wird ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird im \cref{chap:implementierung} bestimmt.
 
 \begin{equation}\label{eq:hpFilterKurz}
     \min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
