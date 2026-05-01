@@ -5,10 +5,33 @@ assets:
   - MSFT
   - SAP
 
-start_date: "2023-11-11"
-end_date: "2027-12-31"
+# Date ranges (60/10/30 split)
+training_start: "2020-01-02"
+training_end: "2023-12-29"
+validation_start: "2024-01-02"
+validation_end: "2024-06-28"
+test_start: "2024-07-01"
+test_end: "2025-12-31"
 
-force_update: true
+# Legacy (used by download if no split dates given)
+start_date: "2020-01-02"
+end_date: "2025-12-31"
+
+force_update: false
 auto_adjust: true
 
+# Macroeconomic factors for SDE stock selection
+macro_factors:
+  oil: "CL=F"
+  gold: "GC=F"
+  treasury_10y: "^TNX"
+  sp500: "^GSPC"
+  dxy: "DX-Y.NYB"
+  inflation_10y: "T10YIE"
 
+# SDE stock selection parameters
+sde:
+  num_simulations: 100
+  group_size: 4
+  num_factors: 2
+  num_selected: 10
