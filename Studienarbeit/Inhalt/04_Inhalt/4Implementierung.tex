@@ -2,9 +2,22 @@
 
 Viele Arbeiten die sich bereits mit Aktienkursvohersagen beschäftigt haben, wurden häufig kritisiert, da sie selten reproduzierbar sind. Oft fehlen theoretische Details und meist die gesamte Implementierung, sowie Datensätze.~\cite{Olorunnimbe2023} Um eine gute Reproduzierbarkeit zu gewährleisten, wird in diesem Kapitel die Implementierung jeglicher Modelle vorgestellt.
 
+\cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung dieser Arbeit. Ausgangspunkt sind die Aktien- und makroökonomischen Daten. Die Implementierung bezieht die benötigten Daten über die Yahoo-Finance-API und konfiguriert die Anfrage so, dass die Yahoo-Finance-API die in \cref{subsec:bereinigung} beschriebenen Bereinigungsschritte bereits durchgeführt. Die Daten werden dann als CSV-Dateien gespeichert und in Trainings-, Validierungs- und Testdaten aufgeteilt.
+
+Anschließend folgt das in \cref{subsec:aktienauswahl} beschriebene Verfahren zur Aktienauswahl. Die genaue Implmentierung des Verfahrens wird in \cref{sec:sdes_zur_aktienauswahl} beschrieben. Die Aktienauswahl nutzt als Input die historischen Kursdaten der Aktien, sowie die makroökonomischen Daten. Der Output der Aktienauswahl sind 10 Aktien, die gespeichert werden.
+
+Nach der Aktienauswahl werden die drei Modelle trainiert. Das Training der Modelle findet auf den vorher ausgewählten 10 Aktien statt. Die genaue Implementierung der Modelle wird in \cref{sec:linear_separation}, \cref{sec:preprocessed_svr} und \cref{sec:stocktimesfm} beschrieben.
+
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.8\textwidth,inkscapelatex=false]{Bilder/gesamtueberblick_datenfluss}
+    \caption{Gesamtüberblick: Datenfluss von der Beschaffung bis zur Evaluation}
+    \label{fig:gesamtueberblick_datenfluss}
+\end{figure}
+
 \section{SDEs zur Aktienauswahl}\label{sec:sdes_zur_aktienauswahl}
 
-\section{ARIMA-GARCH}\label{sec:arima_garch}
+\section{LinearSeparation}\label{sec:linear_separation}
 
 \section{Preprocessed SVR}\label{sec:preprocessed_svr}
 
