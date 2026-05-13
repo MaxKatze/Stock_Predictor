@@ -288,3 +288,7 @@ TSWLatexianTemp*
 #VS-Code
 *.DS_Store
 *.vscode
+
+#svg-inkscape
+*Studienarbeit/svg-inkscape/
+
