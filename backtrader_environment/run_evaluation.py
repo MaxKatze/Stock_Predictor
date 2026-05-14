@@ -14,6 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from data_handling.data_loader import load_config, get_data_split, get_selected_stocks
 from data_handling.file_format_yahoo import PandasData
+from data_handling.sentiment_loader import (
+    get_sentiment_for_model,
+    generate_placeholder_sentiment,
+)
 from models.linear_separation_model import LinearSeparationModel
 from models.svr_prediction_model import SVRPredictionModel
 from models.arima_prediction_model import ARIMAModel
@@ -43,9 +47,17 @@ def train_linear_separation(train_df, val_df):
     return model
 
 
-def train_svr(train_df, val_df):
-    """Train SVR model with grid search on validation data."""
+def train_svr(train_df, val_df, sentiment_data=None):
+    """Train SVR model with grid search on validation data.
+
+    Args:
+        train_df: Training DataFrame with OHLCV columns
+        val_df: Validation DataFrame for hyperparameter tuning
+        sentiment_data: Optional sentiment DataFrame for the SVR features
+    """
     model = SVRPredictionModel()
+    if sentiment_data is not None:
+        model.set_sentiment_data(sentiment_data)
     model.fit(train_df, validation_data=val_df)
     return model
 
@@ -192,11 +204,21 @@ def main():
 
         print(f"  Train: {len(train_df)} days, Val: {len(val_df)} days, Test: {len(test_df)} days")
 
+        sentiment_data = get_sentiment_for_model(ticker)
+        if len(sentiment_data) == 0:
+            all_dates = pd.concat([train_df, val_df, test_df]).index
+            sentiment_data = generate_placeholder_sentiment(all_dates, seed=hash(ticker) % 2**32)
+            print(f"  Using placeholder sentiment data (no cached data available)")
+
         for model_name, model_config in MODEL_CONFIGS.items():
             print(f"  Running {model_name}...", end=" ")
 
             try:
-                model = model_config["train_fn"](train_df, val_df)
+                if model_name == "SVR":
+                    model = model_config["train_fn"](train_df, val_df, sentiment_data)
+                else:
+                    model = model_config["train_fn"](train_df, val_df)
+
                 if model is None:
                     print("SKIPPED (model not available)")
                     continue

@@ -1,4 +1,14 @@
-"""Preprocessed SVR Model: Support Vector Regression with technical indicator features."""
+"""Preprocessed SVR Model: Support Vector Regression with technical indicator features.
+
+Based on Konzeption Section 3.2.2 - uses 9 features:
+- Historical returns: r_{t-1}, r_{t-2}, r_{t-3}
+- Sentiment score: exponentially weighted average of last 10 news items
+- RSI: Relative Strength Index (14 days)
+- MACD: Moving Average Convergence Divergence (12/26 days)
+- Bollinger Band position: normalized position within bands [0,1]
+- Realized volatility: 10-day volatility of log-returns
+- Trading pause indicator: binary flag for weekends/holidays (Monday effect)
+"""
 
 import numpy as np
 import pandas as pd
@@ -14,20 +24,30 @@ class SVRPredictionModel(PredictionModel):
     """SVR model predicting log-returns using preprocessed technical features.
 
     Uses RBF kernel with grid search for hyperparameter tuning on validation data.
-    Features are the same 14 technical indicators used by the LSTM model.
+    Features follow the specification in Konzeption Section 3.2.2 (9 dimensions).
     """
 
-    def __init__(self, C=1.0, epsilon=0.1, gamma=1.0, lookback_window=60):
+    def __init__(self, C=1.0, epsilon=0.1, gamma=1.0, lookback_window=60, sentiment_data=None):
         self.C = C
         self.epsilon = epsilon
         self.gamma = gamma
         self.lookback_window = lookback_window
+        self.sentiment_data = sentiment_data
 
         self.svr = None
         self.scaler = StandardScaler()
         self.is_fitted = False
         self.data_buffer = None
         self.last_close = None
+
+    def set_sentiment_data(self, sentiment_data):
+        """Set sentiment data for the model.
+
+        Args:
+            sentiment_data: DataFrame with index=date and column 'sentiment' containing
+                           sentiment scores in range [-1, 1]
+        """
+        self.sentiment_data = sentiment_data
 
     def fit(self, data, window=None, validation_data=None):
         """Fit SVR on training data. Optionally tune hyperparameters on validation data.
@@ -45,10 +65,10 @@ class SVRPredictionModel(PredictionModel):
         self.data_buffer = df.copy()
         self.last_close = df["close"].iloc[-1]
 
-        features_df = _compute_features(df)
+        features_df = _compute_features(df, self.sentiment_data)
         targets = np.log(df["close"] / df["close"].shift(1)).values
 
-        valid_mask = ~np.isnan(targets)
+        valid_mask = ~np.isnan(targets) & ~features_df.isna().any(axis=1).values
         features_arr = features_df.values[valid_mask]
         targets_arr = targets[valid_mask]
 
@@ -71,7 +91,7 @@ class SVRPredictionModel(PredictionModel):
         if not self.is_fitted or self.data_buffer is None:
             return float("nan")
 
-        features_df = _compute_features(self.data_buffer)
+        features_df = _compute_features(self.data_buffer, self.sentiment_data)
         last_features = features_df.values[-1:]
         X = self.scaler.transform(last_features)
 
@@ -87,7 +107,7 @@ class SVRPredictionModel(PredictionModel):
         if not self.is_fitted or self.data_buffer is None:
             return float("nan")
 
-        features_df = _compute_features(self.data_buffer)
+        features_df = _compute_features(self.data_buffer, self.sentiment_data)
         last_features = features_df.values[-1:]
         X = self.scaler.transform(last_features)
         return self.svr.predict(X)[0]
@@ -102,10 +122,10 @@ class SVRPredictionModel(PredictionModel):
     def _grid_search(self, X_train, y_train, validation_data):
         """Grid search over C, epsilon, gamma on validation set."""
         val_df = self._to_dataframe(validation_data)
-        val_features = _compute_features(val_df)
+        val_features = _compute_features(val_df, self.sentiment_data)
         val_targets = np.log(val_df["close"] / val_df["close"].shift(1)).values
 
-        valid_mask = ~np.isnan(val_targets)
+        valid_mask = ~np.isnan(val_targets) & ~val_features.isna().any(axis=1).values
         X_val = self.scaler.transform(val_features.values[valid_mask])
         y_val = val_targets[valid_mask]
         y_val = np.clip(y_val, -0.2, 0.2)
@@ -145,54 +165,121 @@ class SVRPredictionModel(PredictionModel):
         return df
 
 
-def _compute_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute 14 technical indicator features from OHLCV data.
+def _compute_features(df: pd.DataFrame, sentiment_data: pd.DataFrame = None) -> pd.DataFrame:
+    """Compute 9 features for SVR as specified in Konzeption Section 3.2.2.
 
-    Same feature set as the LSTM model for consistency.
+    Feature vector x_t = (r_{t-1}, r_{t-2}, r_{t-3}, Sent_t, RSI_t, MACD_t, BB_t, σ_{10,t}, d_t)
+
+    Args:
+        df: DataFrame with OHLCV columns and DatetimeIndex
+        sentiment_data: Optional DataFrame with sentiment scores per date
+
+    Returns:
+        DataFrame with 9 features
     """
     features = pd.DataFrame(index=df.index)
 
-    features["return_1d"] = df["close"].pct_change(1)
-    features["return_5d"] = df["close"].pct_change(5)
-    features["return_10d"] = df["close"].pct_change(10)
-    features["return_20d"] = df["close"].pct_change(20)
+    log_returns = np.log(df["close"] / df["close"].shift(1))
+    features["r_t1"] = log_returns.shift(1)
+    features["r_t2"] = log_returns.shift(2)
+    features["r_t3"] = log_returns.shift(3)
 
-    if "high" in df.columns and "low" in df.columns:
-        features["hl_range"] = (df["high"] - df["low"]) / df["close"]
+    if sentiment_data is not None and len(sentiment_data) > 0:
+        features["sentiment"] = _compute_exponential_sentiment(df.index, sentiment_data)
     else:
-        features["hl_range"] = 0
-
-    if "open" in df.columns:
-        features["oc_change"] = (df["close"] - df["open"]) / df["open"]
-    else:
-        features["oc_change"] = 0
-
-    if "volume" in df.columns and df["volume"].sum() > 0:
-        features["volume_change"] = np.log1p(df["volume"]).pct_change()
-    else:
-        features["volume_change"] = 0
-
-    features["volatility_5d"] = df["close"].pct_change().rolling(5).std()
-    features["volatility_20d"] = df["close"].pct_change().rolling(20).std()
+        features["sentiment"] = 0.0
 
     delta = df["close"].diff()
-    gain = delta.where(delta > 0, 0).rolling(14).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(14).mean()
-    rs = gain / (loss + 1e-10)
-    features["rsi_14"] = (100 - (100 / (1 + rs))) / 100
+    gain = delta.where(delta > 0, 0.0)
+    loss = (-delta.where(delta < 0, 0.0))
+    avg_gain = gain.ewm(span=14, adjust=False).mean()
+    avg_loss = loss.ewm(span=14, adjust=False).mean()
+    rs = avg_gain / (avg_loss + 1e-10)
+    rsi = 100 - (100 / (1 + rs))
+    features["rsi"] = rsi / 100.0
 
     ema_12 = df["close"].ewm(span=12, adjust=False).mean()
     ema_26 = df["close"].ewm(span=26, adjust=False).mean()
-    macd = ema_12 - ema_26
-    features["macd_pct"] = macd / df["close"]
-    features["macd_signal_pct"] = macd.ewm(span=9, adjust=False).mean() / df["close"]
+    features["macd"] = ema_12 - ema_26
 
     sma_20 = df["close"].rolling(20).mean()
-    sma_50 = df["close"].rolling(50).mean()
-    features["sma_ratio_20"] = df["close"] / (sma_20 + 1e-10) - 1
-    features["sma_ratio_50"] = df["close"] / (sma_50 + 1e-10) - 1
+    std_20 = df["close"].rolling(20).std()
+    upper_band = sma_20 + 2 * std_20
+    lower_band = sma_20 - 2 * std_20
+    bb_width = upper_band - lower_band
+    features["bb_position"] = (df["close"] - lower_band) / (bb_width + 1e-10)
+    features["bb_position"] = features["bb_position"].clip(0, 1)
+
+    r_bar = log_returns.rolling(10).mean()
+    features["volatility_10d"] = np.sqrt(
+        ((log_returns - r_bar) ** 2).rolling(10).sum() / 9
+    )
+
+    features["trading_pause"] = _compute_trading_pause(df.index)
 
     features = features.ffill().fillna(0)
     features = features.replace([np.inf, -np.inf], 0)
 
     return features
+
+
+def _compute_exponential_sentiment(dates: pd.DatetimeIndex, sentiment_data: pd.DataFrame) -> pd.Series:
+    """Compute exponentially weighted sentiment score for each date.
+
+    Uses the last 10 news items with exponential decay (λ=0.2).
+    Formula: Sent_t = Σ(w_i * s_i) / Σ(w_i), where w_i = exp(λ * (i - 10))
+
+    Args:
+        dates: DatetimeIndex of trading days
+        sentiment_data: DataFrame with 'date' index and 'sentiment' column [-1, 1]
+
+    Returns:
+        Series of sentiment scores aligned with dates
+    """
+    lambda_decay = 0.2
+    result = pd.Series(index=dates, dtype=float)
+
+    if sentiment_data is None or len(sentiment_data) == 0:
+        return result.fillna(0)
+
+    sentiment_data = sentiment_data.sort_index()
+
+    for date in dates:
+        past_sentiments = sentiment_data[sentiment_data.index <= date].tail(10)
+        if len(past_sentiments) == 0:
+            result[date] = 0.0
+            continue
+
+        n = len(past_sentiments)
+        weights = np.array([np.exp(lambda_decay * (i - n + 1)) for i in range(n)])
+        scores = past_sentiments["sentiment"].values if "sentiment" in past_sentiments.columns else past_sentiments.values.flatten()
+
+        result[date] = np.sum(weights * scores) / np.sum(weights)
+
+    return result
+
+
+def _compute_trading_pause(dates: pd.DatetimeIndex) -> pd.Series:
+    """Compute trading pause indicator (Monday effect).
+
+    d_t = 1 if there was at least one non-trading day between t-1 and t, else 0.
+
+    Args:
+        dates: DatetimeIndex of trading days
+
+    Returns:
+        Series with binary indicator
+    """
+    result = pd.Series(index=dates, dtype=int)
+
+    for i, date in enumerate(dates):
+        if i == 0:
+            result.iloc[i] = 0
+            continue
+
+        prev_date = dates[i - 1]
+        days_diff = (date - prev_date).days
+
+        result.iloc[i] = 1 if days_diff > 1 else 0
+
+    return result
