@@ -8,8 +8,6 @@ Klare Trennung zwischen Stand der Technik und unserem Kapitel (vor allem aktuell
 Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kommentare.
 
 
-Markus fragen:
-Wie müssen wir in theoretische Grundlagen rein, oder kann man die vorraussetzen.
 
 TODO:
 
