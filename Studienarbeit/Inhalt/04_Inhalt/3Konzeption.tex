@@ -557,7 +557,7 @@ Diese Methode ist koheränt, das sie keine Annahmen über den Wertebereich der F
 
 Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Ein grundlegender Ansatz, diesem Problem zu begegnen, besteht darin, gar nicht auf Aktiendaten zu trainieren, sondern stattdessen auf allgemeines Zeitreihenwissen zurückzugreifen. Genau diesen Ansatz verfolgt diese Arbeit mit dem Einsatz von TimesFM im Zero-Shot-Modus.
 
-TimesFM ist ein von Google Research entwickeltes Foundation Model für Zeitreihenprognosen~\cite{das2024timesfm}. Analog zu großen Sprachmodellen wurde TimesFM auf einem Korpus realer Zeitreihendaten aus vielen Domänen vortrainiert, mit dem Ziel, Muster in sequenziellen Daten zu erlernen. Technisch basiert es auf einer Decoder-only Transformer-Architektur. Die Eingabezeitreihe wird in Patches fixer Länge aufgeteilt, die als Tokens in den Transformer eingehen, und das Modell lernt durch die Vorhersage des jeweils nächsten Patches, analog zum Next-Token-Prediction-Prinzip in Sprachmodellen.
+TimesFM ist ein von Google Research entwickeltes Foundation Model für Zeitreihenprognosen~\cite{das2024timesfm}. Analog zu großen Sprachmodellen wurde TimesFM auf einem Korpus realer Zeitreihendaten aus vielen Domänen vortrainiert, mit dem Ziel, Muster in sequenziellen Daten zu erlernen. Technisch basiert es auf einer Decoder-only Transformer-Architektur. Die Eingabezeitreihe wird in Patches gleicher Länge aufgeteilt, die als Tokens in den Transformer eingehen, und das Modell lernt durch die Vorhersage des jeweils nächsten Patches, analog zum Next-Token-Prediction-Prinzip in Sprachmodellen.
 
 Der Ansatz dieser Arbeit besteht darin, TimesFM unverändert ohne Fine-Tuning auf Aktienrenditen anzuwenden. Dieser Zero-Shot-Einsatz erlaubt es zu untersuchen, ob allgemeines Zeitreihenwissen auf die spezifischen Muster von Aktienkursen übertragbar ist. Im Unterschied zu allen anderen in dieser Arbeit vorgestellten Modellen wird kein datensatzspezifisches Muster gelernt, sondern die Frage beantwortet, ob domänenübergreifendes Wissen über Zeitreihen, wie Saisonalität oder Trendverhalten ausreicht, um Prognosen zu liefern, ohne dabei auf historische Aktienkurse zu overfittten.
 
@@ -565,12 +565,67 @@ Für die Anwendung wird TimesFM auf Log-Renditen eingesetzt, um Vergleichbarkeit
 \begin{equation}
     \hat{r}_{t+1} = f_\theta(r_{t-w+1}, \ldots, r_t)
 \end{equation}
-ausgibt, wobei $f_\theta$ das vortrainierte TimesFM-Modell mit unveränderten Parametern $\theta$ bezeichnet. Die zugehörige Preisvorhersage ergibt sich dann als
+ausgibt, wobei $f_\theta$ das vortrainierte TimesFM-Modell mit den unveränderten Parametern $\theta$ bezeichnet. Die zugehörige Preisvorhersage ergibt sich dann als
 \begin{equation}
     \hat{P}_{t+1} = P_t \cdot \exp(\hat{r}_{t+1}).
 \end{equation}
 
-\section{Marktstrategie}\label{sec:marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
+\section{Marktstrategie}\label{sec:marktstrategie}
+
+Die in Kapitel~\ref{sec:entwicklung} vorgestellten Modelle liefern jeweils eine Preisprognose für einen künftigen Zeitpunkt $t+k$. Um ihre realistische Anwendbarkeit zu bewerten, wird eine einheitliche, regelbasierte Marktstrategie definiert, die für alle Modelle identisch ist. Dies stellt sicher, dass Performanceunterschiede im Backtesting ausschließlich auf die Prognosegüte der Modelle zurückzuführen sind und testet alle Modelle auf ihre praktische Anwendbarkeit. Die Strategie umfasst die drei Komponenten Forecasting Horizon $k$, das Handelssignal sowie die Positionsgröße.
+
+\subsection{Forecasting Horizon}\label{subsec:horizon}
+
+Die Wahl des Forecasting Horizons $k$ beeinflusst, welche Arten von Mustern ein Modell erlernen muss und wie stark Rauschen die Prognose beeinträchtigt. Es lässt sich empirisch zeigen, dass auf dem Eintages-Horizont $k=1$ der stärkste Informationsgehalt technischer Signale liegt, da sich Informationen schnell einpreisen und Prognosen über mehrere Tage von nicht modellierbarem Rauschen dominiert werden~\cite{ait2010highfrequency}. Darüber hinaus minimiert $k=1$ das sogenannte Compounding-Risiko. Wird eine Position mehrere Tage gehalten, akkumulieren sich Prognosefehler über jeden einzelnen Schritt, sodass die tatsächliche Rendite von der erwarteten Rendite weiter abweicht~\cite{lo2002statistics}. Der Forecasting Horizon wird daher auf $k = 1$ festgelegt, d.\,h. jedes Modell gibt täglich eine Prognose $\hat{P}_{t+1}$ ab, auf deren Basis die Handelsentscheidung für den nächsten Tag getroffen wird.
+
+\subsection{Handelssignal}\label{subsec:signal}
+
+Die Strategie beschränkt sich auf Long-Positionen und Cash, d.\,h. Short-Selling wird ausgeschlossen. Das umgeht Liquiditätsprobleme und vermeidet das unbegrenzte Verlustrisiko von Short-Positionen~\cite{asness2015}.
+
+Ein Kaufsignal auf Basis des Vorzeichens der vorhergesagten Rendite ($\hat{r}_{t+1} > 0 \Rightarrow$ kaufen) ist zwar einfach, aber anfällig gegenüber Modellrauschen. Kleine positive Prognosen nahe null enthalten wenig Informationen und führen zu unnötigen Transaktionen~\cite{avellaneda2010}. Daher wird ein Schwellenwert $\varepsilon > 0$ eingeführt, unterhalb dessen keine Position eingegangen wird:
+
+\begin{equation}
+    \text{Signal}_t =
+    \begin{cases}
+        \text{Long} & \text{wenn } \hat{r}_{t+1} > \varepsilon, \\
+        \text{Cash} & \text{sonst.}
+    \end{cases}
+\end{equation}
+
+Der Schwellenwert $\varepsilon$ wird als die mittlere absolute Prognoseabweichung (MAE) des jeweiligen Modells auf den Validierungsdaten gesetzt.
+
+\begin{equation}
+    \varepsilon = \text{MAE}_{\text{val}} = \frac{1}{|\mathcal{V}|} \sum_{t \in \mathcal{V}} |\hat{r}_{t+1} - r_{t+1}|.
+\end{equation}
+
+Das bedeutet, dass eine Kaufentscheidung nur dann getroffen wird, wenn die vorhergesagte Rendite die typische Prognoseunsicherheit des Modells übersteigt.~\cite{de2018advances}.
+
+\subsection{Positionsgröße}\label{subsec:kelly}
+
+Die Bestimmung der Positionsgröße folgt dem Kelly-Kriterium, das die langfristige Wachstumsrate des Kapitals maximiert~\cite{kelly1956}. Im Gegensatz zu einer fixen Postitionsgröße berücksichtigt das Kelly-Kriterium das Verhältnis von erwartetem Gewinn zu erwartetem Verlust.
+
+In seiner klassischen Form für kontinuierliche Renditen lautet der Kelly-Anteil~\cite{thorp2006}:
+
+\begin{equation}
+    f^* = \frac{\mu}{\sigma^2},
+\end{equation}
+
+wobei $\mu$ die erwartete Rendite und $\sigma^2$ die Varianz der Renditen bezeichnet. Da beide Größen unbekannt sind, werden sie auf einem rollierenden Fenster der letzten $w_K = 60$ Handelstage geschätzt:
+
+\begin{equation}
+    \hat{\mu}_t = \frac{1}{w_K} \sum_{i=1}^{w_K} r_{t-i}, \qquad
+    \hat{\sigma}^2_t = \frac{1}{w_K - 1} \sum_{i=1}^{w_K} (r_{t-i} - \hat{\mu}_t)^2.
+\end{equation}
+
+Das volle Kelly-Kriterium führt in der Praxis jedoch zu extremen Positionsgrößen und ist gegenüber Schätzfehlern in $\hat{\mu}_t$ anfällig~\cite{maclean2011}. Es ist daher üblich, einen Kelly-Anteil zu verwenden. In dieser Arbeit wird Half-Kelly eingesetzt~\cite{thorp2006}:
+
+\begin{equation}
+    f_t = \frac{1}{2} \cdot \frac{\hat{\mu}_t}{\hat{\sigma}^2_t}.
+\end{equation}
+
+Da weder Short-Selling, noch Hebel-Trading betrachtet werden, wird $f_t$ auf das Intervall $[0, 1]$ beschränkt, indem negative Werte auf 0 und Werte größer 1 auf 1 gesetzt werden.
+
+Ist also zum Zeitpunkt $t \text{Signal}_t = \text{Long}$, wird die Position so angepasst, dass sie dem Anteil $f_t$ vom Gesamtportfoliowert entspricht. Dies kann auch einer Reduktion der Position entsprechen. Das Signal bedeutet hierbei lediglich, dass weiterhin investiert werden sollte. Ist $\text{Signal}_t = \text{Cash}$, werden alle Positionen geschlossen, also alle Anteile verkauft.
 
 \section{Einschränkungen und Nebenbedingungen}\label{sec:einschrankungen}
 %Markus: Erstens: Warum schränken nachfolgende Abschnitte die Arbeit ein, zweitens: warum sollte das Eure Vorhersagestrategie beeinflussen, das ist doch vollkommen egal.  Abschnitt raus oder in den Anhang. A: Schränkt die Arbeit ein, weil es sich eben von der realen Welt unterscheidet. Beeinflusst die Strategie dahingehend, dass sie einfacher wird.
