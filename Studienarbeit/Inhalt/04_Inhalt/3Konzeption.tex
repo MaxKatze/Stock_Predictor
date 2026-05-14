@@ -453,40 +453,121 @@ Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwend
     \hat{r}_{t+1} = f(x_t), \quad x_t \in \mathbb{R}^d
 \end{equation}
 
-Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} abstrahiert als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$, welche mithilfe der vergangenen Bewegungsmuster des Kurses von einem $d$-dimensionalen Eingabe-Feature-Vektor den Aktienpreis des nächsten Tages schätzt und darauf abbildet. Während andere Arbeiten TODO:Beispiele den Feature-Vektor mit vergangenen Preisen modellieren, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen.
-
-Feature Engineering:
+Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und die genaue Beschreibung, sowie Parameterwahl ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} abstrahiert als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$, welche mithilfe der vergangenen Bewegungsmuster des Kurses von einem $d$-dimensionalen Eingabe-Feature-Vektor den Aktienpreis des nächsten Tages schätzt und darauf abbildet. Während andere Arbeiten den Feature-Vektor nur mit vergangenen Preisen modellieren~\cite{tay2001application}\cite{oliveira2018stock}, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen.
 
 
+\subsubsection{Feature Engineering}
+
+Da Aktienkurse von einer Vielzahl von Einflussfaktoren abhängen werden Features aus den vier Bereichen kurzfristiger Preisdynamik, Marktstimmung, technischer Trendstärke und Volatilität kombiniert. Zum Zeitpunkt $t$ setzt sich der Feature-Vektor $\mathbf{x}_t \in \mathbb{R}^9$ wie folgt zusammen:
+
+\begin{equation}
+    \mathbf{x}_t = \bigl(r_{t-1},\; r_{t-2},\; r_{t-3},\; \text{Sent}_t,\; \text{RSI}_t,\; \text{MACD}_t,\; \text{BB}_t,\; \sigma_{10,t},\; d_t \bigr)^\top
+\end{equation}
+
+Die einzelnen Komponenten sowie ihre Begründung werden in den folgenden Abschnitten erläutert.
+
+\subsubsection{Historische Renditen}
+
+Finanzzeitreihen weisen häufig kurzfristige Abhängigkeiten auf, die durch autoregressive Modelle erfasst werden können~\cite{campbell1997}. Die letzten drei Tagesrenditen $r_{t-1}$, $r_{t-2}$, $r_{t-3}$ werden daher als direkte autoregressive Eingaben verwendet, um dem Modell kurzfristige Trendmuster zur Verfügung zu stellen. Die Wahl, dass Renditen bis zu drei vergangenen Tagen verwendet werden, stellt einen Kompromiss zwischen Informationsgehalt und Modellkomplexität dar. Längere Fenster erhöhen die Dimensionalität der \ac{SVR} ohne Mehrwert für kurzfristige Prognosen~\cite{fama1970}. Die Log-Rendite zum Zeitpunkt $t$ ist definiert als
+
+\begin{equation}
+    r_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right),
+\end{equation}
+
+wobei $P_t$ den Schlusskurs am Tag $t$ bezeichnet. Log-Renditen werden gegenüber einfachen Renditen bevorzugt, da sie zeitlich additiv und annähernd normalverteilt sind.
+
+\subsubsection{Sentiment Score}
+
+Nachrichtenmeldungen beeinflussen nachweislich die Kursentwicklung einer Aktie.~\cite{tetlock2007}. Um diesen Effekt zu erfassen, wird die externe Sentiment-API von Alpha Vantage genutzt~\cite{alphavantage}, die für jede veröffentlichte Nachricht einen Sentiment-Score $s_{i} \in [-1, 1]$ pro erwähnter Aktie liefert, wobei $-1$ stark negatives und $+1$ stark positives Sentiment bedeutet.
+
+Da nicht alle Nachrichten gleich relevant sind, wird ein exponentiell gewichteter Durchschnitt über die letzten 10 Meldungen berechnet, um aktuelleren Nachrichten ein höheres Gewicht beizumessen:
+
+\begin{equation}
+    \text{Sent}_t = \frac{\sum_{i=1}^{10} w_i \cdot s_i}{\sum_{i=1}^{10} w_i},
+    \qquad w_i = e^{\,\lambda (i - 10)},
+\end{equation}
+
+wobei die Nachrichten chronologisch geordnet sind ($i = 1$ älteste, $i = 10$ neueste) und $\lambda = 0.2$ den Abklingparameter steuert. Die exponentielle Gewichtung wird verwendet, da veraltete Meldungen die aktuelle Marktlage schnell schlechter widerspiegeln.
+
+\subsubsection{Relative Strength Index}
+
+Die allgemeine Marktdynamik ist aus Rohkursen allein schwer extrahierbar. Der \ac{RSI} ist hierbei geeignet, um die Marktdynamik widerzuspiegeln, da er überkaufte oder überverkaufte Marktphasen anzeigt~\cite{wilder1978}. Er misst die relative Stärke von Aufwärts- gegenüber Abwärtsbewegungen innerhalb eines Zeitfensters von $n = 14$ Tagen und ist häufig Bestandteil technischer Analysen~\cite{wilder1978}:
+
+\begin{equation}
+    \text{RSI}_t = 100 - \frac{100}{1 + \dfrac{\overline{U}_t}{\overline{D}_t}},
+\end{equation}
+
+wobei $\overline{U}_t$ den exponentiell geglätteten Durchschnitt der positiven Kursveränderungen und $\overline{D}_t$ den exponentiellen Durchschnitt der negativen Kursveränderungen der letzten 14 Handelstage bezeichnet. Der RSI liegt per Konstruktion im Intervall $[0, 100]$, was seine spätere Normalisierung vereinfacht.
+
+\subsubsection{Moving Average Convergence Divergence}
+
+Während der RSI kurzfristige Über- oder Untertreibungen misst, erfasst der \ac{MACD} mittelfristiges Momentum und Trendwechsel, wodurch die beiden Parameter kombiniert ein gutes Bild auf die Kursentwicklung geben. Der MACD bildet die Differenz zweier exponentiell geglätteter Durchschnitte~\cite{appel1979}:
+
+\begin{equation}
+    \text{MACD}_t = \text{EMA}_{12}(p)_t - \text{EMA}_{26}(p)_t,
+\end{equation}
+
+wobei $\text{EMA}_{k}(p)_t$ den exponentiellen gleitenden Durchschnitt des Schlusskurses über $k$ Handelstage zum Zeitpunkt $t$ bezeichnet. Die Parameterwahl von 12 und 26 Tagen entspricht dem in der Literatur gebräuchlichen Standard~\cite{appel1979}.
+
+\subsubsection{Bollinger-Band-Position}
+
+Die relative Kursposition innerhalb der jüngsten Kursspanne ist ein weiteres, von den bisherigen Dimensionen unabhängiges Signal. Die Bollinger-Bänder bestehen aus einem gleitenden Durchschnitt $\text{MA}_{20,t}$ sowie einem oberen Band $B^+_t = \text{MA}_{20,t} + 2\sigma_{20,t}$ und einem unteren Band $B^-_t = \text{MA}_{20,t} - 2\sigma_{20,t}$, wobei $\sigma_{20,t}$ die Standardabweichung der Schlusskurse der letzten 20 Handelstage ist~\cite{bollinger2001}. Als Feature wird die normierte Position des aktuellen Kurses innerhalb der Bänder verwendet:
+
+\begin{equation}
+    \text{BB}_t = \frac{p_t - B^-_t}{B^+_t - B^-_t} \in [0, 1].
+\end{equation}
+
+Diese Normierung hat den Vorteil, dass das Feature bereits konstruktionsbedingt im Intervall $[0,1]$ liegt und damit keine weitere Skalierung erfordert.
+
+\subsubsection{Realisierte Volatilität}
+
+Phasen erhöhter Volatilität gehen typischerweise mit größeren Renditeausschlägen einher (Volatilitätsclustering)~\cite{engle1982}. Deshalb geht die aktuelle Volatilität als Parameter in das Modell ein. Als Maß für die kurzfristige Marktunsicherheit wird die realisierte 10-Tages-Volatilität der Log-Renditen verwendet:
+
+\begin{equation}
+    \sigma_{10,t} = \sqrt{\frac{1}{9} \sum_{i=1}^{10} \bigl(r_{t-i} - \bar{r}_t\bigr)^2},
+    \qquad \bar{r}_t = \frac{1}{10}\sum_{i=1}^{10} r_{t-i}.
+\end{equation}
+
+Das Fenster von 10 Tagen erfasst kurzfristige Volatilität ohne übermäßige Glättung, die bei längeren Fenstern auftreten würde.
+
+\subsubsection{Handelspause}
+
+Der sogenannte Montag-Effekt beschreibt die empirisch beobachtete Tendenz, dass Renditen nach Handelspausen systematisch von regulären Folgetagen abweichen~\cite{french1980}. Dieser Effekt wird durch die aktuellen Dimensionen noch nicht abgebildet und geht durch eine Binärvariable in die Schätzung ein:
+
+\begin{equation}
+    d_t = \begin{cases} 1 & \text{wenn zwischen } t-1 \text{ und } t \text{ mindestens ein Nicht-Handelstag liegt,} \\ 0 & \text{sonst.} \end{cases}
+\end{equation}
+
+Dies trifft auf alle Montage sowie auf Tage nach Feiertagen zu.
+
+\subsubsection{Normalisierung}
+
+Da \ac{SVR} mittels Abstandsberechnungen im Feature-Raum funktioniert, ist eine einheitliche Skalierung aller Eingaben erforderlich~\cite{scholkopf2002}. Ohne Normalisierung würden Features mit großen absoluten Wertebereichen die Berechnung dominieren, unabhängig von ihrem tatsächlichen Informationsgehalt. Dies würde dazu führen, dass das Modell die übrigen Features ignoriert.
+
+Die Merkmale $r_{t-1}$, $r_{t-2}$, $r_{t-3}$, $\text{Sent}_t$, $\text{MACD}_t$ und $\sigma_{10,t}$ werden mittels Z-Score-Normalisierung standardisiert:
+
+\begin{equation}
+    \tilde{x} = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}.
+\end{equation}
+
+Diese Methode ist koheränt, das sie keine Annahmen über den Wertebereich der Features benötigt. Der RSI wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist. Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden ausschließlich auf den Trainingsdaten berechnet und anschließend auf Test- und Validierungsdaten angewendet.
 
 
 \subsection{StockTimesFM}\label{subsec:stocktimesfm}
-Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Vor diesem Hintergrund wird ein alternativer Ansatz verfolgt, bei dem ein Foundation Model eingesetzt wird, um dessen Übertragbarkeit auf die Vorhersage von Aktienkursen zu untersuchen.
-TimesFM ist ein von Google Research entwickeltes Foundation Model für Zeitreihenprognosen~\cite{das2024timesfm}. Im Gegensatz zu den übrigen in dieser Arbeit vorgestellten Modellen wird TimesFM nicht auf den Aktiendaten trainiert, sondern im Zero-Shot-Modus eingesetzt. Das bedeutet, das Modell wird unverändert auf die Aktienrenditedaten angewendet, ohne vorher auf den Daten trainiert worden zu sein. Dadurch kann untersucht werden, ob ein allgemeines Zeitreihenwissen auf Aktienkurse übertragbar ist.
 
-TimesFM basiert auf einer Decoder-only Transformer-Architektur, die auf einem großen Zeitreihendatensatz vortrainiert wurde. Genau wie bei großen Sprachmodellen lernt TimesFM durch das Vorhersagen des nächsten Zeitabschnitts einer Zeitreihe~\cite{das2024timesfm}. Dazu wird die Eingabezeitreihe in sogenannte Patches aufgeteilt, also zusammenhängende Abschnitte fixer Länge, die als Tokens in den Transformer eingehen. Formal sei $\mathbf{x} = (x_1, x_2, \ldots, x_T)$ die Eingabezeitreihe der Länge $T$. Diese wird in nicht-überlappende Patches der Länge $p$ aufgeteilt:
+Aktienkursvorhersagemodelle sind dafür bekannt, stark zum Overfitting zu neigen. Selbst die Nutzung großer Datensätze führt in der Praxis oft nicht zu einer signifikanten Verbesserung der Generalisierungsfähigkeit~\cite{lopezdeprado2020chaos}. Ein grundlegender Ansatz, diesem Problem zu begegnen, besteht darin, gar nicht auf Aktiendaten zu trainieren, sondern stattdessen auf allgemeines Zeitreihenwissen zurückzugreifen. Genau diesen Ansatz verfolgt diese Arbeit mit dem Einsatz von TimesFM im Zero-Shot-Modus.
 
+TimesFM ist ein von Google Research entwickeltes Foundation Model für Zeitreihenprognosen~\cite{das2024timesfm}. Analog zu großen Sprachmodellen wurde TimesFM auf einem Korpus realer Zeitreihendaten aus vielen Domänen vortrainiert, mit dem Ziel, Muster in sequenziellen Daten zu erlernen. Technisch basiert es auf einer Decoder-only Transformer-Architektur. Die Eingabezeitreihe wird in Patches fixer Länge aufgeteilt, die als Tokens in den Transformer eingehen, und das Modell lernt durch die Vorhersage des jeweils nächsten Patches, analog zum Next-Token-Prediction-Prinzip in Sprachmodellen.
+
+Der Ansatz dieser Arbeit besteht darin, TimesFM unverändert ohne Fine-Tuning auf Aktienrenditen anzuwenden. Dieser Zero-Shot-Einsatz erlaubt es zu untersuchen, ob allgemeines Zeitreihenwissen auf die spezifischen Muster von Aktienkursen übertragbar ist. Im Unterschied zu allen anderen in dieser Arbeit vorgestellten Modellen wird kein datensatzspezifisches Muster gelernt, sondern die Frage beantwortet, ob domänenübergreifendes Wissen über Zeitreihen, wie Saisonalität oder Trendverhalten ausreicht, um Prognosen zu liefern, ohne dabei auf historische Aktienkurse zu overfittten.
+
+Für die Anwendung wird TimesFM auf Log-Renditen eingesetzt, um Vergleichbarkeit mit den übrigen Modellen herzustellen. Als Eingabe dient ein rollierendes Fenster der letzten $w$ Renditen-Beobachtungen, sodass das Modell zum Zeitpunkt $t$ die Renditeprognose
 \begin{equation}
-    \mathbf{p}_k = (x_{(k-1)\cdot p + 1}, \ldots, x_{k \cdot p}), \quad k = 1, \ldots, \left\lfloor \frac{T}{p} \right\rfloor.
+    \hat{r}_{t+1} = f_\theta(r_{t-w+1}, \ldots, r_t)
 \end{equation}
-
-Die Patch-Sequenz $(\mathbf{p}_1, \ldots, \mathbf{p}_K)$ wird anschließend durch mehrere Transformer-Decoder-Blöcken verarbeitet. Jeder Block besteht aus einer Masked-Self-Attention-Schicht, die sicherstellt, dass bei der Vorhersage von $\mathbf{p}_{k+1}$ ausschließlich vergangene Patches $\mathbf{p}_1, \ldots, \mathbf{p}_k$ berücksichtigt werden und einer nachgelagerten Feed-Forward-Schicht. Die Vorhersage für den Horizont $h$ ergibt sich dann als
-
+ausgibt, wobei $f_\theta$ das vortrainierte TimesFM-Modell mit unveränderten Parametern $\theta$ bezeichnet. Die zugehörige Preisvorhersage ergibt sich dann als
 \begin{equation}
-    \hat{x}_{T+h} = f_{\theta}(\mathbf{p}_1, \ldots, \mathbf{p}_K),
-\end{equation}
-
-wobei $f_\theta$ das Modell TimesFM mit Parametern $\theta$ bezeichnet. Da die Zero-Shot-Fähigkeit des Modells untersucht werden soll, bleiben $\theta$ unverändert.
-
-Für die Anwendung auf Aktienkurse wird TimesFM auf Log-Renditen angewendet, um Vergleichbarkeit mit den anderen Modellen herzustellen. Da TimesFM eine variable Kontextlänge unterstützt, wird als Kontextfenster ein rollierendes Fenster der letzten $w$ Beobachtungen verwendet. Das heißt, zum Zeitpunkt $t$ fließen die $w$ vorausgehenden Preisbeobachtungen als Eingabe in das Modell ein. Das Modell gibt dann eine Renditenprognose für den nächsten Zeitschritt aus, also
-\begin{equation}
-    \hat{r}_{t+1} = f_\theta(r_{t-w+1}, \ldots, r_t).
-\end{equation}
-
-Die Preisvorhersage ergibt sich nach
-
-\begin{equation}
-    \hat{P}_{t+1} = P_t * \exp(\hat{r}_{t+1}).
+    \hat{P}_{t+1} = P_t \cdot \exp(\hat{r}_{t+1}).
 \end{equation}
 
 \section{Marktstrategie}\label{sec:marktstrategie} % Analytisch berechnetes Riskiomanagement, Positionsgrößen und Forecasting Horizon (Welchen Wert sollen die Models vorhersagen, t+5 Tage usw.
