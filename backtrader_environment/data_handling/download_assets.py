@@ -6,13 +6,13 @@ import yfinance as yf
 header_row_real = "Date,Adj Close,Close,High,Low,Open,Volume\n"
 header_row_adjusted = "Date,Close,High,Low,Open,Volume\n"
 
-CACHE_DIR = "data/assets"
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+CACHE_DIR = os.path.join(ROOT_DIR, "data/assets")
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-MACRO_DIR = "data/macro"
+MACRO_DIR = os.path.join(ROOT_DIR, "data/macro")
 os.makedirs(MACRO_DIR, exist_ok=True)
-
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_PATH = os.path.join(ROOT_DIR, "config.yaml")
 
 with open(CONFIG_PATH, "r") as f:
@@ -137,9 +137,34 @@ def _download_fred_series(series_id: str, filepath: str, start: str, end: str):
 if __name__ == '__main__':
     from sp500_universe import get_sp500_2020_tickers
 
-    sp500_tickers = get_sp500_2020_tickers()
-    print(f"Downloading {len(sp500_tickers)} S&P 500 tickers...")
-    download_universe(sp500_tickers)
+    print("=" * 70)
+    print("DATA DOWNLOAD FOR STOCK SELECTION AND EVALUATION")
+    print("=" * 70)
+    print(f"Time period: {START_DATE} to {END_DATE}")
+    print()
 
+    # 1. Download S&P 500 universe
+    sp500_tickers = get_sp500_2020_tickers()
+    print(f"[1/2] Downloading S&P 500 universe ({len(sp500_tickers)} stocks)...")
+    print("-" * 70)
+    download_universe(sp500_tickers)
+    print()
+
+    # 2. Download macroeconomic factors
+    print(f"[2/2] Downloading macroeconomic factors...")
+    print("-" * 70)
     if MACRO_FACTORS:
+        for key, symbol in MACRO_FACTORS.items():
+            print(f"  {key}: {symbol}")
+        print()
         download_macro_factors()
+    else:
+        print("  WARNING: No macro_factors defined in config.yaml")
+    print()
+
+    print("=" * 70)
+    print("DOWNLOAD COMPLETE")
+    print("=" * 70)
+    print("Data locations:")
+    print("  - Stocks:  data/assets/")
+    print("  - Factors: data/macro/")
