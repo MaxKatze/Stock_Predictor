@@ -3,11 +3,18 @@
 Runs all prediction models on selected stocks with proper 60/10/30 data split.
 Produces comparison tables with prediction metrics and financial performance.
 Saves results to JSON and generates example walk-forward plots.
+
+Usage:
+    uv run python run_evaluation.py                     # Run all available models
+    uv run python run_evaluation.py --models LinearSeparation SVR
+    uv run python run_evaluation.py --models TimesFM
+    uv run python run_evaluation.py --list-models       # Show available models
 """
 
 import os
 import sys
 import json
+import argparse
 import pandas as pd
 import numpy as np
 import backtrader as bt
@@ -296,15 +303,60 @@ def generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path):
     plt.close()
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Walk-Forward Model Evaluation",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    uv run python run_evaluation.py                          # All models
+    uv run python run_evaluation.py --models LinearSeparation
+    uv run python run_evaluation.py --models LinearSeparation SVR
+    uv run python run_evaluation.py --list-models
+        """
+    )
+    parser.add_argument(
+        "--models", "-m",
+        nargs="+",
+        help="Models to run (default: all available)",
+        metavar="MODEL"
+    )
+    parser.add_argument(
+        "--list-models", "-l",
+        action="store_true",
+        help="List available models and exit"
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+
+    if args.list_models:
+        print("Available models:")
+        for name in MODEL_CONFIGS.keys():
+            print(f"  - {name}")
+        return
+
     config = load_config()
     stocks = get_selected_stocks(config)
+
+    if args.models:
+        invalid = [m for m in args.models if m not in MODEL_CONFIGS]
+        if invalid:
+            print(f"ERROR: Unknown model(s): {invalid}")
+            print(f"Available: {list(MODEL_CONFIGS.keys())}")
+            sys.exit(1)
+        selected_models = {k: v for k, v in MODEL_CONFIGS.items() if k in args.models}
+    else:
+        selected_models = MODEL_CONFIGS
 
     print("=" * 80)
     print("WALK-FORWARD MODEL EVALUATION")
     print("=" * 80)
     print(f"Stocks: {stocks}")
-    print(f"Models: {list(MODEL_CONFIGS.keys())}")
+    print(f"Models: {list(selected_models.keys())}")
     print(f"Initial Cash: ${INITIAL_CASH:,.0f}")
     print()
 
@@ -333,7 +385,7 @@ def main():
             all_dates = pd.concat([train_df, val_df, test_df]).index
             sentiment_data = generate_placeholder_sentiment(all_dates, seed=hash(ticker) % 2**32)
 
-        for model_name, model_config in MODEL_CONFIGS.items():
+        for model_name, model_config in selected_models.items():
             print(f"  Running {model_name}...", end=" ")
 
             try:
@@ -402,7 +454,7 @@ def main():
             "config": {
                 "initial_cash": INITIAL_CASH,
                 "stocks": stocks,
-                "models": list(MODEL_CONFIGS.keys()),
+                "models": list(selected_models.keys()),
             },
             "results": all_results,
             "summary_by_model": df.groupby("model")[numeric_cols].mean().to_dict(),
