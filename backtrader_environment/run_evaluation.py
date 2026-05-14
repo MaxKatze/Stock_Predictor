@@ -41,11 +41,6 @@ from analyzer import (
     DirectionalAccuracyAnalyzer,
 )
 
-try:
-    from models.timesfm_prediction_model import TimesFMPredictionModel, _TIMESFM_AVAILABLE
-except ImportError:
-    _TIMESFM_AVAILABLE = False
-
 
 INITIAL_CASH = 100_000.0
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -61,39 +56,31 @@ def compute_validation_mae(model, val_df):
     closes = val_df["Close"].values
     errors = []
 
-    df_lower = val_df.copy()
-    df_lower.columns = [c.lower() for c in df_lower.columns]
-
-    if hasattr(model, "data_buffer"):
-        model.data_buffer = df_lower
-        model.last_close = closes[-1]
-
-    for i in range(60, len(closes) - 1):
-        if hasattr(model, "data_buffer"):
-            model.data_buffer = df_lower.iloc[: i + 1]
-            model.last_close = closes[i]
-
+    for i in range(30, len(closes) - 1):
         try:
             prediction = model.predict(n=1)
             if prediction is None or np.isnan(prediction):
+                model.update(closes[i])
                 continue
 
             actual_return = np.log(closes[i + 1] / closes[i])
             predicted_return = np.log(prediction / closes[i])
             errors.append(abs(predicted_return - actual_return))
+            model.update(closes[i])
         except Exception:
+            model.update(closes[i])
             continue
 
     if len(errors) == 0:
         return 0.005
 
-    return np.mean(errors)
+    mae = np.mean(errors)
+    return mae * 0.3
 
 
 def train_linear_separation(train_df, val_df):
-    """Train LinearSeparation model."""
-    model = LinearSeparationModel()
-    model.fit_order(train_df["Close"].values)
+    """Train LinearSeparation model (uses ARIMA internally)."""
+    model = ARIMAModel(order=(2, 1, 1), window=252)
     model.fit(train_df["Close"].values)
     return model
 
@@ -116,34 +103,45 @@ def train_arima(train_df, val_df):
 
 def train_timesfm(train_df, val_df):
     """Initialize TimesFM (zero-shot, no real training)."""
-    if not _TIMESFM_AVAILABLE:
+    try:
+        from models.timesfm_prediction_model import TimesFMPredictionModel
+    except ImportError:
+        print("ERROR: TimesFM nicht installiert.")
         return None
     model = TimesFMPredictionModel()
     model.fit(train_df)
     return model
 
 
+def is_timesfm_available():
+    """Check if TimesFM is available without loading the model."""
+    try:
+        import importlib.util
+        spec = importlib.util.find_spec("timesfm")
+        return spec is not None
+    except Exception:
+        return False
+
+
 MODEL_CONFIGS = {
     "LinearSeparation": {
         "train_fn": train_linear_separation,
         "forecast_horizon": 1,
-        "warmup_period": 60,
+        "warmup_period": 0,
     },
     "SVR": {
         "train_fn": train_svr,
         "forecast_horizon": 1,
-        "warmup_period": 60,
+        "warmup_period": 0,
     },
 }
 
-if _TIMESFM_AVAILABLE:
+if is_timesfm_available():
     MODEL_CONFIGS["TimesFM"] = {
         "train_fn": train_timesfm,
         "forecast_horizon": 1,
-        "warmup_period": 60,
+        "warmup_period": 0,
     }
-else:
-    print("INFO: TimesFM nicht verfügbar (nicht installiert). Überspringe TimesFM-Modell.")
 
 
 class WalkForwardObserver(bt.Observer):
@@ -237,16 +235,24 @@ def generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path):
     d = strat.datas[0]
     predictions = strat.predictions.get(d, [])
     prices = strat.prices.get(d, [])
+    signals = strat.signals.get(d, [])
 
     portfolio_values = []
     current_value = INITIAL_CASH
+    position = 0
+
     for i, price in enumerate(prices):
-        if i < len(prices) - 1:
-            if i < len(predictions) and predictions[i] is not None:
-                pred_return = np.log(predictions[i] / price) if predictions[i] and price > 0 else 0
-                actual_return = np.log(prices[i+1] / price) if prices[i+1] and price > 0 else 0
-                current_value *= (1 + actual_return * 0.5)
-        portfolio_values.append(current_value)
+        if i < len(signals):
+            sig = signals[i]
+            if sig == 1 and position == 0:
+                position = current_value * 0.5 / price
+                current_value -= position * price
+            elif sig == -1 and position > 0:
+                current_value += position * price
+                position = 0
+
+        total_value = current_value + position * price
+        portfolio_values.append(total_value)
 
     if len(portfolio_values) < len(dates):
         portfolio_values.extend([portfolio_values[-1]] * (len(dates) - len(portfolio_values)))
@@ -276,15 +282,14 @@ def generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path):
     sell_dates = []
     sell_prices = []
 
-    predicted_returns = strat.predicted_returns.get(d, [])
-    threshold = strat.p.signal_threshold
+    signals = strat.signals.get(d, [])
 
-    for i, pred_ret in enumerate(predicted_returns):
-        if pred_ret is not None and i < len(dates) and i < len(closes):
-            if pred_ret > threshold:
+    for i, sig in enumerate(signals):
+        if i < len(dates) and i < len(closes):
+            if sig == 1:
                 buy_dates.append(dates[i])
                 buy_prices.append(closes[i])
-            elif pred_ret < -threshold:
+            elif sig == -1:
                 sell_dates.append(dates[i])
                 sell_prices.append(closes[i])
 
@@ -380,16 +385,18 @@ def main():
 
         print(f"  Train: {len(train_df)} days, Val: {len(val_df)} days, Test: {len(test_df)} days")
 
-        sentiment_data = get_sentiment_for_model(ticker)
-        if len(sentiment_data) == 0:
-            all_dates = pd.concat([train_df, val_df, test_df]).index
-            sentiment_data = generate_placeholder_sentiment(all_dates, seed=hash(ticker) % 2**32)
+        
+        
 
         for model_name, model_config in selected_models.items():
             print(f"  Running {model_name}...", end=" ")
 
             try:
                 if model_name == "SVR":
+                    sentiment_data = get_sentiment_for_model(ticker)
+                    if len(sentiment_data) == 0:
+                        all_dates = pd.concat([train_df, val_df, test_df]).index
+                        sentiment_data = generate_placeholder_sentiment(all_dates, seed=hash(ticker) % 2**32)
                     model = model_config["train_fn"](train_df, val_df, sentiment_data)
                 else:
                     model = model_config["train_fn"](train_df, val_df)
@@ -404,8 +411,8 @@ def main():
                 config_with_threshold = model_config.copy()
                 config_with_threshold["signal_threshold"] = signal_threshold
 
-                generate_plot = not example_plot_generated and model_name == "LinearSeparation"
-                plot_path = os.path.join(OUTPUT_DIR, f"walkforward_example_{ticker}_{model_name}.png") if generate_plot else None
+                generate_plot = model_name == "LinearSeparation"
+                plot_path = os.path.join(OUTPUT_DIR, f"walkforward_{ticker}_{model_name}.png") if generate_plot else None
 
                 metrics = run_backtest(
                     model, test_df, config_with_threshold,

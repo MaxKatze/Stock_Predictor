@@ -2,4 +2,3 @@ from .arima_prediction_model import ARIMAModel
 from .lstm_prediction_model import LSTMPredictionModel
 from .linear_separation_model import LinearSeparationModel
 from .svr_prediction_model import SVRPredictionModel
-from .timesfm_prediction_model import TimesFMPredictionModel

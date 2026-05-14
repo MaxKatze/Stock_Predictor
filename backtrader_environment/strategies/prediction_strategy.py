@@ -52,6 +52,8 @@ class PredictionStrategy(GeneralStrategy):
         warmup_period=60,
         fit_interval=0,
         kelly_window=60,
+        signal_cooldown=5,
+        forced_signal_interval=20,
     )
 
     supported_analyzers = [
@@ -76,6 +78,9 @@ class PredictionStrategy(GeneralStrategy):
         self.prices = {}
         self.predicted_returns = {}
         self.actual_returns = {}
+        self._last_signal_bar = {}
+        self._bar_count = {}
+        self.signals = {}
 
         self.kelly_manager = HalfKellyPositionManager(
             kelly_window=self.p.kelly_window,
@@ -92,6 +97,9 @@ class PredictionStrategy(GeneralStrategy):
             self.prices[d] = []
             self.predicted_returns[d] = []
             self.actual_returns[d] = []
+            self._last_signal_bar[d] = -999
+            self._bar_count[d] = 0
+            self.signals[d] = []
 
     def _get_ohlcv_dataframe(self, d):
         """Extract OHLCV data from backtrader data feed."""
@@ -138,15 +146,18 @@ class PredictionStrategy(GeneralStrategy):
 
             self._fit_counters[d] += 1
 
-            df = self._get_ohlcv_dataframe(d)
-
-            if hasattr(model, "requires_refit") and model.requires_refit:
+            if hasattr(model, "update"):
+                model.update(current_price)
+            elif hasattr(model, "requires_refit") and model.requires_refit:
+                df = self._get_ohlcv_dataframe(d)
                 model.fit(df)
                 self._model_fitted[d] = True
             elif self.p.fit_interval > 0 and self._fit_counters[d] % self.p.fit_interval == 0:
+                df = self._get_ohlcv_dataframe(d)
                 model.fit(df)
                 self._model_fitted[d] = True
             elif hasattr(model, "data_buffer"):
+                df = self._get_ohlcv_dataframe(d)
                 model.data_buffer = df
                 model.last_close = current_price
 
@@ -168,11 +179,34 @@ class PredictionStrategy(GeneralStrategy):
             predicted_return = np.log(prediction / current_price)
             self.predicted_returns[d].append(predicted_return)
 
-            if predicted_return > self.p.signal_threshold:
-                self._handle_long_signal(d)
-            elif predicted_return < -self.p.signal_threshold:
-                self._handle_cash_signal(d)
-            # else: -ε ≤ predicted_return ≤ ε → Hold (no action)
+            self._bar_count[d] += 1
+            bars_since_signal = self._bar_count[d] - self._last_signal_bar[d]
+
+            in_cooldown = bars_since_signal < self.p.signal_cooldown
+            force_signal = bars_since_signal >= self.p.forced_signal_interval
+
+            signal = 0  # 0=hold, 1=buy, -1=sell
+
+            if force_signal:
+                if predicted_return > 0:
+                    self._handle_long_signal(d)
+                    self._last_signal_bar[d] = self._bar_count[d]
+                    signal = 1
+                else:
+                    self._handle_cash_signal(d)
+                    self._last_signal_bar[d] = self._bar_count[d]
+                    signal = -1
+            elif not in_cooldown:
+                if predicted_return > self.p.signal_threshold:
+                    self._handle_long_signal(d)
+                    self._last_signal_bar[d] = self._bar_count[d]
+                    signal = 1
+                elif predicted_return < -self.p.signal_threshold:
+                    self._handle_cash_signal(d)
+                    self._last_signal_bar[d] = self._bar_count[d]
+                    signal = -1
+
+            self.signals[d].append(signal)
 
     def _handle_long_signal(self, d):
         """Handle Long signal: adjust position to Half-Kelly target.

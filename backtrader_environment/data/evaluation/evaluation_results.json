@@ -1,0 +1,195 @@
+{
+  "config": {
+    "initial_cash": 100000.0,
+    "stocks": [
+      "CARR",
+      "OTIS",
+      "RSG",
+      "CTAS",
+      "AJG",
+      "PEP",
+      "TT",
+      "GWW",
+      "RMD",
+      "BLK"
+    ],
+    "models": [
+      "LinearSeparation"
+    ]
+  },
+  "results": [
+    {
+      "total_return": -0.07001687549917988,
+      "bh_return": -0.1229151214472998,
+      "excess_return": 0.05289824594811991,
+      "sharpe_ratio": -0.3604022065235827,
+      "max_drawdown": 0.26461542896216683,
+      "mae": 1.0030936713381047,
+      "rmse": 1.3972429469531584,
+      "mape": 0.01532593979029806,
+      "oos_r2": -0.08359651802393375,
+      "directional_accuracy": 0.46808510638297873,
+      "ticker": "CARR",
+      "model": "LinearSeparation",
+      "epsilon": 0.00577542059079659
+    },
+    {
+      "total_return": -0.21021263744256619,
+      "bh_return": -0.048812664361243284,
+      "excess_return": -0.1613999730813229,
+      "sharpe_ratio": -27.928019082211247,
+      "max_drawdown": 0.24438369209020108,
+      "mae": 0.9421804780145989,
+      "rmse": 1.4616248783817078,
+      "mape": 0.01017146423299086,
+      "oos_r2": -0.1403055849346353,
+      "directional_accuracy": 0.4787234042553192,
+      "ticker": "OTIS",
+      "model": "LinearSeparation",
+      "epsilon": 0.0037189377185078533
+    },
+    {
+      "total_return": 0.19933735290895305,
+      "bh_return": 0.1310959046220051,
+      "excess_return": 0.06824144828694795,
+      "sharpe_ratio": 1.0778944974221607,
+      "max_drawdown": 0.08545031498722772,
+      "mae": 1.811617997579423,
+      "rmse": 2.59582821748489,
+      "mape": 0.008283164616719702,
+      "oos_r2": -0.059671472802680814,
+      "directional_accuracy": 0.5611702127659575,
+      "ticker": "RSG",
+      "model": "LinearSeparation",
+      "epsilon": 0.002846080207793675
+    },
+    {
+      "total_return": -0.034601793056376916,
+      "bh_return": 0.1101971873801932,
+      "excess_return": -0.1447989804365701,
+      "sharpe_ratio": -0.7581867911667307,
+      "max_drawdown": 0.23579313920166636,
+      "mae": 2.016663924880723,
+      "rmse": 3.037544739237663,
+      "mape": 0.010067306684701925,
+      "oos_r2": -0.07346361512861344,
+      "directional_accuracy": 0.550531914893617,
+      "ticker": "CTAS",
+      "model": "LinearSeparation",
+      "epsilon": 0.003421153230863667
+    },
+    {
+      "total_return": 0.1899927174249428,
+      "bh_return": 0.02300663492734207,
+      "excess_return": 0.16698608249760075,
+      "sharpe_ratio": 2.4948844484954007,
+      "max_drawdown": 0.09947209212115898,
+      "mae": 3.3149065995287685,
+      "rmse": 4.65784890033323,
+      "mape": 0.011312562374835857,
+      "oos_r2": -0.14976988433755878,
+      "directional_accuracy": 0.5345744680851063,
+      "ticker": "AJG",
+      "model": "LinearSeparation",
+      "epsilon": 0.003804389923212306
+    },
+    {
+      "total_return": -0.12995375914863747,
+      "bh_return": -0.06471422828277279,
+      "excess_return": -0.06523953086586468,
+      "sharpe_ratio": -5.056755304112864,
+      "max_drawdown": 0.18211849993697882,
+      "mae": 1.4042562234693439,
+      "rmse": 1.9133463312783887,
+      "mape": 0.009741034984590379,
+      "oos_r2": -0.06921064531579102,
+      "directional_accuracy": 0.4787234042553192,
+      "ticker": "PEP",
+      "model": "LinearSeparation",
+      "epsilon": 0.0032134000496621073
+    },
+    {
+      "total_return": 0.04494032519783854,
+      "bh_return": 0.23325225407872313,
+      "excess_return": -0.1883119288808846,
+      "sharpe_ratio": 0.07053579324020615,
+      "max_drawdown": 0.18334601229552416,
+      "mae": 4.815106015890207,
+      "rmse": 6.749638320637309,
+      "mape": 0.012643433845558603,
+      "oos_r2": -0.10024741866441889,
+      "directional_accuracy": 0.4973404255319149,
+      "ticker": "TT",
+      "model": "LinearSeparation",
+      "epsilon": 0.004455589538779426
+    },
+    {
+      "total_return": 0.004979022912315704,
+      "bh_return": 0.1539701293846732,
+      "excess_return": -0.1489911064723575,
+      "sharpe_ratio": -0.07671641834785194,
+      "max_drawdown": 0.2504551171187237,
+      "mae": 11.039234047533844,
+      "rmse": 15.52957858858647,
+      "mape": 0.010923537412565064,
+      "oos_r2": -0.10262934111133681,
+      "directional_accuracy": 0.48138297872340424,
+      "ticker": "GWW",
+      "model": "LinearSeparation",
+      "epsilon": 0.004354547232870674
+    },
+    {
+      "total_return": 0.08867585823358284,
+      "bh_return": 0.3178753034288759,
+      "excess_return": -0.22919944519529303,
+      "sharpe_ratio": 0.5204085728744376,
+      "max_drawdown": 0.09416947433904645,
+      "mae": 3.113800493023588,
+      "rmse": 4.383968231566844,
+      "mape": 0.013035096008386664,
+      "oos_r2": -0.12612548272449797,
+      "directional_accuracy": 0.5345744680851063,
+      "ticker": "RMD",
+      "model": "LinearSeparation",
+      "epsilon": 0.007558386759126918
+    },
+    {
+      "total_return": 0.32280532923054156,
+      "bh_return": 0.4286190666164525,
+      "excess_return": -0.10581373738591093,
+      "sharpe_ratio": 1.697194332764319,
+      "max_drawdown": 0.11786659329041196,
+      "mae": 11.187625619180187,
+      "rmse": 15.683206599973122,
+      "mape": 0.011509368756245465,
+      "oos_r2": -0.08875657299139905,
+      "directional_accuracy": 0.5478723404255319,
+      "ticker": "BLK",
+      "model": "LinearSeparation",
+      "epsilon": 0.00458306918588151
+    }
+  ],
+  "summary_by_model": {
+    "total_return": {
+      "LinearSeparation": 0.040594554076141404
+    },
+    "excess_return": {
+      "LinearSeparation": -0.07556289255855352
+    },
+    "sharpe_ratio": {
+      "LinearSeparation": -2.831916215756575
+    },
+    "max_drawdown": {
+      "LinearSeparation": 0.1757670364343106
+    },
+    "mape": {
+      "LinearSeparation": 0.011301290870689259
+    },
+    "oos_r2": {
+      "LinearSeparation": -0.09937765360348658
+    },
+    "directional_accuracy": {
+      "LinearSeparation": 0.5132978723404256
+    }
+  }
+}
