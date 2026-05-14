@@ -124,7 +124,14 @@ Der Datenfluss von der Erstellung des Modells bis zum trainierten Modell ist in 
     \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}
     \label{fig:linear_separation_datenfluss}
 \end{figure}
-
+Zur Vorhersage des nächsten Tageskurses, bildet das Modell die Differenz zwischen dem ersten Trainingsdatum und dem Datum für die Vorhersage. Dies ist der Tag der dann in die beiden linearen Funktionen eingesetzt wird, die die Vorhersage für den langfristigen und kurzfristigen Trend liefern. In die ARMA-Komponente wird die Differenz zwischen dem letzten Trainingsdatum und dem Datum für die Vorhersage eingesetzt, um die Vorhersage für die zyklische Komponente zu liefern. Die drei Vorhersagen werden dann addiert und exponentiert, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
 \section{Preprocessed SVR}\label{sec:preprocessed_svr}
 
 \section{StockTimesFM}\label{sec:stocktimesfm}
+Da mit dem StockTimesFM Modell ein Zero-Shot Ansatz verfolgt wird, muss das Modell nicht trainiert werden. Dem Modell werden ausschließlich die Trainingsdaten übergeben, die später als Basis für den Kontext der Vorhersage dienen. Deshalb zeigt \cref{fig:stocktimesfm_datenfluss} auch den Datenfluss bei der Vorhersage von neuen Kursen, da dies der einzige Schritt ist, der mit diesem Modell durchgeführt wird. Für die bessere Vergleichbarkeit arbeitet auch dieses Modell auf logerithmierten Kursen. Aus diesem Grund werden im ersten Schritt die alle historischen Schlusskurse der Aktie logerithmiert. Die letzten 512 logerithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das StockTimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen. Im letzten Schritt wandelt das Modell die prognostizierten Log-Returns in prognostizierte Kurse um, indem es die Log-Returns exponentiert und mit dem letzten Schlusskurs multipliziert. Der nächste Preis baut somit auf dem letzten prognostizierten Preis auf.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/timesfm_datenfluss}
+    \caption{StockTimesFM: Datenfluss der Vorhersage von neuen Kursen}
+    \label{fig:stocktimesfm_datenfluss}
+\end{figure}

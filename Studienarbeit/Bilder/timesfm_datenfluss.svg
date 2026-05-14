@@ -46,10 +46,6 @@
     <text x="360" y="374" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#185fa5">Out: Prognostizierter Log-Return r̂(t+1)</text>
   </g>
 
-  <!-- Annotation: Zero-Shot -->
-  <text x="590" y="320" text-anchor="start" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#737268" font-style="italic">Zero-Shot</text>
-  <text x="590" y="336" text-anchor="start" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#737268" font-style="italic">(kein Training)</text>
-
   <line x1="360" y1="382" x2="360" y2="414" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
 
   <!-- SCHRITT 4: Preisrekonstruktion -->
@@ -64,20 +60,7 @@
 
   <!-- OUTPUT -->
   <g>
-    <rect x="200" y="514" width="320" height="52" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
+    <rect x="200" y="514" width="320" height="45" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
     <text x="360" y="534" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#633806">Preisprognose p̂(t+1)</text>
-    <text x="360" y="552" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#854f0b">→ PredictionStrategy: Kauf wenn (p̂−p)/p > 0.5%</text>
   </g>
-
-  <!-- Multi-Step Erweiterung (optional) -->
-  <path d="M520 460 Q600 460 600 400 Q600 348 520 348" fill="none" stroke="rgba(31,30,29,0.4)" stroke-width="1" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
-  <text x="628" y="396" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#3d3d3a">Multi-Step:</text>
-  <text x="628" y="412" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#3d3d3a">p̂ als neuen</text>
-  <text x="628" y="428" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#3d3d3a">Input nutzen</text>
-
-  <!-- Walk-Forward Annotation -->
-  <rect x="140" y="600" width="440" height="64" rx="8" fill="none" stroke="rgba(31,30,29,0.2)" stroke-width="1" stroke-dasharray="4 3"/>
-  <text x="360" y="622" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" font-weight="500" fill="#5f5e5a">Walk-Forward: Täglich wiederholt</text>
-  <text x="360" y="642" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#737268">Neuer Close-Preis wird an data_buffer angehängt → erneute Prognose</text>
-  <text x="360" y="658" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#737268">Kein Re-Training nötig (Foundation Model ist vortrainiert)</text>
 </svg>
