@@ -16,6 +16,7 @@ Das gilt auch für die nachfolgenden Formeln.
 Kapitelzahlen der Reihenfolgen sind halt bisschen unintuitiv. Weil erst 3.6 dann 3.4 usw
 Schaubilder im Ablauf von Konzeption verbessern (richtiger ablauf und selbe Reihenfolge wie im Text)
 Grundlagen in Anhang (v.a. die Definitionen für die Kennzahlen)
+lambda als Parameter von HP Filter in der Implementierung disktuieren.
 Stil, nennt man Formeln im Text (siehe 3.2.2 oder so) oder baut man sie in den Satz ein. (Markus fragen)
 Daten und Aktienwahl Reihenfolge tauschen: Erst Gesamtdaten, Bereinigung, dann Akteinauswahl
 Formel 3.15 nochmal schreiben, wenn sie mit lambdaKlein verwendet wird.

@@ -22,7 +22,7 @@ from models.linear_separation_model import LinearSeparationModel
 from models.svr_prediction_model import SVRPredictionModel
 from models.arima_prediction_model import ARIMAModel
 from strategies.prediction_strategy import PredictionStrategy
-from sizing.PercentageSizing import PercentageSizer
+from sizing.HalfKellySizer import HalfKellyPositionManager
 from analyzer import (
     MeanAbsoluteErrorAnalyzer,
     RootMeanSquaredErrorAnalyzer,
@@ -40,9 +40,62 @@ except ImportError:
 INITIAL_CASH = 100_000.0
 
 
+def compute_validation_mae(model, val_df):
+    """Compute MAE on validation data to determine signal threshold ε.
+
+    As specified in Konzeption Section 3.4.2:
+    ε = MAE_val = (1/|V|) * Σ|r̂_{t+1} - r_{t+1}|
+
+    Args:
+        model: Trained prediction model
+        val_df: Validation DataFrame with OHLCV columns
+
+    Returns:
+        MAE of log-return predictions on validation data
+    """
+    if model is None or len(val_df) < 60:
+        return 0.005
+
+    closes = val_df["Close"].values
+    errors = []
+
+    df_lower = val_df.copy()
+    df_lower.columns = [c.lower() for c in df_lower.columns]
+
+    if hasattr(model, "data_buffer"):
+        model.data_buffer = df_lower
+        model.last_close = closes[-1]
+
+    for i in range(60, len(closes) - 1):
+        if hasattr(model, "data_buffer"):
+            model.data_buffer = df_lower.iloc[: i + 1]
+            model.last_close = closes[i]
+
+        try:
+            prediction = model.predict(n=1)
+            if prediction is None or np.isnan(prediction):
+                continue
+
+            actual_return = np.log(closes[i + 1] / closes[i])
+            predicted_return = np.log(prediction / closes[i])
+            errors.append(abs(predicted_return - actual_return))
+        except Exception:
+            continue
+
+    if len(errors) == 0:
+        return 0.005
+
+    return np.mean(errors)
+
+
 def train_linear_separation(train_df, val_df):
-    """Train LinearSeparation model."""
+    """Train LinearSeparation model.
+
+    Determines optimal ARMA order on training data via AIC grid search.
+    During walk-forward, only the parameters are refit with this fixed order.
+    """
     model = LinearSeparationModel()
+    model.fit_order(train_df["Close"].values)
     model.fit(train_df["Close"].values)
     return model
 
@@ -81,19 +134,16 @@ def train_timesfm(train_df, val_df):
 MODEL_CONFIGS = {
     "LinearSeparation": {
         "train_fn": train_linear_separation,
-        "signal_threshold": 0.005,
         "forecast_horizon": 1,
         "warmup_period": 60,
     },
     "SVR": {
         "train_fn": train_svr,
-        "signal_threshold": 0.005,
         "forecast_horizon": 1,
         "warmup_period": 60,
     },
     # "ARIMA": {
     #     "train_fn": train_arima,
-    #     "signal_threshold": 0.001,
     #     "forecast_horizon": 1,
     #     "warmup_period": 100,
     #     "fit_interval": 100,
@@ -103,7 +153,6 @@ MODEL_CONFIGS = {
 if _TIMESFM_AVAILABLE:
     MODEL_CONFIGS["TimesFM"] = {
         "train_fn": train_timesfm,
-        "signal_threshold": 0.005,
         "forecast_horizon": 1,
         "warmup_period": 60,
     }
@@ -125,7 +174,6 @@ def run_backtest(model, test_df, model_config):
         fit_interval=model_config.get("fit_interval", 0),
     )
 
-    cerebro.addsizer(PercentageSizer)
     cerebro.broker.setcash(INITIAL_CASH)
 
     cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name="sharpe", riskfreerate=0.02)
@@ -223,9 +271,16 @@ def main():
                     print("SKIPPED (model not available)")
                     continue
 
-                metrics = run_backtest(model, test_df, model_config)
+                signal_threshold = compute_validation_mae(model, val_df)
+                print(f"ε={signal_threshold:.4f}", end=" ")
+
+                config_with_threshold = model_config.copy()
+                config_with_threshold["signal_threshold"] = signal_threshold
+
+                metrics = run_backtest(model, test_df, config_with_threshold)
                 metrics["ticker"] = ticker
                 metrics["model"] = model_name
+                metrics["epsilon"] = signal_threshold
                 all_results.append(metrics)
 
                 print(f"Return: {metrics['total_return']:.2%}, "
@@ -243,7 +298,7 @@ def main():
         print("=" * 80)
 
         df = pd.DataFrame(all_results)
-        cols = ["ticker", "model", "total_return", "bh_return", "excess_return",
+        cols = ["ticker", "model", "epsilon", "total_return", "bh_return", "excess_return",
                 "sharpe_ratio", "max_drawdown", "mape", "oos_r2", "directional_accuracy"]
         print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 

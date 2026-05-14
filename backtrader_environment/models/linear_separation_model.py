@@ -1,6 +1,7 @@
 """LinearSeparation Model: HP-Filter trend decomposition + ARMA residual forecasting."""
 
 import numpy as np
+import pandas as pd
 import warnings
 from statsmodels.tsa.filters.hp_filter import hpfilter
 from statsmodels.tsa.stattools import adfuller
@@ -15,16 +16,22 @@ class LinearSeparationModel(PredictionModel):
     p_t = tau_lang_t + tau_kurz_t + c_t + epsilon_t
 
     Trends are extrapolated via OLS, cyclical component via ARMA.
+
+    Usage:
+        1. Call fit_order() on training data to determine optimal ARMA order via AIC
+        2. Call fit() on each bar during walk-forward (HP-Filter + OLS always,
+           ARMA only every arma_refit_interval bars)
     """
 
     def __init__(self, lambda_lang=1600 * 252**2, lambda_kurz=1600,
-                 w_lang=252, w_kurz=40, max_p=5, max_q=5):
+                 w_lang=252, w_kurz=40, max_p=5, max_q=5, arma_refit_interval=50):
         self.lambda_lang = lambda_lang
         self.lambda_kurz = lambda_kurz
         self.w_lang = w_lang
         self.w_kurz = w_kurz
         self.max_p = max_p
         self.max_q = max_q
+        self.arma_refit_interval = arma_refit_interval
 
         self._slope_lang = None
         self._intercept_lang = None
@@ -34,20 +41,82 @@ class LinearSeparationModel(PredictionModel):
         self._arma_order = None
         self._last_t = None
         self._fitted = False
+        self._fit_counter = 0
+
+        self.data_buffer = None
+        self.last_close = None
+        self.requires_refit = True
+
+    def fit_order(self, data):
+        """Determine optimal ARMA order on training data via AIC grid search.
+
+        This should be called once on training data before walk-forward testing.
+
+        Args:
+            data: array-like of close prices (training data)
+        """
+        if isinstance(data, pd.DataFrame):
+            prices = data["close"].values if "close" in data.columns else data["Close"].values
+        elif isinstance(data, pd.Series):
+            prices = data.values
+        else:
+            prices = np.array(data, dtype=float)
+
+        prices = prices[~np.isnan(prices)]
+
+        if len(prices) < self.w_lang + 50:
+            self._arma_order = (1, 1)
+            return
+
+        log_prices = np.log(prices)
+
+        tau_lang, _ = hpfilter(log_prices, lamb=self.lambda_lang)
+        residual_1 = log_prices - tau_lang
+        tau_kurz, _ = hpfilter(residual_1, lamb=self.lambda_kurz)
+        c_t = residual_1 - tau_kurz
+
+        best_aic = np.inf
+        best_order = (1, 1)
+
+        for p in range(self.max_p + 1):
+            for q in range(self.max_q + 1):
+                if p == 0 and q == 0:
+                    continue
+                try:
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        model = ARIMA(c_t, order=(p, 0, q))
+                        result = model.fit(method_kwargs={"maxiter": 200})
+                    if result.aic < best_aic:
+                        best_aic = result.aic
+                        best_order = (p, q)
+                except Exception:
+                    continue
+
+        self._arma_order = best_order
 
     def fit(self, data, window=None):
         """Fit the model on historical close prices.
 
         Args:
-            data: array-like of close prices
+            data: array-like of close prices, or DataFrame with 'close' column
             window: ignored (uses all data)
         """
-        prices = np.array(data, dtype=float)
+        if isinstance(data, pd.DataFrame):
+            prices = data["close"].values if "close" in data.columns else data["Close"].values
+        elif isinstance(data, pd.Series):
+            prices = data.values
+        else:
+            prices = np.array(data, dtype=float)
+
         prices = prices[~np.isnan(prices)]
 
         if len(prices) < self.w_lang + 50:
             self._fitted = False
             return
+
+        self.data_buffer = prices
+        self.last_close = prices[-1]
 
         log_prices = np.log(prices)
         T = len(log_prices)
@@ -69,14 +138,18 @@ class LinearSeparationModel(PredictionModel):
 
         c_t = residual_1 - tau_kurz
 
-        adf_result = adfuller(c_t, autolag="AIC")
-        if adf_result[1] >= 0.05:
-            warnings.warn(
-                f"Residuals may not be stationary (ADF p={adf_result[1]:.4f}). "
-                "Consider adjusting lambda parameters."
-            )
+        self._fit_counter += 1
+        if self._arma_model is None or self._fit_counter % self.arma_refit_interval == 0:
+            adf_result = adfuller(c_t, autolag="AIC")
+            if adf_result[1] >= 0.05:
+                warnings.warn(
+                    f"Residuals may not be stationary (ADF p={adf_result[1]:.4f}). "
+                    "Consider adjusting lambda parameters."
+                )
+            self._fit_arma(c_t)
+        else:
+            self._append_arma(c_t[-1])
 
-        self._fit_arma(c_t)
         self._fitted = True
 
     def predict(self, n=1):
@@ -130,26 +203,33 @@ class LinearSeparationModel(PredictionModel):
         return slope, intercept
 
     def _fit_arma(self, residuals):
-        """Grid search for best ARMA(p,q) by AIC."""
-        best_aic = np.inf
-        best_order = (0, 0)
-        best_result = None
+        """Fit ARMA model on residuals using pre-determined order.
 
-        for p in range(self.max_p + 1):
-            for q in range(self.max_q + 1):
-                if p == 0 and q == 0:
-                    continue
-                try:
-                    with warnings.catch_warnings():
-                        warnings.simplefilter("ignore")
-                        model = ARIMA(residuals, order=(p, 0, q))
-                        result = model.fit(method_kwargs={"maxiter": 200})
-                    if result.aic < best_aic:
-                        best_aic = result.aic
-                        best_order = (p, q)
-                        best_result = result
-                except Exception:
-                    continue
+        The order must be set via fit_order() on training data first.
+        If no order is set, defaults to ARMA(1,1).
+        """
+        if self._arma_order is None:
+            self._arma_order = (1, 1)
 
-        self._arma_order = best_order
-        self._arma_model = best_result
+        p, q = self._arma_order
+
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                model = ARIMA(residuals, order=(p, 0, q))
+                self._arma_model = model.fit(method_kwargs={"maxiter": 200})
+        except Exception:
+            self._arma_model = None
+
+    def _append_arma(self, new_residual):
+        """Append new residual to ARMA model without refitting parameters.
+
+        Uses statsmodels append() to update the model state for forecasting.
+        """
+        if self._arma_model is None:
+            return
+
+        try:
+            self._arma_model = self._arma_model.append([new_residual], refit=False)
+        except Exception:
+            pass

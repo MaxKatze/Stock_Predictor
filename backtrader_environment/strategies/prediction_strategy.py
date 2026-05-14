@@ -1,10 +1,21 @@
-"""Generic prediction strategy that works with any PredictionModel."""
+"""Prediction Strategy as specified in Konzeption Section 3.4.
+
+Implements the trading logic:
+- Forecasting Horizon k=1 (daily predictions)
+- Signal based on predicted return r̂_{t+1} and threshold ε:
+    - r̂_{t+1} > ε      → Long (adjust position to Kelly target)
+    - -ε ≤ r̂_{t+1} ≤ ε → Hold (no action)
+    - r̂_{t+1} < -ε     → Cash (close all positions)
+- ε (threshold) = MAE on validation data
+- Position sizing: Half-Kelly criterion with position rebalancing
+"""
 
 import backtrader as bt
 import pandas as pd
 import numpy as np
 
 from strategies import GeneralStrategy
+from sizing.HalfKellySizer import HalfKellyPositionManager
 from analyzer import (
     MeanAbsoluteErrorAnalyzer,
     RootMeanSquaredErrorAnalyzer,
@@ -17,12 +28,21 @@ from analyzer import (
 
 
 class PredictionStrategy(GeneralStrategy):
-    """A unified strategy that works with any PredictionModel subclass.
+    """Trading strategy based on model predictions following Konzeption Section 3.4.
 
-    The model is passed in via params (pre-trained). This strategy handles:
-    - Feeding data to the model
-    - Generating buy/sell signals from predictions
-    - Tracking predictions/prices for analyzers
+    Signal logic (Section 3.4.2):
+        Signal_t = Long  if r̂_{t+1} > ε
+        Signal_t = Hold  if -ε ≤ r̂_{t+1} ≤ ε
+        Signal_t = Cash  if r̂_{t+1} < -ε
+
+    Position sizing (Section 3.4.3):
+        When Signal = Long: adjust position to f_t * portfolio_value
+        When Signal = Hold: no action (keep current position)
+        When Signal = Cash: close ALL positions
+
+    Where:
+        ε = signal_threshold (MAE on validation data)
+        f_t = Half-Kelly fraction = 0.5 * μ_t / σ²_t
     """
 
     params = dict(
@@ -31,6 +51,7 @@ class PredictionStrategy(GeneralStrategy):
         forecast_horizon=1,
         warmup_period=60,
         fit_interval=0,
+        kelly_window=60,
     )
 
     supported_analyzers = [
@@ -55,6 +76,11 @@ class PredictionStrategy(GeneralStrategy):
         self.prices = {}
         self.predicted_returns = {}
         self.actual_returns = {}
+
+        self.kelly_manager = HalfKellyPositionManager(
+            kelly_window=self.p.kelly_window,
+            min_observations=30,
+        )
 
         for d in self.datas:
             self.models[d] = self.p.model
@@ -93,7 +119,7 @@ class PredictionStrategy(GeneralStrategy):
             horizon = self.p.forecast_horizon
             if len(self.prices[d]) > horizon:
                 past_price = self.prices[d][-(horizon + 1)]
-                actual_return = (current_price - past_price) / past_price
+                actual_return = np.log(current_price / past_price)
                 self.actual_returns[d].append(actual_return)
 
             model = self.models[d]
@@ -112,13 +138,15 @@ class PredictionStrategy(GeneralStrategy):
 
             self._fit_counters[d] += 1
 
-            if self.p.fit_interval > 0 and self._fit_counters[d] % self.p.fit_interval == 0:
-                df = self._get_ohlcv_dataframe(d)
+            df = self._get_ohlcv_dataframe(d)
+
+            if hasattr(model, "requires_refit") and model.requires_refit:
                 model.fit(df)
                 self._model_fitted[d] = True
-
-            if hasattr(model, "data_buffer") and model.data_buffer is not None:
-                df = self._get_ohlcv_dataframe(d)
+            elif self.p.fit_interval > 0 and self._fit_counters[d] % self.p.fit_interval == 0:
+                model.fit(df)
+                self._model_fitted[d] = True
+            elif hasattr(model, "data_buffer"):
                 model.data_buffer = df
                 model.last_close = current_price
 
@@ -131,20 +159,51 @@ class PredictionStrategy(GeneralStrategy):
                 self.current_prediction[d] = None
                 self.predictions[d].append(None)
                 self.predicted_returns[d].append(None)
+                self._handle_cash_signal(d)
                 continue
 
             self.current_prediction[d] = prediction
             self.predictions[d].append(prediction)
 
-            predicted_return = (prediction - current_price) / current_price
+            predicted_return = np.log(prediction / current_price)
             self.predicted_returns[d].append(predicted_return)
 
-            if not self.getposition(d).size:
-                if predicted_return > self.p.signal_threshold:
-                    self.buy(data=d)
-            else:
-                if predicted_return < -self.p.signal_threshold:
-                    self.close(data=d)
+            if predicted_return > self.p.signal_threshold:
+                self._handle_long_signal(d)
+            elif predicted_return < -self.p.signal_threshold:
+                self._handle_cash_signal(d)
+            # else: -ε ≤ predicted_return ≤ ε → Hold (no action)
+
+    def _handle_long_signal(self, d):
+        """Handle Long signal: adjust position to Half-Kelly target.
+
+        From Konzeption Section 3.4.3:
+        "Ist also zum Zeitpunkt t Signal_t = Long, wird die Position so angepasst,
+        dass sie dem Anteil f_t vom Gesamtportfoliowert entspricht.
+        Dies kann auch einer Reduktion der Position entsprechen."
+        """
+        current_position = self.getposition(d).size
+        current_price = d.close[0]
+        portfolio_value = self.broker.getvalue()
+        available_cash = self.broker.getcash()
+
+        order_size = self.kelly_manager.compute_order_size(
+            data=d,
+            portfolio_value=portfolio_value,
+            current_position=current_position,
+            current_price=current_price,
+            available_cash=available_cash,
+        )
+
+        if order_size > 0:
+            self.buy(data=d, size=order_size)
+        elif order_size < 0:
+            self.sell(data=d, size=abs(order_size))
+
+    def _handle_cash_signal(self, d):
+        """Handle Cash signal: close ALL positions."""
+        if self.getposition(d).size:
+            self.close(data=d)
 
     def stop(self):
         total_predictions = sum(

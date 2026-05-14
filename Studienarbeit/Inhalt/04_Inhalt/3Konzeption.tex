@@ -570,9 +570,9 @@ ausgibt, wobei $f_\theta$ das vortrainierte TimesFM-Modell mit den unveränderte
     \hat{P}_{t+1} = P_t \cdot \exp(\hat{r}_{t+1}).
 \end{equation}
 
-\section{Marktstrategie}\label{sec:marktstrategie}
+\section{Handelsstrategie}\label{sec:marktstrategie}
 
-Die in Kapitel~\ref{sec:entwicklung} vorgestellten Modelle liefern jeweils eine Preisprognose für einen künftigen Zeitpunkt $t+k$. Um ihre realistische Anwendbarkeit zu bewerten, wird eine einheitliche, regelbasierte Marktstrategie definiert, die für alle Modelle identisch ist. Dies stellt sicher, dass Performanceunterschiede im Backtesting ausschließlich auf die Prognosegüte der Modelle zurückzuführen sind und testet alle Modelle auf ihre praktische Anwendbarkeit. Die Strategie umfasst die drei Komponenten Forecasting Horizon $k$, das Handelssignal sowie die Positionsgröße.
+Die in Kapitel~\ref{sec:entwicklung} vorgestellten Modelle liefern jeweils eine Preisprognose für einen künftigen Zeitpunkt $t+k$. Um ihre realistische Anwendbarkeit zu bewerten, wird eine einheitliche, regelbasierte Handelsstrategie definiert, die für alle Modelle identisch ist. Dies stellt sicher, dass Performanceunterschiede im Backtesting ausschließlich auf die Prognosegüte der Modelle zurückzuführen sind und testet alle Modelle auf ihre praktische Anwendbarkeit. Die Strategie umfasst die drei Komponenten Forecasting Horizon $k$, das Handelssignal sowie die Positionsgröße.
 
 \subsection{Forecasting Horizon}\label{subsec:horizon}
 
@@ -588,7 +588,8 @@ Ein Kaufsignal auf Basis des Vorzeichens der vorhergesagten Rendite ($\hat{r}_{t
     \text{Signal}_t =
     \begin{cases}
         \text{Long} & \text{wenn } \hat{r}_{t+1} > \varepsilon, \\
-        \text{Cash} & \text{sonst.}
+        \text{Hold} & \text{wenn } -\varepsilon \leq \hat{r}_{t+1} \leq \varepsilon, \\
+        \text{Cash} & \text{wenn } \hat{r}_{t+1} < -\varepsilon.
     \end{cases}
 \end{equation}
 
@@ -598,7 +599,7 @@ Der Schwellenwert $\varepsilon$ wird als die mittlere absolute Prognoseabweichun
     \varepsilon = \text{MAE}_{\text{val}} = \frac{1}{|\mathcal{V}|} \sum_{t \in \mathcal{V}} |\hat{r}_{t+1} - r_{t+1}|.
 \end{equation}
 
-Das bedeutet, dass eine Kaufentscheidung nur dann getroffen wird, wenn die vorhergesagte Rendite die typische Prognoseunsicherheit des Modells übersteigt.~\cite{de2018advances}.
+Das bedeutet, dass eine Kaufentscheidung nur dann getroffen wird, wenn die vorhergesagte Rendite die typische Prognoseunsicherheit des Modells übersteigt. Liegt die Vorhersage innerhalb des Unsicherheitsbereichs $[-\varepsilon, \varepsilon]$, wird die aktuelle Position beibehalten. Erst bei einer stark negativen Prognose unterhalb von $-\varepsilon$ werden alle Positionen geschlossen.~\cite{de2018advances}.
 
 \subsection{Positionsgröße}\label{subsec:kelly}
 
@@ -625,7 +626,7 @@ Das volle Kelly-Kriterium führt in der Praxis jedoch zu extremen Positionsgrö�
 
 Da weder Short-Selling, noch Hebel-Trading betrachtet werden, wird $f_t$ auf das Intervall $[0, 1]$ beschränkt, indem negative Werte auf 0 und Werte größer 1 auf 1 gesetzt werden.
 
-Ist also zum Zeitpunkt $t \text{Signal}_t = \text{Long}$, wird die Position so angepasst, dass sie dem Anteil $f_t$ vom Gesamtportfoliowert entspricht. Dies kann auch einer Reduktion der Position entsprechen. Das Signal bedeutet hierbei lediglich, dass weiterhin investiert werden sollte. Ist $\text{Signal}_t = \text{Cash}$, werden alle Positionen geschlossen, also alle Anteile verkauft.
+Ist also zum Zeitpunkt $t$ $\text{Signal}_t = \text{Long}$, wird die Position so angepasst, dass sie dem Anteil $f_t$ vom Gesamtportfoliowert entspricht. Dies kann auch einer Reduktion der Position entsprechen. Das Signal bedeutet hierbei lediglich, dass weiterhin investiert werden sollte. Ist $\text{Signal}_t = \text{Hold}$, wird keine Aktion durchgeführt und die aktuelle Position beibehalten. Ist $\text{Signal}_t = \text{Cash}$, werden alle Positionen geschlossen, also alle Anteile verkauft.
 
 \section{Einschränkungen und Nebenbedingungen}\label{sec:einschrankungen}
 %Markus: Erstens: Warum schränken nachfolgende Abschnitte die Arbeit ein, zweitens: warum sollte das Eure Vorhersagestrategie beeinflussen, das ist doch vollkommen egal.  Abschnitt raus oder in den Anhang. A: Schränkt die Arbeit ein, weil es sich eben von der realen Welt unterscheidet. Beeinflusst die Strategie dahingehend, dass sie einfacher wird.
@@ -649,7 +650,7 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in \cref{sec:entwicklung} vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward jeweils für jede ausgewählte Aktie getestet. Das bedeutet, es wird die tatsächliche Historie der Aktienkursbewegung simuliert und es werden jeweils Vorhersagen erstellt. Die erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in \cref{subsec:fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in \cref{sec:marktstrategie} entwickelten Marktstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in \cref{finanzkennzahlen} vorgestellten Kennzahlen.
+Mithilfe der in \cref{sec:marktstrategie} entwickelten Handelsstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in \cref{finanzkennzahlen} vorgestellten Kennzahlen.
 
 Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander.
 %idk wirkt iwi nutzlos:

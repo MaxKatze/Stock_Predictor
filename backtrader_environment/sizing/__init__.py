@@ -1,1 +1,2 @@
 from .PercentageSizing import PercentageSizer
+from .HalfKellySizer import HalfKellyPositionManager
