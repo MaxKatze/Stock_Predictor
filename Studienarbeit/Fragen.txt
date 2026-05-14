@@ -14,6 +14,7 @@ TODO:
 Fig. 3.1 und 3.2 gefallen mir, aber ich würde sie mit Bildern unterfüttern. Niemand versteht, was Ihr in Fig. 3.2 macht, ohne das Problem anhand von Daten zu sehen.
 Das gilt auch für die nachfolgenden Formeln.
 Kapitelzahlen der Reihenfolgen sind halt bisschen unintuitiv. Weil erst 3.6 dann 3.4 usw
+Schaubilder im Ablauf von Konzeption verbessern (richtiger ablauf und selbe Reihenfolge wie im Text)
 Grundlagen in Anhang (v.a. die Definitionen für die Kennzahlen)
 Stil, nennt man Formeln im Text (siehe 3.2.2 oder so) oder baut man sie in den Satz ein. (Markus fragen)
 Daten und Aktienwahl Reihenfolge tauschen: Erst Gesamtdaten, Bereinigung, dann Akteinauswahl
