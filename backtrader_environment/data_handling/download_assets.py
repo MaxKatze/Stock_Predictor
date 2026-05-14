@@ -135,8 +135,11 @@ def _download_fred_series(series_id: str, filepath: str, start: str, end: str):
 
 
 if __name__ == '__main__':
-    cached_files = [download_asset(sym) for sym in ASSETS]
-    print("Assets done. Cached files:", [f for f in cached_files if f])
+    from sp500_universe import get_sp500_2020_tickers
+
+    sp500_tickers = get_sp500_2020_tickers()
+    print(f"Downloading {len(sp500_tickers)} S&P 500 tickers...")
+    download_universe(sp500_tickers)
 
     if MACRO_FACTORS:
         download_macro_factors()
