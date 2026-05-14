@@ -79,13 +79,13 @@ MODEL_CONFIGS = {
         "forecast_horizon": 1,
         "warmup_period": 60,
     },
-    "ARIMA": {
-        "train_fn": train_arima,
-        "signal_threshold": 0.001,
-        "forecast_horizon": 1,
-        "warmup_period": 100,
-        "fit_interval": 100,
-    },
+    # "ARIMA": {
+    #     "train_fn": train_arima,
+    #     "signal_threshold": 0.001,
+    #     "forecast_horizon": 1,
+    #     "warmup_period": 100,
+    #     "fit_interval": 100,
+    # },
 }
 
 if _TIMESFM_AVAILABLE:
