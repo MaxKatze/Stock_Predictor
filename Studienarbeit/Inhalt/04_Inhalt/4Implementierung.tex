@@ -9,7 +9,7 @@ Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für di
     \label{fig:gesamtueberblick_datenfluss}
 \end{figure}
 
-\subsubsection{Aktienauswahl}
+\subsubsection{Aktienauswahl}\label{subsubsec:aktienauswahl}
 Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei ist wie folgt aufgebaut:
 \begin{itemize}
     \item  \textbf{Liste an Aktien:} Die Liste enthält alle Aktien, die zum Training der Modelle verwendet werden, wenn das Skript zur Aktienauswahl nicht ausgeführt wird.
@@ -26,6 +26,7 @@ Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktor
 Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werden. Das Skript ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
 \begin{algorithm}
     \caption{Skript Aktienauswahl}\label{alg:Skript_Aktienauswahl}
+    \small
     \begin{algorithmic}[1]
         \Require Konfigurationsdatei, historische Kursdaten, Makrofaktoren
         \State $config \gets \Call{LoadConfig}{}$
@@ -53,13 +54,14 @@ Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werd
         \State Die JSON Datei mit den ausgewählten Aktien wird gespeichert.
     \end{algorithmic}
 \end{algorithm}
-Das Skript lädt als Erstes die Konfigurationsdatei und dann die Liste aller Aktien, die im S\&P 500 gelistet sind. Es wird eine leere Datenstruktur erstellt, die die Schlusskurse der Aktien speichert. Dann werden für alle Aktien in der Liste die historischen Kursdaten für den Trainingszeitraum geladen. Diese Kursdaten werden direkt aus der CSV-Datei gelesen, sollten die Daten nicht vorhanden sein, bricht das Skript mit einem Fehler ab. Wenn die Anzahl der Datenpunkte größer oder gleich 500 ist, werden die Schlusskurse der Aktie zu der Datenstruktur hinzugefügt. Analog wird mit den Makrofaktoren verfahren, dadurch entstehen die Datenstrukturen mit den Aktienkursen und den Makrofaktoren. Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
+Das Skript lädt als Erstes die Konfigurationsdatei und dann die Liste aller Aktien, die im S\&P 500 gelistet sind. Es wird eine leere Datenstruktur erstellt, die die Schlusskurse der Aktien speichert. Dann werden für alle Aktien in der Liste die historischen Kursdaten für den Trainingszeitraum geladen. Diese Kursdaten werden direkt aus der CSV-Datei gelesen, sollten die Daten nicht vorhanden sein, bricht das Skript mit einem Fehler ab. Wenn die Anzahl der Datenpunkte größer oder gleich 500 ist, werden die Schlusskurse der Aktie zu der Datenstruktur hinzugefügt. Analog wird mit den Makrofaktoren verfahren, dadurch entstehen die Datenstrukturen mit den Aktienkursen und den Makrofaktoren. Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Die genaue Beschreibung des Auswahlprozesses ist in \cref{sec:sdes_zur_aktienauswahl} zu finden. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
 
 
 \subsubsection{Modelevaluation}
 Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die Modellkonfiguration, die historischen Kursdaten der ausgewählten Aktien und die Liste mit den ausgewählten Aktien. Sind diese Voraussetzungen nicht erfüllt, werden die betroffenen Aktien und Modelle übersprungen. Das Skript ist in \cref{alg:Skript_Modelevaluation} dargestellt.
 \begin{algorithm}
     \caption{Skript Modelevaluation}\label{alg:Skript_Modelevaluation}
+    \small
     \begin{algorithmic}[1]
         \Require Konfigurationsdatei, Modellkonfiguration, historische Kursdaten, ausgewählte Aktien
         \State $config \gets \Call{LoadConfig}{}$
@@ -81,12 +83,13 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
         \State Ausgeben der aggregierten Druchschnittswerte pro Modell
     \end{algorithmic}
 \end{algorithm}
-Das Skript lädt als Erstes die Konfigurationsdatei und die Liste der Aktien. Beim Laden der Aktienliste wird überprüft, ob die JSON-Datei aus dem Aktienauswahl-Skript vorhanden ist. Ist dies der Fall werden die dort hinterlegten Aktien geladen, andernfalls liest das Skript die Aktien aus der Konfigurationsdatei. Hallo\cref{app:svr_features}
+Das Skript lädt als Erstes die Konfigurationsdatei und die Liste der Aktien. Beim Laden der Aktienliste wird überprüft, ob die JSON-Datei aus dem Aktienauswahl-Skript vorhanden ist. Ist dies der Fall lädt das Skript die dort hinterlegten Aktien, andernfalls liest das Skript die Aktien aus der Konfigurationsdatei. Im nächsten Schritt läd das Stript die Modellkonfiguration, für die drei Modelle. Die Modellkonfiguration enthält alle Modelle mit dem Namen des Modells, der Funktion zum Trainieren des Modells und den modelspeziefischen Parametern für die Backtest-Engine. Die Parameter für die Backtest-Engine sind Signal Threshold, Forecast Horizon und Warmup Period. Außerdem wird eine leere Datenstruktur erstellt, die die Ergebnisse der Evaluation angelegt. Anschließend geht das Skript alle Aktien der Liste durch und lädt die historischen Kursdaten für die Aktien. Die Kursdaten liest das Skript direkt aus der CSV-Datei und teilt die Daten in Trainings-, Validierungs- und Testdaten auf, basierend auf den Start- und Enddaten aus der Konfigurationsdatei. Im nächsten Schritt nutzt das Skript die Trainings- und Validierungsdaten, um die Modelle zu trainieren. Dafür wird die modelspeziefische Methode aus der Modellkonfiguration aufgerufen. Die Methode erzeugt immer das spezifische Modell, trainiert es auf den Daten und gibt es zurück. Das genaue Training der Modelle wird in \cref{sec:linear_separation}, \cref{sec:preprocessed_svr} und \cref{sec:stocktimesfm} beschrieben. Die trainierten Modelle werden dann mit den Testdaten in der Backtest-Engine evaluiert. Eine genaue Beschreibung der Backtest-Engine findet sich in \cref{subsubsec:backtest}. Die Ergebnisse der Evaluation werden mit dem Namen der Aktie und dem Namen des Modells in der Datenstruktur gespeichert. Nachdem alle Aktien und Modelle durchlaufen wurden, werden die Ergebnisse ausgegeben, sowie die aggregierten Durchschnittswerte pro Modell.
 
 \subsubsection{Backtest}\label{subsubsec:backtest}
-Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken.
+Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken. Vorraussetzung für die Ausführung der Methode ist ein trainiertes Modell, die Testdaten und die Modellkonfiguration.
 \begin{algorithm}
-    \caption{RunBacktest}\label{alg:RunBacktest}
+    \caption{RunBacktest Methode}\label{alg:RunBacktest}
+    \small
     \begin{algorithmic}[1]
         \Require trainiertes Modell, Testdaten, Modellkonfiguration
         \State $cerebro \gets$ neue Backtest-Engine
@@ -105,8 +108,22 @@ Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie 
 
 
 \section{SDEs zur Aktienauswahl}\label{sec:sdes_zur_aktienauswahl}
+Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsubsec:aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretesiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt. Im zweiten Schritt berechnet der Selector dann mithilfe einer multiple lineare Regression die Koeffizienten, die die Stärke der Beziehung zwischen den Aktienkursen und den Makrofaktoren angeben und sucht dann im dritten Schritt die zwei Faktoren aus, die die stärkste Beziehung zu den Aktienkursen haben. Der vierte Schritt bildet basierend auf den zwei Faktoren jeder Aktie Pools von Aktien. Alle Aktien in einem Pool haben die gleichen zwei Makrofaktoren. Jetzt beginnt die Schleife des Selectors. Die Schleife wird standardmäßig 100 Mal durchlaufen, kann aber über die Konfigurationsdatei angepasst werden. In dem Durchlauf der Schleife werden erste die Aktienpools in Gruppen von je standardmäßig 4 Aktien aufgeteilt. Im zweiten Schritt stellt die Schleife für jede Gruppe die SDE auf und löst diese mit dem Euler-Maruyama-Schema. Nach dem Lösen der SDE wird der \ac{ROI} für jede Aktie berechnet. Der letzte Schritt der Schleife gibt die Aktie mit ihrem Rang innerhalb der Gruppe zurück. Nachdem die Schleife alle Durchläufe gemacht hat, berechnet der Selector den durchschnittlichen Rang jeder Aktie über alle Durchläufe und gibt die 10 Aktien mit dem besten durchschnittlichen Rang zurück. Diese 10 Aktien werden dann für das Training der Modelle verwendet.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
+    \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}
+    \label{fig:sde_aktienauswahl}
+\end{figure}
 
 \section{LinearSeparation}\label{sec:linear_separation}
+Der Datenfluss von der Erstellung des Modells bis zum trainierten Modell ist in \cref{fig:linear_separation_datenfluss} dargestellt. Das Modell besteht aus drei Pfaden, die parallel zueinander verlaufen. Alle drei Pfade beginnen mit den logerithmierten historischen Schlusskursen der Aktie, die als Input für das Modell dienen. Auf diese Kurse wird dann ein HP-Filter mit einem Lambda von $1600 \cdot 252^2$ angewendet, der den langfristigen Trend der Daten ermittelt. Der erste Pfad bestimmt den langfristigen Trend der Aktie. Dafür wird der vom HP-Filter bestimmte Trend verwendet, um eine lineare Regression durchzuführen. Die Steigung und der Achsenabschnitt der Regressionsgeraden bilden die Vorhersage für den langfristigen Trend der Aktie. Um den kurzfristigen Trend der Aktie zu bestimmen, zieht das Modell den langfristigen Trend von den logerithmierten Schlusskursen ab, um die zyklische Komponente der Daten zu erhalten. Auf diese zyklische Komponente wird dann nochmal ein HP-Filter mit einem Lambda von $1600$ angewendet, um den kurzfristigen Trend zu bestimmen. Der zweite Pfad nutzt dann den kurzfristigen Trend und modeliert eine lineare Regression, um die Vorhersage für den kurzfristigen Trend zu erhalten. Der dritte Pfad nutzt die zyklische Komponente des zweiten HP-Filters, um ein ARMA-Modell zu trainieren. Die Vorhersage der ARMA-Komponente wird dann als Vorhersage für die zyklische Komponente der Daten verwendet. Am Ende werden die drei Vorhersagen für den langfristigen Trend, den kurzfristigen Trend und die zyklische Komponente zusammengeführt, um die endgültige Vorhersage für die Aktie zu erhalten. Da die drei Pfade auf logerithmierten Kursen arbeiten, muss die Vorhersage am Ende exponentiert werden, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/linear_separation_datenfluss}
+    \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}
+    \label{fig:linear_separation_datenfluss}
+\end{figure}
 
 \section{Preprocessed SVR}\label{sec:preprocessed_svr}
 
