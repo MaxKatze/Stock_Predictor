@@ -305,15 +305,21 @@ Auf diese Weise können die Aktienkurse innerhalb einer Simulationsgruppe simuli
 
 \section{Modellentwicklung}\label{sec:entwicklung}
 
-In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelnen Aktie operieren und auf Basis historischer Kursdaten sowie weiterer Eingabegrößen den Aktienkurs des nächsten Handelstages vorhersagen.
+In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelnen Aktie operieren und auf Basis historischer Kursdaten sowie weiterer Eingabegrößen den Aktienkurs des nächsten Handelstages vorhersagen. Zur Bestimmung der Modelqualität werden die Modelle auf den 10 ausgewählten Aktien getestet. Das Ziel ist ein Modellvergleich zwischen den vorgestellten Modellen untereinander, sowie ein Vergleich mit der Performance des Gesamtaktienuniversums (S\&P500).
 
 \subsection{LinearSeparation}\label{subsec:linearesModell}
 
-Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert. Diese werden sinnvoll kombiniert, um eine Vorhersage zu treffen. Es wird die Behauptung aufgestellt, dass sich ein Aktienkurs durch die Komponenten in \cref{tab:stock_components} durch den Zusammenhang in \cref{eq:linearerKurs} beschreiben lässt.
+Es wird ein komplett neues Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert, welche sinnvoll kombiniert werden, um eine Vorhersage zu treffen. Das Grundvorgehen des Modells ist, den Aktienkurs in einfacher schätzbare Teile zu zerlegen, jeden davon einzeln zu extrapolieren und die Vorhersagen zu einer Gesamtvorhersage zusammenzusetzen. Daraus entsteht ein Modell, welches den Preis des nächsten Tages auf Basis der vergangenen Tage schätzt:
+
+\[
+\hat{P}_{t+1} = f((P_0, P_1, \dots. P_t)).
+\]
+
+Diese Arbeit stellt die Behauptung auf, dass sich ein Aktienkurs durch die Komponenten $T_t^{\text{lang}}$, $T_t^{\text{kurz}}$, $C_t$ und $\epsilon_t$ beschreiben lässt. Diese Komponenten sind in \cref{tab:stock_components} weiter erläutert. Weiter wird die Behauptung aufgestellt, dass sich ein Aktienkurs durch den Zusammenhang in \cref{eq:linearerKurs} beschreiben lässt.
 
 \begin{equation}
     \label{eq:linearerKurs}
-    P_t = T_t^{\text{lang}} \cdot T_t^{\text{kurz}} \cdot C_t \cdot \epsilon_t
+    P_t = T_t^{\text{lang}} \cdot T_t^{\text{kurz}} \cdot C_t \cdot \epsilon_t.
 \end{equation}
 
 \begin{table}[h]
@@ -334,25 +340,25 @@ Es wird ein Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learn
     \caption{Komponenten der Aktienkursmodellierung}\label{tab:stock_components}
 \end{table}
 
-Der Zusammenhang ist dabei multiplikativ, da Aktienkurse prozentual schwanken. Rauschen also beispielweise bei teuren Aktien größer ist. Da die Berechnung auf Log-Preisen $p_t = \ln(P_t)$ erfolgt, wird der Zusammenhang additiv.
+Der Zusammenhang ist multiplikativ, da Aktienkurse prozentual schwanken. Das Rauschen von teuren Aktien ist beispielsweise größer als bei billigen Aktien. Da die Berechnung auf Log-Preisen $p_t = \ln(P_t)$ erfolgt, wird der Zusammenhang additiv.
 
 \begin{equation}
     \label{eq:lineareRenditen}
     p_t = \tau_t^{\text{lang}} + \tau_t^{\text{kurz}} + c_t + \epsilon_t
 \end{equation}
 
-Die Komponenten des Preises werden dabei über verschiedene Wege modelliert und dann extrapoliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} modelliert und mittels \ac{OLS} extrapoliert.
+Die Komponenten des Preises werden über verschiedene Wege modelliert und dann extrapoliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} modelliert und mittels \ac{OLS} extrapoliert.
 
 Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_1, \ldots, p_T$ (mit $t=1,\ldots,T$) der langfristige Trend $\tau^\text{lang}$ extrahiert:
 
 \begin{equation}\label{eq:hpFilterLang}
-    \min_{\{\hat{\tau}_t^\text{lang}\}} \left(
+    \hat{\tau}_t^\text{lang} = \arg\min_{\{\hat{\tau}_t^\text{lang}\}} \left(
     \sum_{t=1}^{T} (p_t - \hat{\tau}_t^\text{lang})^2
     + \lambda_\text{lang} \sum_{t=2}^{T-1} (\hat{\tau}_{t+1}^\text{lang} - 2\hat{\tau}_t^\text{lang} + \hat{\tau}_{t-1}^\text{lang})^2
-    \right),
+    \right)
 \end{equation}
 
-wobei $\lambda_\text{lang}$ der Glättungsparameter ist, der bestimmt wie stark die kurzfristigen Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl wird im \cref{chap:implementierung} diskutiert.
+wobei $\lambda_\text{lang}$ der Glättungsparameter ist und bestimmt, wie stark kurzfristige Schwankungen bereinigt werden. Der kritische Punkt bei diesem Verfahren liegt in der richtigen Wahl des Gewichtungsparameters $\lambda_\text{lang}$. Die genaue Wahl wird im \cref{chap:implementierung} diskutiert.
 
 Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang}$ werden die Residuen gebildet.
 
@@ -360,24 +366,24 @@ Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang
     \tilde{p}_t = p_t - \hat{\tau}^{\text{lang}}_t
 \]
 
-Auf der Residuenzeitreihe $\tilde{p}_t$ wird ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird im \cref{chap:implementierung} bestimmt.
+Um nun aus den Residuen den kurzfristigen Trend $\tau^\text{kurz}$ zu extrahieren, wird auf der Residuenzeitreihe $\tilde{p}_t$ ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird in \cref{chap:implementierung} bestimmt.
 
 \begin{equation}\label{eq:hpFilterKurz}
-    \min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
+\hat{\tau}_t^\text{kurz} = \arg\min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
     \sum_{t=1}^{T} (p_t - \hat{\tau}_t^\text{kurz})^2
     + \lambda_\text{kurz} \sum_{t=2}^{T-1} (\hat{\tau}_{t+1}^\text{kurz} - 2\hat{\tau}_t^\text{kurz} + \hat{\tau}_{t-1}^\text{kurz})^2
     \right)
 \end{equation}
 
-Die \ac{HP}-Filter liefern somit geglätte Trendverläufe $\hat{\tau}^{\text{lang}}_t$ und $\hat{\tau}^{\text{kurz}}_t$ für die historischen Daten bis zum Zeitpunkt $T$. Um Vorhersagen treffen zu können müssen die Trends extrapoliert werden. Da beide Trends im Kontext von Tagespreisen langfristig sind, können sie lokal durch ein lineares Modell approximiert werden. Die Idee dabei ist, dass sich der geglättete Trend innerhalb eines kurzen Zeitfensters gut durch eine Gerade beschreiben lässt, die anschließend in die Zukunft verlängert wird.
+Die \ac{HP}-Filter liefern somit geglätte Trendverläufe $\hat{\tau}^{\text{lang}}_t$ und $\hat{\tau}^{\text{kurz}}_t$ für die historischen Daten bis zum Zeitpunkt $T$. Um Vorhersagen treffen zu können müssen diese Trends extrapoliert werden. Da beide Trends im Kontext von Tagespreisen langfristig sind, können sie lokal durch ein lineares Modell approximiert werden. Die Idee dabei ist, dass sich der gerade extrahierte, geglättete Trend innerhalb eines kurzen Zeitfensters gut durch eine Gerade beschreiben lässt, die anschließend in die Zukunft verlängert wird. Dafür wird die \ac{OLS}-Methode verwendet.
 
-Konkret wird für jeden Trend über ein gleitendes Fenster der letzten $w$ Beobachtungen $\{\hat{\tau}_{T-w+1}, \ldots, \hat{\tau}_T\}$ mittels \ac{OLS} eine lineare Funktion der Zeit gefittet. Dabei werden die Parameter $\hat{a}$ (Achsenabschnitt) und $\hat{b}$ (Steigung) so gewählt, dass
+Konkret wird für jeden Trend über ein gleitendes Fenster der letzten $w$ diskreten Beobachtungen $\{\hat{\tau}_{T-w+1}, \ldots, \hat{\tau}_T\}$ mittels \ac{OLS} eine lineare Funktion der Zeit gefittet. Dabei werden die Parameter $\hat{a}$ (Achsenabschnitt) und $\hat{b}$ (Steigung) so gewählt, dass
 
 \begin{equation}
-    \hat{b} = \frac{\sum_{t=T-w+1}^{T} (t - \bar{t})(\hat{\tau}_t - \bar{\tau})}{\sum_{t=T-w+1}^{T} (t - \bar{t})^2}, \qquad \hat{a} = \bar{\tau} - \hat{b}\,\bar{t},
+    \hat{b}_w = \frac{\sum_{t=T-w+1}^{T} (t - \bar{t})(\hat{\tau}_t - \bar{\tau})}{\sum_{t=T-w+1}^{T} (t - \bar{t})^2}, \qquad \hat{a}_w = \bar{\tau} - \hat{b}\,\bar{t}.
 \end{equation}
 
-mit den Mittelwerten $\bar{t} = \frac{1}{w}\sum_{t=T-w+1}^{T} t$ und $\bar{\tau} = \frac{1}{w}\sum_{t=T-w+1}^{T} \hat{\tau}_t$. Die Vorhersage der Trendkomponenten für $k$ Schritte in die Zukunft ergibt sich dann als
+Für die Mittelwerte gilt $\bar{t} = \frac{1}{w}\sum_{t=T-w+1}^{T} t$ und $\bar{\tau} = \frac{1}{w}\sum_{t=T-w+1}^{T} \hat{\tau}_t$. Die Vorhersage der Trendkomponenten für $k$ Schritte in die Zukunft ergibt sich dann als
 
 \begin{align}
     \hat{\tau}^{\text{lang}}_{T+k} & = \hat{a}_1 + \hat{b}_1 \cdot (T+k), \\
@@ -394,19 +400,19 @@ Nach der Trendentfernung verbleiben die Residuen $c_t$ als kurzfristige Muster.
 
 Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorrausgesetzt, dass die zugrundeliegenden Daten stationär sind. Um zu prüfen, ob dies nach der Trendentfernung der Fall ist, wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Der \ac{ADF}-Test~\cite{dickey1979distribution} prüft die Nullhypothese, dass eine Unit Root vorliegt, die Zeitreihe also nicht stationär ist. Wird diese bei einem p-Wert kleiner als ${,}05$ verworfen, kann
 Stationarität angenommen werden. Sollte Stationarität nicht gewährleistet werden können, wird die Wahl der \ac{HP}-Filter Parameter $\lambda$ variiert.
-Zur Modellierung der Residuen $c_t$ wird ein Standard \ac{ARMA}(p,q)-Modell verwendet:
+Zur Modellierung der Residuen $c_t$ wird ein Standard \ac{ARMA}(p,q)-Modell nach~\cite{box2015time} verwendet:
 
 \begin{equation}
     \hat{c_t} = a + \sum_{i=1}^{p} \phi_i c_{t-i} + \sum_{j=1}^{q} \theta_j \epsilon_{t-j} + \epsilon_t,
 \end{equation}
 
-mit den Autokorrelationskoeffizienten $\phi_i$, Fehlerkoeffizienten $\theta_j$ und einem Konstanten Achsenabschnitt $a$. Die Parameter $\phi_i$ und $\theta_j$ werden dabei für jede Kombination $(p,q)$ mittels Maximum-Likelihood-Schätzung bestimmt. Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Das heißt, für alle Kombinationen $(p,q)$ mit $p,q \in \{0, 1, \ldots, 5\}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
+mit den Autokorrelationskoeffizienten $\phi_i$, Fehlerkoeffizienten $\theta_j$ und einem konstanten Achsenabschnitt $a$. Die Parameter $\phi_i$ und $\theta_j$ werden dabei für jede Kombination $(p,q)$ mittels Maximum-Likelihood-Schätzung bestimmt~\cite{box2015time}. Die Ordnung $p$ und $q$ des Modells wird durch eine Grid-Search bestimmt. Das heißt, für alle Kombinationen $(p,q)$ mit $p,q \in \{0, 1, \ldots, 5\}$ wird das Modell geschätzt und das \ac{AIC}~\cite{akaike1974new} berechnet:
 
 \begin{equation}
     \text{AIC}(p,q) = 2(p+q) - 2\ln(\hat{L}),
 \end{equation}
 
-wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.
+wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.~\cite{hyndman2008automatic}
 
 Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
 
@@ -420,26 +426,26 @@ Dabei werden für alle $k>1$ die bereits vorhergesagten Werte als Eingabe verwen
 
 Dies führt dazu, dass der ARMA-Beitrag zur Gesamtvorhersage für große Horizonte $k$ exponentiell gegen null konvergiert, und die Vorhersage zunehmend von den extrapolierten Trendkomponenten dominiert wird, was genau der Modellierung entspricht.
 
-Die gesamte Vorhersage des Log-Preises zum Zeitpunkt $T+h$ ergibt sich aus der Summe aller drei modellierten Komponenten.
+Die gesamte Vorhersage des Log-Preises zum Zeitpunkt $T+k$ ergibt sich aus der Summe aller drei modellierten Komponenten.
 
 \begin{equation}
-    \hat{p}_{T+h}
-    = \hat{\tau}^{\text{lang}}_{T+h}
-    + \hat{\tau}^{\text{kurz}}_{T+h}
-    + \hat{c}_{T+h}
+    \hat{p}_{T+k}
+    = \hat{\tau}^{\text{lang}}_{T+k}
+    + \hat{\tau}^{\text{kurz}}_{T+k}
+    + \hat{c}_{T+k}
 \end{equation}
 
 Die Rücktransformation in den ursprünglichen Preisraum erfolgt durch Exponentiation.
 
 \begin{equation}
-    \hat{P}_{T+h} = \exp(\hat{p}_{T+h})
+    \hat{P}_{T+k} = \exp(\hat{p}_{T+k})
 \end{equation}
 
 % SVR wo die Features vorher analystierte Sachen sind: Vektor (Korr-Matrix, Arima, Twitter)
 %Einmal Markus fragen: Müssen wir so etwas wie theoretische Grundlagen von SVRs auch schreiben, oder kann man das vorraussetzen
 \subsection{Preprocessed SVR}\label{subsec:preprocessed_svr}
 
-\ac{SVR}s wurden schon häufig verwendet, um Aktienkurse vorherzusagen. In dieser Arbeit stehen zwei Unterschiede zu den bisherigen Verfahren im Vordergrund. Zunächst wird auf Log-Renditen trainiert und vorhergesagt, da diese annähernd stationär sind, additiv über die Zeit und symmetrischer verteilt. Außerdem werden in diesem Ansatz vorher berechnete technische Indikatoren und News-Sentiments als Features für die \ac{SVR} verwendet, anstatt roher Lag-Preise. Die Featureauswahl wird in \cref{app:svr_features} gezeigt.
+\ac{SVR}s wurden schon häufig verwendet, um Aktienkurse vorherzusagen. In dieser Arbeit stehen zwei Unterschiede zu den bisherigen Verfahren im Vordergrund. Zunächst wird auf Log-Renditen trainiert und vorhergesagt, da diese annähernd stationär sind, additiv über die Zeit und symmetrischer verteilt. Außerdem werden in diesem Ansatz vorher berechnete technische Indikatoren und News-Sentiments als Features für die \ac{SVR} verwendet, anstatt roher vergangener Preise.
 
 Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwendet. Es ist das Ziel aus einem Feature-Vektor $x_t$ mit $d$ Features, die Log-Rendite $\hat{r}_{t+1}$ vorherzusagen.
 
@@ -447,74 +453,11 @@ Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwend
     \hat{r}_{t+1} = f(x_t), \quad x_t \in \mathbb{R}^d
 \end{equation}
 
-Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele. Die Vorhersage der Rendite erfolgt nach \cref{eq:renditeSVR}.
+Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} abstrahiert als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$, welche mithilfe der vergangenen Bewegungsmuster des Kurses von einem $d$-dimensionalen Eingabe-Feature-Vektor den Aktienpreis des nächsten Tages schätzt und darauf abbildet. Während andere Arbeiten TODO:Beispiele den Feature-Vektor mit vergangenen Preisen modellieren, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen.
 
-\begin{equation}\label{eq:renditeSVR}
-    \hat{r}_{t+1} = \langle\mathbf{w}, \phi(\mathbf{x_t})\rangle + b,
-\end{equation}
-
-wobei
-\begin{itemize}
-    \item $\mathbf{w}$ der Gewichtsvektor ist, welcher angibt wie stark welches Feature aus x in die Vorhersage eingeht,
-    \item $\phi(x)$ eine Funktion ist, welche die Input-Features in einen Raum höherer Dimension transformiert,
-    \item $b$ der Achsenabschnitt der Vorhersage ist.
-\end{itemize}
-
-Die Wahl von $\phi(x)$ wird später diskutiert und $\mathbf{w}$ und $b$ werden durch Lösen des folgenden Optimierungsproblem bestimmt (vgl.~\cite{drucker1997svr}):
-
-\begin{equation}\label{eq:optSVR}
-    \min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \underbrace{\frac{1}{2}\|\mathbf{w}\|^2}_{Funktionsglätte} + C \underbrace{\sum_{t=1}^{n} (\xi_t + \xi_t^*)}_{Fehlerterme}
-\end{equation}
-
-unter den Nebenbedingungen
-
-\begin{align}
-    r_{t+1}-\langle\mathbf{w},\phi(\mathbf{x}_t)\rangle-b & \leq\varepsilon+\xi_t\label{eq:nb1}   \\
-    \langle\mathbf{w},\phi(\mathbf{x}_t)\rangle+b-r_{t+1} & \leq\varepsilon+\xi_t^*\label{eq:nb2} \\
-    \xi_t,\xi_t^*                                         & \geq0.\label{eq:nb3}
-\end{align}
-
-Hierbei sorgt $\frac{1}{2}\|\mathbf{w}\|^2$ dafür, dass die Glätte der Funktion in die Optimierung miteingeht. Dies sorgt dafür, dass die Regressionsfunktion nicht overfittet, was ein häufiges Problem bei Aktienprognosemodellen ist. Der $\varepsilon$-Schlauch definiert dabei einen Toleranzbereich um die Regressionsfunktion, innerhalb dessen Abweichungen nicht als Fehler gewertet werden. Dies ist im Falle von Aktienrenditen hilfreich, um Rauschen zu ignorieren. Um Trainingspunkte, die außerhalb dieses Schlauchs liegen, dennoch zuzulassen, werden $\xi_i$ und $\xi_i^*$ eingeführt, welche die Abweichung dieser Punkte messen und in das Optimierungsproblem einbeziehen, wodurch es lösbar bleibt. Der Parameter $C$ steuert dabei die Gewichtung zwischen Funktionsglätte und den Fehlern von Trainingsdaten, die außerhalb des $\varepsilon$-Schlauches liegen. Die Nebenbedingungen~\ref{eq:nb1},~\ref{eq:nb2} und~\ref{eq:nb3} sorgen dafür, dass die über- bzw. unterschätzten Werte in die Minimierung eingehen.
-
-$C$ und $\varepsilon$ werden im Validierungszeitraum $V$ mit einer Grid-Search bestimmt. Das bedeutet es werden für $C$ und $\varepsilon$ diskrete Wertebereiche $G_C$ und $G_\varepsilon$ gewählt und alle möglichen Kombinationen getestet. Die Kombination, die auf dem Validierungsdatensatz im Sinne des \ac{RMSE} das beste Ergebnis erzielt wird gewählt. Die Wertebereiche werden nach der Empfehlung aus~\cite{hsu2003practical} gewählt.
-
-\begin{align*}
-    G_C           & = \{0.1, 1, 10, 100, 1000\}    \\
-    G_\varepsilon & = \{0.001, 0.01, 0.1, 0.5, 1\}
-\end{align*}
+Feature Engineering:
 
 
-Die Abbildungsfunktion $\phi(\mathbf{x})$ transformiert die Eingabedaten in einen höherdimensionalen Raum, in dem vorher nicht-lineare Zusammenhänge linear approximiert werden können. Damit $\phi(\mathbf{x})$ jedoch explizit weder gewählt noch berechnet werden muss, wird der Kernel-Trick~\cite{Jaekel2007KernelMethods} angewendet. Das in \cref{eq:optSVR} definierte Optimierungsproblem ist konvex und lässt sich daher durch die Lagrange-Dualität in eine äquivalente duale Form überführen~\cite{Burges1998}. In dieser dualen Form lässt sich zeigen, dass $\mathbf{w}$ als Linearkombination der transformierten Trainingspunkte dargestellt werden kann:
-
-\begin{equation}
-    \mathbf{w} = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \phi(\mathbf{x}_i),
-\end{equation}
-
-wobei $\alpha_i, \alpha_i^* \geq 0$ die dualen Variablen sind. Damit lässt sich die Vorhersagefunktion schreiben als:
-
-\begin{equation}
-    \hat{r}_{t+1} = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_t)\rangle + b.
-\end{equation}
-
-In dieser Form tritt $\phi(\mathbf{x})$ ausschließlich in Skalarprodukten der Form $\langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ auf. Diese Skalarprodukte können direkt durch eine Kernel-Funktion $K(\mathbf{x}_i, \mathbf{x}_j) = \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ berechnet werden, ohne $\phi$ explizit zu kennen.
-Als Kernel-Funktion wird der \ac{RBF}-Kernel~\cite{Burges1998} nach \cref{eq:rbf} gewählt, da Aktienrenditen hochgradig nichtlineare und zeitvariante Abhängigkeiten aufweisen. Ein polynomialer Kernel setzt einen festen Grad der Nichtlinearität voraus und ist deshalb nicht geeignet. Der \ac{RBF}-Kernel bildet die Eingabedaten in einen unendlich-dimensionalen Merkmalsraum ab und kann dadurch beliebig komplexe Abhängigkeiten erfassen, ohne dass deren funktionale Form vorab spezifiziert werden muss.
-
-
-\begin{equation}\label{eq:rbf}
-    K(x_i, x_j) = \text{exp}(-\gamma\|x_i-x_j\|^2),
-\end{equation}
-
-wobei $\gamma$ ein Hyperparameter ist, der bestimmt wie stark der Kernel auf Rauschen reagiert. $\gamma$ geht ebenfalls in die Grid-Search ein, mit den empfohlenen Werten nach~\cite{hsu2003practical}:
-
-\begin{equation*}
-    G_\gamma = \{0.01, 0.1, 1, 10, 50, 100\}.
-\end{equation*}
-
-Aus dem Ergebnis der \ac{SVR} $\hat{r}_{t+1}$ ergibt sich die Preisvorhersage nach
-
-\begin{equation}
-    \hat{P}_{t+1} = P_t * \exp(\hat{r}_{t+1}).
-\end{equation}
 
 
 \subsection{StockTimesFM}\label{subsec:stocktimesfm}

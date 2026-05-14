@@ -1,0 +1,70 @@
+
+\chapter{SVR Modellierung}\label{appendix:svr_modellierung}
+Die \ac{SVR}-Modellierung orientiert sich an der Beschreibung in~\cite{drucker1997svr}. Die Vorhersage der Rendite erfolgt nach
+
+\begin{equation}\label{eq:renditeSVR}
+    \hat{r}_{t+1} = \langle\mathbf{w}, \phi(\mathbf{x_t})\rangle + b,
+\end{equation}
+
+wobei
+\begin{itemize}
+    \item $\mathbf{w}$ der Gewichtsvektor ist, welcher angibt wie stark welches Feature aus x in die Vorhersage eingeht,
+    \item $\phi(x)$ eine Funktion ist, welche die Input-Features in einen Raum höherer Dimension transformiert,
+    \item $b$ der Achsenabschnitt der Vorhersage ist.
+\end{itemize}
+
+Die Wahl von $\phi(x)$ wird später diskutiert, da sie über den Kernel-Trick vereinfacht wird und $\mathbf{w}$ und $b$ werden durch Lösen des folgenden Optimierungsproblem bestimmt (vgl.~\cite{drucker1997svr}):
+
+\begin{equation}\label{eq:optSVR}
+    \min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \underbrace{\frac{1}{2}\|\mathbf{w}\|^2}_{Funktionsglätte} + C \underbrace{\sum_{t=1}^{n} (\xi_t + \xi_t^*)}_{Fehlerterme}
+\end{equation}
+
+unter den Nebenbedingungen
+
+\begin{align}
+    r_{t+1}-\langle\mathbf{w},\phi(\mathbf{x}_t)\rangle-b & \leq\varepsilon+\xi_t\label{eq:nb1}   \\
+    \langle\mathbf{w},\phi(\mathbf{x}_t)\rangle+b-r_{t+1} & \leq\varepsilon+\xi_t^*\label{eq:nb2} \\
+    \xi_t,\xi_t^*                                         & \geq0.\label{eq:nb3}
+\end{align}
+
+Hierbei sorgt $\frac{1}{2}\|\mathbf{w}\|^2$ dafür, dass die Glätte der Funktion in die Optimierung miteingeht. Dies sorgt dafür, dass die Regressionsfunktion nicht overfittet, was ein häufiges Problem bei Aktienprognosemodellen ist. Der $\varepsilon$-Schlauch definiert dabei einen Toleranzbereich um die Regressionsfunktion, innerhalb dessen Abweichungen nicht als Fehler gewertet werden. Dies ist im Falle von Aktienrenditen hilfreich, um Rauschen zu ignorieren. Um Trainingspunkte, die außerhalb dieses Schlauchs liegen, dennoch zuzulassen, werden $\xi_i$ und $\xi_i^*$ eingeführt, welche die Abweichung dieser Punkte messen und in das Optimierungsproblem einbeziehen, wodurch es lösbar bleibt. Der Parameter $C$ steuert dabei die Gewichtung zwischen Funktionsglätte und den Fehlern von Trainingsdaten, die außerhalb des $\varepsilon$-Schlauches liegen. Die Nebenbedingungen~\ref{eq:nb1},~\ref{eq:nb2} und~\ref{eq:nb3} sorgen dafür, dass die über- bzw. unterschätzten Werte in die Minimierung eingehen.
+
+$C$ und $\varepsilon$ werden im Validierungszeitraum $V$ mit einer Grid-Search bestimmt. Das bedeutet es werden für $C$ und $\varepsilon$ diskrete Wertebereiche $G_C$ und $G_\varepsilon$ gewählt und alle möglichen Kombinationen getestet. Die Kombination, die auf dem Validierungsdatensatz im Sinne des \ac{RMSE} das beste Ergebnis erzielt wird gewählt. Die Wertebereiche werden nach der Empfehlung aus~\cite{hsu2003practical} gewählt.
+
+\begin{align*}
+    G_C           & = \{0.1, 1, 10, 100, 1000\}    \\
+    G_\varepsilon & = \{0.001, 0.01, 0.1, 0.5, 1\}
+\end{align*}
+
+
+Die Abbildungsfunktion $\phi(\mathbf{x})$ transformiert die Eingabedaten in einen höherdimensionalen Raum, in dem vorher nicht-lineare Zusammenhänge linear approximiert werden können. Damit $\phi(\mathbf{x})$ jedoch explizit weder gewählt noch berechnet werden muss, wird der Kernel-Trick~\cite{Jaekel2007KernelMethods} angewendet. Das in \cref{eq:optSVR} definierte Optimierungsproblem ist konvex und lässt sich daher durch die Lagrange-Dualität in eine äquivalente duale Form überführen~\cite{Burges1998}. In dieser dualen Form lässt sich zeigen, dass $\mathbf{w}$ als Linearkombination der transformierten Trainingspunkte dargestellt werden kann:
+
+\begin{equation}
+    \mathbf{w} = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \phi(\mathbf{x}_i),
+\end{equation}
+
+wobei $\alpha_i, \alpha_i^* \geq 0$ die dualen Variablen sind. Damit lässt sich die Vorhersagefunktion schreiben als:
+
+\begin{equation}
+    \hat{r}_{t+1} = \sum_{i=1}^{n} (\alpha_i - \alpha_i^*)\, \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_t)\rangle + b.
+\end{equation}
+
+In dieser Form tritt $\phi(\mathbf{x})$ ausschließlich in Skalarprodukten der Form $\langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ auf. Diese Skalarprodukte können direkt durch eine Kernel-Funktion $K(\mathbf{x}_i, \mathbf{x}_j) = \langle\phi(\mathbf{x}_i), \phi(\mathbf{x}_j)\rangle$ berechnet werden, ohne $\phi$ explizit zu kennen.
+Als Kernel-Funktion wird der \ac{RBF}-Kernel~\cite{Burges1998} nach \cref{eq:rbf} gewählt, da Aktienrenditen hochgradig nichtlineare und zeitvariante Abhängigkeiten aufweisen. Ein polynomialer Kernel setzt einen festen Grad der Nichtlinearität voraus und ist deshalb nicht geeignet. Der \ac{RBF}-Kernel bildet die Eingabedaten in einen unendlich-dimensionalen Merkmalsraum ab und kann dadurch beliebig komplexe Abhängigkeiten erfassen, ohne dass deren funktionale Form vorab spezifiziert werden muss.
+
+
+\begin{equation}\label{eq:rbf}
+    K(x_i, x_j) = \text{exp}(-\gamma\|x_i-x_j\|^2),
+\end{equation}
+
+wobei $\gamma$ ein Hyperparameter ist, der bestimmt wie stark der Kernel auf Rauschen reagiert. $\gamma$ geht ebenfalls in die Grid-Search ein, mit den empfohlenen Werten nach~\cite{hsu2003practical}:
+
+\begin{equation*}
+    G_\gamma = \{0.01, 0.1, 1, 10, 50, 100\}.
+\end{equation*}
+
+Aus dem Ergebnis der \ac{SVR} $\hat{r}_{t+1}$ ergibt sich die Preisvorhersage nach
+
+\begin{equation}
+    \hat{P}_{t+1} = P_t * \exp(\hat{r}_{t+1}).
+\end{equation}
