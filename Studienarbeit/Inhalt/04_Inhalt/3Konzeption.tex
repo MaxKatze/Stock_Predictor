@@ -453,9 +453,103 @@ Es wird eine klassische \ac{SVR}-Modellierung nach~\cite{drucker1997svr} verwend
     \hat{r}_{t+1} = f(x_t), \quad x_t \in \mathbb{R}^d
 \end{equation}
 
-Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} abstrahiert als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$, welche mithilfe der vergangenen Bewegungsmuster des Kurses von einem $d$-dimensionalen Eingabe-Feature-Vektor den Aktienpreis des nächsten Tages schätzt und darauf abbildet. Während andere Arbeiten TODO:Beispiele den Feature-Vektor mit vergangenen Preisen modellieren, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen.
+Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und die genaue Beschreibung, sowie Parameterwahl ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} abstrahiert als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$, welche mithilfe der vergangenen Bewegungsmuster des Kurses von einem $d$-dimensionalen Eingabe-Feature-Vektor den Aktienpreis des nächsten Tages schätzt und darauf abbildet. Während andere Arbeiten den Feature-Vektor nur mit vergangenen Preisen modellieren~\cite{tay2001application}\cite{oliveira2018stock}, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen.
 
-Feature Engineering:
+
+\subsubsection{Feature Engineering}
+
+Die Qualität eines SVR-Modells hängt maßgeblich von der Auswahl und Aufbereitung der Eingabemerkmale ab. In diesem Abschnitt wird der verwendete Feature-Vektor vorgestellt, die einzelnen Features begründet und ihre Berechnung beschrieben sowie die notwendige Normalisierung erläutert.
+
+
+Zum Zeitpunkt $t$ setzt sich der Feature-Vektor $\mathbf{x}_t \in \mathbb{R}^9$ wie folgt zusammen:
+
+\begin{equation}
+    \mathbf{x}_t = \bigl(r_{t-1},\; r_{t-2},\; r_{t-3},\; \text{Sent}_t,\; \text{RSI}_t,\; \text{MACD}_t,\; \text{BB}_t,\; \sigma_{10,t},\; d_t \bigr)^\top
+\end{equation}
+
+wobei die einzelnen Komponenten in den folgenden Abschnitten definiert werden.
+
+\subsubsection{Historische Renditen}
+
+Die letzten drei Tagesrenditen dienen als autoregressive Eingabe und erfassen kurzfristige Preisdynamik. Die Log-Rendite zum Zeitpunkt $t$ ist definiert als
+
+\begin{equation}
+    r_t = \ln\!\left(\frac{P_t}{P_{t-1}}\right),
+\end{equation}
+
+wobei $P_t$ den Schlusskurs am Tag $t$ bezeichnet. Es werden $r_{t-1}$, $r_{t-2}$ und $r_{t-3}$ als Features verwendet.
+
+\subsubsection{Sentiment Score}
+
+Zur Erfassung der Nachrichtenlage wird die externe Sentiment API von Alpha Vantage genutzt~\cite{alphavantage}, die für jede veröffentlichte Nachricht einen Sentiment-Score $s_{i} \in [-1, 1]$ pro darin erwähnter Aktie liefert, wobei $-1$ stark negatives und $+1$ stark positives Sentiment bedeutet. Es wird ein tagesaggregierter Score über die letzten 10 Tage berechnet. Um aktuelleren Meldungen ein höheres Gewicht beizumessen, wird ein exponentiell gewichteter Durchschnitt über die letzten 10 Nachrichten verwendet:
+
+\begin{equation}
+    \text{Sent}_t = \frac{\sum_{i=1}^{10} w_i \cdot s_i}{\sum_{i=1}^{10} w_i},
+    \qquad w_i = e^{\,\lambda (i - 10)},
+\end{equation}
+
+wobei die Nachrichten chronologisch geordnet sind ($i = 1$ älteste, $i = 10$ neueste) und $\lambda = 0.2$ den Abklingparameter steuert. 
+
+
+\subsubsection{Relative Strength Index}
+Der \ac{RSI} misst die relative Stärke von Aufwärts- gegenüber Abwärtsbewegungen innerhalb eines Zeitfensters von $n = 14$ Tagen~\cite{wilder1978}:
+
+\begin{equation}
+    \text{RSI}_t = 100 - \frac{100}{1 + \dfrac{\overline{U}_t}{\overline{D}_t}},
+\end{equation}
+
+wobei $\overline{U}_t$ den exponentiell geglätteten Durchschnitt der positiven Kursveränderungen und $\overline{D}_t$ den entsprechenden Durchschnitt der negativen Kursveränderungen der letzten 14 Handelstage bezeichnet. Der RSI liegt per Konstruktion im Intervall $[0, 100]$.
+
+\subsubsection{Moving Average Convergence Divergence}
+Der \ac{MACD} ist ein Momentum-Indikator, der die Differenz zweier exponentiell geglätteter Durchschnitte bildet~\cite{appel1979}:
+
+\begin{equation}
+    \text{MACD}_t = \text{EMA}_{12}(p)_t - \text{EMA}_{26}(p)_t,
+\end{equation}
+
+wobei $\text{EMA}_{k}(p)_t$ den exponentiellen gleitenden Durchschnitt des Schlusskurses über $k$ Handelstage zum Zeitpunkt $t$ bezeichnet. Positive Werte signalisieren Aufwärtsmomentum, negative Werte Abwärtsmomentum.
+
+\subsubsection{Bollinger-Band-Position}
+Die Bollinger-Bänder bestehen aus einem gleitenden Durchschnitt $\text{MA}_{20,t}$ sowie einem oberen Band $B^+_t = \text{MA}_{20,t} + 2\sigma_{20,t}$ und einem unteren Band $B^-_t = \text{MA}_{20,t} - 2\sigma_{20,t}$, wobei $\sigma_{20,t}$ die Standardabweichung der Schlusskurse der letzten 20 Handelstage ist.~\cite{bollinger2001} Als Feature wird die normierte Position des aktuellen Kurses innerhalb der Bänder verwendet:
+
+\begin{equation}
+    \text{BB}_t = \frac{p_t - B^-_t}{B^+_t - B^-_t} \in [0, 1].
+\end{equation}
+
+Ein Wert von $\text{BB}_t > 0{,}5$ zeigt an, dass der Kurs in der oberen Hälfte der Bänder notiert, was auf erhöhte Volatilität oder einen Aufwärtstrend hindeutet.
+
+\subsubsection{Realisierte Volatilität}
+
+Als Maß für die kurzfristige Marktunsicherheit wird die 10-Tages-Volatilität der Log-Renditen verwendet:
+
+\begin{equation}
+    \sigma_{10,t} = \sqrt{\frac{1}{9} \sum_{i=1}^{10} \bigl(r_{t-i} - \bar{r}_t\bigr)^2},
+    \qquad \bar{r}_t = \frac{1}{10}\sum_{i=1}^{10} r_{t-i}.
+\end{equation}
+
+
+\subsubsection{Handelspause}
+Der Montag-Effekt beschreibt eine empirisch beobachtete Tendenz, dass Renditen nach einer Handelspause von regulären Folgetagen abweichen~\cite{french1980}. Um diesen Effekt zu erfassen wird ein binäres Feature eingeführt:
+
+\begin{equation}
+    d_t = \begin{cases} 1 & \text{wenn zwischen } t-1 \text{ und } t \text{ mindestens ein Nicht-Handelstag liegt,} \\ 0 & \text{sonst.} \end{cases}
+\end{equation}
+
+Dies trifft auf alle Montage sowie auf Tage nach Feiertagen zu.
+
+\subsubsection{Normalisierung}
+
+Da SVR auf kernelbasierten Abstandsberechnungen im Feature-Raum beruht, ist eine Skalierung aller Eingaben erforderlich~\cite{scholkopf2002}. Features mit großen Wertebereichen würden sonst die Distanzberechnung dominieren, unabhängig von ihrem tatsächlichen Informationsgehalt.
+
+Die Merkmale $r_{t-1}$, $r_{t-2}$, $r_{t-3}$, $\text{Sent}_t$, $\text{MACD}_t$ und $\sigma_{10,t}$ werden mittels Z-Score-Normalisierung auf den Bereich $I = [-1, 1]$ transformiert:
+
+\begin{equation}
+    \tilde{x} = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}.
+\end{equation}
+
+Der RSI wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist.
+
+Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden auf den Trainingsdaten berechnet und auf Test- und Validierungsdaten angewendet.
 
 
 
