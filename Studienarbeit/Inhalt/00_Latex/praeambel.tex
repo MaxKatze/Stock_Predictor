@@ -17,7 +17,7 @@
 \usepackage{graphicx}        % Einbinden von Grafiken erlauben
 \usepackage{svg}             % SVG-Grafiken direkt einbinden (\includesvg)
 \svgpath{{Bilder/}}          % Pfad zu SVG-Dateien
-\svgsetup{inkscapeexe=/opt/homebrew/bin/inkscape} % Inkscape-Pfad explizit setzen
+\svgsetup{inkscapeexe=/opt/homebrew/bin/inkscape, inkscapeformat=eps} % EPS-Zwischenschritt wegen Inkscape 1.4 PDF-Bug
 \usepackage{wrapfig}         % Grafiken fließend im Text
 \usepackage{setspace}        % Zeilenabstand \singlespacing, \onehalfspaceing, \doublespacing
 \usepackage[
