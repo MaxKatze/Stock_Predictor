@@ -29,6 +29,7 @@ class SDEStockSelector:
         self.output_dir = output_dir
 
         self.dominant_pairs = {}
+        self.beta_sums = {}
         self.avg_roi = {}
         self.example_simulation = None
 
@@ -51,10 +52,11 @@ class SDEStockSelector:
         stock_directions = self._discretize_all(stock_data)
         factor_directions = self._discretize_all(factor_data)
 
-        dominant_pairs = self._find_dominant_pairs(
+        dominant_pairs, beta_sums = self._find_dominant_pairs(
             stock_directions, factor_directions, tickers, factor_keys
         )
         self.dominant_pairs = dominant_pairs
+        self.beta_sums = beta_sums
 
         pools = self._group_by_factor_pair(tickers, dominant_pairs, factor_keys)
 
@@ -116,6 +118,7 @@ class SDEStockSelector:
         """Return detailed results for reporting."""
         return {
             "dominant_pairs": self.dominant_pairs,
+            "beta_sums": self.beta_sums,
             "avg_roi": self.avg_roi,
             "example_simulation": self.example_simulation,
         }
@@ -139,6 +142,7 @@ class SDEStockSelector:
         X = np.column_stack([np.ones(T), F_matrix])
 
         dominant_pairs = {}
+        beta_sums = {}
         for ticker in tickers:
             y = stock_dirs[ticker][:T].astype(float)
             try:
@@ -157,8 +161,9 @@ class SDEStockSelector:
                     best_pair = (factor_keys[i], factor_keys[j])
 
             dominant_pairs[ticker] = best_pair
+            beta_sums[ticker] = best_sum
 
-        return dominant_pairs
+        return dominant_pairs, beta_sums
 
     def _group_by_factor_pair(self, tickers, dominant_pairs, factor_keys):
         """Group stocks into pools by their dominant factor pair."""

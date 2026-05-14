@@ -38,6 +38,7 @@ dependencies = [
     "yfinance>=0.2.66",
     "torch>=2.0.0",
     "scikit-learn>=1.3.0",
+    "timesfm>=1.3.0",
 ]
 
 [project.optional-dependencies]

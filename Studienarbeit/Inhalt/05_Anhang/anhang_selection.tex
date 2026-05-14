@@ -1,0 +1,82 @@
+\chapter{Vollständige Ergebnisse der Aktienauswahl}\label{app:selection_results}
+
+Dieses Kapitel enthält die vollständigen Ergebnisse der SDE-basierten Aktienauswahl aus \cref{sec:sde}.
+
+\section{Dominante Faktorpaare aller Aktien}
+
+\cref{tab:all_factor_pairs} zeigt für jede der 450 analysierten Aktien das zugewiesene dominante Faktorpaar sowie die zugehörige Beta-Summe $\sum|\beta|$.
+
+\begin{longtable}{l c c c}
+    \caption{Dominante Faktorpaare aller analysierten Aktien}\label{tab:all_factor_pairs} \\
+    \toprule
+    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+    \midrule
+    \endfirsthead
+    \multicolumn{4}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
+    \toprule
+    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{4}{r}{Fortsetzung auf nächster Seite} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+    % Die vollständige Tabelle kann aus der JSON-Datei
+    % data/selection/selected\_stocks.json generiert werden.
+    % Hier ein Ausschnitt der ersten 20 Einträge:
+    A    & Gold     & S\&P500  & 0,543 \\
+    AAL  & Dollar   & S\&P500  & 0,521 \\
+    AAP  & Öl       & S\&P500  & 0,489 \\
+    AAPL & Staatsanleihe & S\&P500  & 0,628 \\
+    ABBV & Staatsanleihe & S\&P500  & 0,567 \\
+    ABT  & Dollar   & S\&P500  & 0,498 \\
+    ACN  & Staatsanleihe & S\&P500  & 0,641 \\
+    ADBE & Staatsanleihe & S\&P500  & 0,589 \\
+    ADI  & Staatsanleihe & S\&P500  & 0,576 \\
+    ADM  & Öl       & S\&P500  & 0,512 \\
+    \multicolumn{4}{c}{\ldots} \\
+\end{longtable}
+
+\section{Durchschnittliche simulierte ROIs}
+
+\cref{tab:all_avg_roi} zeigt die durchschnittlichen simulierten ROIs aller Aktien, sortiert nach Rang.
+
+\begin{longtable}{c l c c}
+    \caption{Durchschnittliche simulierte ROIs aller Aktien}\label{tab:all_avg_roi} \\
+    \toprule
+    Rang & Ticker & Faktorpaar & Avg. ROI \\
+    \midrule
+    \endfirsthead
+    \multicolumn{4}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
+    \toprule
+    Rang & Ticker & Faktorpaar & Avg. ROI \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{4}{r}{Fortsetzung auf nächster Seite} \\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+    % Die vollständige Tabelle kann aus der JSON-Datei
+    % data/selection/selected\_stocks.json generiert werden.
+    % Hier die Top 30:
+    1  & RSG  & Inflation, S\&P500 & 24,50\,\% \\
+    2  & AJG  & Dollar, S\&P500   & 25,39\,\% \\
+    3  & CTAS & Dollar, S\&P500   & 24,48\,\% \\
+    4  & TT   & Dollar, S\&P500   & 23,39\,\% \\
+    5  & GOOG & Inflation, S\&P500 & 23,21\,\% \\
+    6  & ABBV & Staatsanleihe, S\&P500 & 22,92\,\% \\
+    7  & PEP  & Staatsanleihe, S\&P500 & 22,92\,\% \\
+    8  & GWW  & Öl, S\&P500       & 22,74\,\% \\
+    9  & CARR & Öl, Gold          & 22,68\,\% \\
+    10 & ORLY & Gold, S\&P500     & 21,65\,\% \\
+    11 & COST & Staatsanleihe, S\&P500 & 22,07\,\% \\
+    12 & BLK  & Gold, S\&P500     & 21,61\,\% \\
+    13 & VRSK & Staatsanleihe, S\&P500 & 21,51\,\% \\
+    14 & NOW  & Staatsanleihe, S\&P500 & 21,63\,\% \\
+    15 & IDXX & Staatsanleihe, S\&P500 & 21,31\,\% \\
+    \multicolumn{4}{c}{\ldots} \\
+\end{longtable}
+
+Die vollständigen Rohdaten sind in der Datei \texttt{data/selection/selected\_stocks.json} im Projektverzeichnis verfügbar.

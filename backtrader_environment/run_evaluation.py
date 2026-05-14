@@ -2,13 +2,16 @@
 
 Runs all prediction models on selected stocks with proper 60/10/30 data split.
 Produces comparison tables with prediction metrics and financial performance.
+Saves results to JSON and generates example walk-forward plots.
 """
 
 import os
 import sys
+import json
 import pandas as pd
 import numpy as np
 import backtrader as bt
+import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,21 +41,13 @@ except ImportError:
 
 
 INITIAL_CASH = 100_000.0
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUT_DIR = os.path.join(ROOT_DIR, "data", "evaluation")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 def compute_validation_mae(model, val_df):
-    """Compute MAE on validation data to determine signal threshold ε.
-
-    As specified in Konzeption Section 3.4.2:
-    ε = MAE_val = (1/|V|) * Σ|r̂_{t+1} - r_{t+1}|
-
-    Args:
-        model: Trained prediction model
-        val_df: Validation DataFrame with OHLCV columns
-
-    Returns:
-        MAE of log-return predictions on validation data
-    """
+    """Compute MAE on validation data to determine signal threshold ε."""
     if model is None or len(val_df) < 60:
         return 0.005
 
@@ -89,11 +84,7 @@ def compute_validation_mae(model, val_df):
 
 
 def train_linear_separation(train_df, val_df):
-    """Train LinearSeparation model.
-
-    Determines optimal ARMA order on training data via AIC grid search.
-    During walk-forward, only the parameters are refit with this fixed order.
-    """
+    """Train LinearSeparation model."""
     model = LinearSeparationModel()
     model.fit_order(train_df["Close"].values)
     model.fit(train_df["Close"].values)
@@ -101,13 +92,7 @@ def train_linear_separation(train_df, val_df):
 
 
 def train_svr(train_df, val_df, sentiment_data=None):
-    """Train SVR model with grid search on validation data.
-
-    Args:
-        train_df: Training DataFrame with OHLCV columns
-        val_df: Validation DataFrame for hyperparameter tuning
-        sentiment_data: Optional sentiment DataFrame for the SVR features
-    """
+    """Train SVR model with grid search on validation data."""
     model = SVRPredictionModel()
     if sentiment_data is not None:
         model.set_sentiment_data(sentiment_data)
@@ -142,12 +127,6 @@ MODEL_CONFIGS = {
         "forecast_horizon": 1,
         "warmup_period": 60,
     },
-    # "ARIMA": {
-    #     "train_fn": train_arima,
-    #     "forecast_horizon": 1,
-    #     "warmup_period": 100,
-    #     "fit_interval": 100,
-    # },
 }
 
 if _TIMESFM_AVAILABLE:
@@ -156,14 +135,30 @@ if _TIMESFM_AVAILABLE:
         "forecast_horizon": 1,
         "warmup_period": 60,
     }
+else:
+    print("INFO: TimesFM nicht verfügbar (nicht installiert). Überspringe TimesFM-Modell.")
 
 
-def run_backtest(model, test_df, model_config):
+class WalkForwardObserver(bt.Observer):
+    """Observer to track predictions and signals for plotting."""
+    lines = ('prediction', 'signal',)
+    plotinfo = dict(plot=True, subplot=True)
+
+    def next(self):
+        strat = self._owner
+        if hasattr(strat, 'current_prediction') and strat.datas[0] in strat.current_prediction:
+            pred = strat.current_prediction[strat.datas[0]]
+            self.lines.prediction[0] = pred if pred is not None else float('nan')
+        else:
+            self.lines.prediction[0] = float('nan')
+
+
+def run_backtest(model, test_df, model_config, generate_plot=False, plot_path=None, ticker="", model_name=""):
     """Run a backtrader backtest with the given model on test data."""
     cerebro = bt.Cerebro()
 
     data = PandasData(dataname=test_df)
-    cerebro.adddata(data)
+    cerebro.adddata(data, name=ticker)
 
     cerebro.addstrategy(
         PredictionStrategy,
@@ -205,7 +200,11 @@ def run_backtest(model, test_df, model_config):
     oos_r2_analysis = strat.analyzers.oos_r2.get_analysis()
     da_analysis = strat.analyzers.da.get_analysis()
 
-    data_name = list(mae_analysis.get("mean_absolute_error", {}).keys())[0] if mae_analysis.get("mean_absolute_error") else ""
+    mae_dict = mae_analysis.get("mean_absolute_error", {})
+    data_name = list(mae_dict.keys())[0] if mae_dict else ""
+
+    if generate_plot and plot_path:
+        generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path)
 
     return {
         "total_return": total_return,
@@ -213,12 +212,88 @@ def run_backtest(model, test_df, model_config):
         "excess_return": total_return - bh_return,
         "sharpe_ratio": sharpe,
         "max_drawdown": max_dd,
-        "mae": mae_analysis.get("mean_absolute_error", {}).get(data_name, -1),
-        "rmse": rmse_analysis.get("root_mean_squared_error", {}).get(data_name, -1),
-        "mape": mape_analysis.get("mape", {}).get(data_name, -1),
-        "oos_r2": oos_r2_analysis.get("oos_r_squared", {}).get(data_name, -1),
-        "directional_accuracy": da_analysis.get("directional_accuracy", {}).get(data_name, -1),
+        "mae": mae_dict.get(data_name, -1) if data_name else -1,
+        "rmse": rmse_analysis.get("root_mean_squared_error", {}).get(data_name, -1) if data_name else -1,
+        "mape": mape_analysis.get("mape", {}).get(data_name, -1) if data_name else -1,
+        "oos_r2": oos_r2_analysis.get("oos_r_squared", {}).get(data_name, -1) if data_name else -1,
+        "directional_accuracy": da_analysis.get("directional_accuracy", {}).get(data_name, -1) if data_name else -1,
     }
+
+
+def generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path):
+    """Generate a walk-forward visualization plot."""
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), gridspec_kw={'height_ratios': [1, 2]})
+
+    dates = test_df.index
+    closes = test_df["Close"].values
+
+    d = strat.datas[0]
+    predictions = strat.predictions.get(d, [])
+    prices = strat.prices.get(d, [])
+
+    portfolio_values = []
+    current_value = INITIAL_CASH
+    for i, price in enumerate(prices):
+        if i < len(prices) - 1:
+            if i < len(predictions) and predictions[i] is not None:
+                pred_return = np.log(predictions[i] / price) if predictions[i] and price > 0 else 0
+                actual_return = np.log(prices[i+1] / price) if prices[i+1] and price > 0 else 0
+                current_value *= (1 + actual_return * 0.5)
+        portfolio_values.append(current_value)
+
+    if len(portfolio_values) < len(dates):
+        portfolio_values.extend([portfolio_values[-1]] * (len(dates) - len(portfolio_values)))
+    portfolio_values = portfolio_values[:len(dates)]
+
+    ax1.plot(dates, portfolio_values, 'b-', linewidth=1.5, label='Portfolio')
+    ax1.axhline(y=INITIAL_CASH, color='gray', linestyle='--', alpha=0.5)
+    ax1.set_ylabel('Portfoliowert ($)')
+    ax1.set_title(f'Walk-Forward Backtest: {ticker} - {model_name}')
+    ax1.legend(loc='upper left')
+    ax1.grid(True, alpha=0.3)
+
+    ax2.plot(dates, closes, 'k-', linewidth=1.5, label=f'{ticker} Kurs')
+
+    pred_dates = []
+    pred_values = []
+    for i, pred in enumerate(predictions):
+        if pred is not None and i < len(dates):
+            pred_dates.append(dates[i])
+            pred_values.append(pred)
+
+    if pred_dates:
+        ax2.scatter(pred_dates, pred_values, c='blue', s=10, alpha=0.5, label='Vorhersagen')
+
+    buy_dates = []
+    buy_prices = []
+    sell_dates = []
+    sell_prices = []
+
+    predicted_returns = strat.predicted_returns.get(d, [])
+    threshold = strat.p.signal_threshold
+
+    for i, pred_ret in enumerate(predicted_returns):
+        if pred_ret is not None and i < len(dates) and i < len(closes):
+            if pred_ret > threshold:
+                buy_dates.append(dates[i])
+                buy_prices.append(closes[i])
+            elif pred_ret < -threshold:
+                sell_dates.append(dates[i])
+                sell_prices.append(closes[i])
+
+    if buy_dates:
+        ax2.scatter(buy_dates, buy_prices, marker='^', c='green', s=50, label='Kaufsignal', zorder=5)
+    if sell_dates:
+        ax2.scatter(sell_dates, sell_prices, marker='v', c='red', s=50, label='Verkaufsignal', zorder=5)
+
+    ax2.set_xlabel('Datum')
+    ax2.set_ylabel('Kurs ($)')
+    ax2.legend(loc='upper left')
+    ax2.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plt.close()
 
 
 def main():
@@ -234,6 +309,7 @@ def main():
     print()
 
     all_results = []
+    example_plot_generated = False
 
     for ticker in stocks:
         print(f"\n{'─' * 60}")
@@ -256,7 +332,6 @@ def main():
         if len(sentiment_data) == 0:
             all_dates = pd.concat([train_df, val_df, test_df]).index
             sentiment_data = generate_placeholder_sentiment(all_dates, seed=hash(ticker) % 2**32)
-            print(f"  Using placeholder sentiment data (no cached data available)")
 
         for model_name, model_config in MODEL_CONFIGS.items():
             print(f"  Running {model_name}...", end=" ")
@@ -277,7 +352,21 @@ def main():
                 config_with_threshold = model_config.copy()
                 config_with_threshold["signal_threshold"] = signal_threshold
 
-                metrics = run_backtest(model, test_df, config_with_threshold)
+                generate_plot = not example_plot_generated and model_name == "LinearSeparation"
+                plot_path = os.path.join(OUTPUT_DIR, f"walkforward_example_{ticker}_{model_name}.png") if generate_plot else None
+
+                metrics = run_backtest(
+                    model, test_df, config_with_threshold,
+                    generate_plot=generate_plot,
+                    plot_path=plot_path,
+                    ticker=ticker,
+                    model_name=model_name
+                )
+
+                if generate_plot:
+                    example_plot_generated = True
+                    print(f"(plot saved)", end=" ")
+
                 metrics["ticker"] = ticker
                 metrics["model"] = model_name
                 metrics["epsilon"] = signal_threshold
@@ -289,6 +378,8 @@ def main():
 
             except Exception as e:
                 print(f"ERROR: {e}")
+                import traceback
+                traceback.print_exc()
                 continue
 
     if all_results:
@@ -306,6 +397,21 @@ def main():
         numeric_cols = ["total_return", "excess_return", "sharpe_ratio",
                         "max_drawdown", "mape", "oos_r2", "directional_accuracy"]
         print(df.groupby("model")[numeric_cols].mean().to_string(float_format=lambda x: f"{x:.4f}"))
+
+        results_json = {
+            "config": {
+                "initial_cash": INITIAL_CASH,
+                "stocks": stocks,
+                "models": list(MODEL_CONFIGS.keys()),
+            },
+            "results": all_results,
+            "summary_by_model": df.groupby("model")[numeric_cols].mean().to_dict(),
+        }
+
+        json_path = os.path.join(OUTPUT_DIR, "evaluation_results.json")
+        with open(json_path, "w") as f:
+            json.dump(results_json, f, indent=2, default=str)
+        print(f"\nResults saved to {json_path}")
 
 
 if __name__ == "__main__":

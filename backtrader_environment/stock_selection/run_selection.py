@@ -70,6 +70,7 @@ def main():
             ticker: {
                 "rank": i + 1,
                 "dominant_factors": list(details["dominant_pairs"].get(ticker, [])),
+                "beta_sum": details["beta_sums"].get(ticker, 0),
                 "avg_roi": details["avg_roi"].get(ticker, 0),
             }
             for i, ticker in enumerate(selected)
@@ -77,6 +78,7 @@ def main():
         "all_dominant_pairs": {
             ticker: list(pair) for ticker, pair in details["dominant_pairs"].items()
         },
+        "all_beta_sums": details["beta_sums"],
         "all_avg_roi": details["avg_roi"],
         "example_group": {
             "tickers": details["example_simulation"]["tickers"] if details["example_simulation"] else [],

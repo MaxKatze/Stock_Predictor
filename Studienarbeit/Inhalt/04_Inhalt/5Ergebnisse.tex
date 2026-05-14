@@ -1,5 +1,123 @@
 \chapter{Ergebnisse und Bewertung}\label{chap:ergebnisse_und_bewertung}
+
+In diesem Kapitel werden die Ergebnisse der in \cref{chap:konzeption} vorgestellten Verfahren präsentiert. Zunächst wird die SDE-basierte Aktienauswahl durchgeführt, um aus dem S\&P500-Universum zehn Aktien für die weitere Analyse zu selektieren. Anschließend werden die Vorhersagemodelle auf diesen Aktien evaluiert.
+
 \section{SDE Aktienauswahl}\label{sec:sde}
+
+Das in \cref{subsec:aktienauswahl} beschriebene Verfahren zur Aktienauswahl wurde auf dem S\&P500-Universum (Stand Januar 2020) angewendet. Es wurden Kursdaten, sowie die Preisdaten der sechs makroökonomischen Faktoren aus \cref{tab:makrofaktoren} für den Trainingszeitraum (01.2020--12.2023) geladen.
+
+\subsection{Dominante Faktorpaare}
+
+Im ersten Schritt wurde für jede Aktie mittels OLS-Regression das dominante Faktorpaar bestimmt. Die Summe der Betragskoeffizienten $|\beta_{i,j}| + |\beta_{i,k}|$ gibt an, wie stark die diskretisierten Kursbewegungen der Aktie mit den beiden Faktoren korrelieren. \cref{tab:beta_beispiele} zeigt einen Ausschnitt der Aktien mit den höchsten Beta-Summen.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c c c}
+        Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+        \hline
+        MSFT   & Staatsanleihe & S\&P500  & 0,661 \\
+        TEL    & Gold     & S\&P500  & 0,656 \\
+        MCO    & Staatsanleihe & S\&P500  & 0,647 \\
+        ACN    & Staatsanleihe & S\&P500  & 0,641 \\
+        TXN    & Öl       & S\&P500  & 0,638 \\
+        AAPL   & Staatsanleihe & S\&P500  & 0,628 \\
+        AMP    & Staatsanleihe & S\&P500  & 0,628 \\
+        APA    & Öl       & S\&P500  & 0,626 \\
+        \hline
+    \end{tabular}
+    \caption{Aktien mit höchsten Beta-Summen (Ausschnitt)}\label{tab:beta_beispiele}
+\end{table}
+
+Die Verteilung der dominanten Faktorpaare über alle Aktien zeigt, dass der S\&P500-Index in fast allen Kombinationen vertreten ist (\cref{tab:faktorpaar_verteilung}). Dies entspricht der Erwartung, dass Aktien innerhalb des Index stark mit dem Gesamtmarkt korrelieren.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c c}
+        Faktorpaar & Anzahl Aktien & Anteil \\
+        \hline
+        Staatsanleihe, S\&P500   & 179 & 39,8\,\% \\
+        Dollar, S\&P500     & 139 & 30,9\,\% \\
+        Öl, S\&P500         & 86  & 19,1\,\% \\
+        Gold, S\&P500       & 30  & 6,7\,\%  \\
+        Inflation, S\&P500  & 14  & 3,1\,\%  \\
+        Gold, Öl            & 2   & 0,4\,\%  \\
+        \hline
+    \end{tabular}
+    \caption{Verteilung der dominanten Faktorpaare}\label{tab:faktorpaar_verteilung}
+\end{table}
+
+\subsection{Euler-Maruyama Simulation}
+
+Nach der Gruppierung wurden 100 Monte-Carlo-Simulationen durchgeführt. In jeder Simulation wurden Gruppen aus je vier Aktien mit gemeinsamem Faktorpaar gebildet und deren Kursverläufe über 378 Handelstage, also dem gesamten Testzeitraum simuliert.
+
+\cref{fig:sde_simulation} zeigt exemplarisch eine solche Simulation für eine Gruppe mit den dominanten Faktoren Gold und S\&P500. Die Kurse sind auf einen Startwert von 100 normalisiert, um die relativen Entwicklungen vergleichbar zu machen. Die durchgezogenen Linien zeigen die simulierten Aktienkurse, die gestrichelten Linien die Faktorverläufe.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{Bilder/sde_example_simulation.png}
+    \caption{Beispielhafte Euler-Maruyama Simulation einer Gruppe}\label{fig:sde_simulation}
+\end{figure}
+
+\subsection{Vorhergesagte ROI und Ranking}
+
+Für jede Aktie wurde über alle Simulationen der durchschnittliche \ac{ROI} berechnet. \cref{tab:top_roi} zeigt die zehn Aktien mit den höchsten durchschnittlichen simulierten ROIs.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c l c c}
+        Rang & Ticker & Faktorpaar & Avg. sim. ROI \\
+        \hline
+        1  & RSG  & Inflation, S\&P500 & 24,50\,\% \\
+        2  & AJG  & Dollar, S\&P500   & 25,39\,\% \\
+        3  & CTAS & Dollar, S\&P500   & 24,48\,\% \\
+        4  & TT   & Dollar, S\&P500   & 23,39\,\% \\
+        5  & GOOG & Inflation, S\&P500 & 23,21\,\% \\
+        6  & ABBV & Staatsanleihe, S\&P500 & 22,92\,\% \\
+        7  & PEP  & Staatsanleihe, S\&P500 & 22,92\,\% \\
+        8  & GWW  & Öl, S\&P500       & 22,74\,\% \\
+        9  & CARR & Öl, Gold          & 22,68\,\% \\
+        10 & ORLY & Gold, S\&P500     & 21,65\,\% \\
+        \hline
+    \end{tabular}
+    \caption{Top 10 Aktien nach durchschnittlichem simuliertem ROI}\label{tab:top_roi}
+\end{table}
+
+Da es um einen qualitativen Vergleich der Aktienverläufe geht, ergibt sich die finale Auswahl aus der durchschnittlichen Platzierung über alle Simulationsrunden. Eine Aktie, die häufig als Gewinner ihrer Gruppe hervorgeht, erhält eine bessere Durchschnittsplatzierung. Dies führt zu dem in \cref{tab:selected_stocks} dargestellten Ergebnis.
+
+\subsection{Ausgewählte Aktien}
+
+Die durch das SDE-Verfahren ausgewählten zehn Aktien werden in \cref{tab:selected_stocks} mit vollständigem Namen und Branche dargestellt. Diese Aktien bilden die Grundlage für die Evaluation der Vorhersagemodelle im Testzeitraum.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c l l l}
+        Rang & Ticker & Unternehmen & Branche \\
+        \hline
+        1  & CARR & Carrier Global Corp.      & Industrie \\
+        2  & OTIS & Otis Worldwide Corp.      & Industrie \\
+        3  & RSG  & Republic Services Inc.    & Abfallentsorgung \\
+        4  & CTAS & Cintas Corp.              & Dienstleistungen \\
+        5  & AJG  & Arthur J. Gallagher \& Co. & Versicherungen \\
+        6  & PEP  & PepsiCo Inc.              & Konsumgüter \\
+        7  & TT   & Trane Technologies        & Industrie \\
+        8  & GWW  & W.W. Grainger Inc.        & Handel \\
+        9  & RMD  & ResMed Inc.               & Medizintechnik \\
+        10 & BLK  & BlackRock Inc.            & Finanzdienstleistungen \\
+        \hline
+    \end{tabular}
+    \caption{Die zehn ausgewählten Aktien}\label{tab:selected_stocks}
+\end{table}
+
+Ausführlichere Ergebnisse der Aktienauswahl, einschließlich der dominanten Faktorpaare, Beta-Summen und durchschnittlichen ROIs für die analysierten Aktien, sind in \cref{app:selection_results} zu finden. TODO:Anhang ist nicht vollständig. Entweder sagen dass da auch nicht alle sind, oder alle reinmachen.
+
 \section{LinearSeparation}\label{sec:linearseparation}
+
+% TODO: Ergebnisse des LinearSeparation-Modells auf den ausgewählten Aktien
+
 \section{Preprocessed SVR}\label{sec:svr}
-\section{StockTimesFM}\label{sec:stocktimesfm}
+
+% TODO: Ergebnisse des SVR-Modells auf den ausgewählten Aktien
+
+\section{TimesFM}\label{sec:stocktimesfm}
+
+% TODO: Ergebnisse des TimesFM-Modells auf den ausgewählten Aktien

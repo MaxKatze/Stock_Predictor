@@ -78,6 +78,9 @@ def get_selected_stocks(config: dict = None) -> list[str]:
     if os.path.exists(selection_path):
         import json
         with open(selection_path) as f:
-            return json.load(f)
+            data = json.load(f)
+            if isinstance(data, dict) and "selected_stocks" in data:
+                return data["selected_stocks"]
+            return data
 
     return config.get("assets", [])
