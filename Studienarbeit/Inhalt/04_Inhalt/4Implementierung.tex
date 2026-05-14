@@ -1,19 +1,108 @@
 \chapter{Implementierung}\label{chap:implementierung}
+% Viele Arbeiten die sich bereits mit Aktienkursvohersagen beschäftigt haben, wurden häufig kritisiert, da sie selten reproduzierbar sind. Oft fehlen theoretische Details und meist die gesamte Implementierung, sowie Datensätze.~\cite{Olorunnimbe2023} Um eine gute Reproduzierbarkeit zu gewährleisten, wird in diesem Kapitel die Implementierung jeglicher Modelle vorgestellt.
 
-Viele Arbeiten die sich bereits mit Aktienkursvohersagen beschäftigt haben, wurden häufig kritisiert, da sie selten reproduzierbar sind. Oft fehlen theoretische Details und meist die gesamte Implementierung, sowie Datensätze.~\cite{Olorunnimbe2023} Um eine gute Reproduzierbarkeit zu gewährleisten, wird in diesem Kapitel die Implementierung jeglicher Modelle vorgestellt.
-
-\cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung dieser Arbeit. Ausgangspunkt sind die Aktien- und makroökonomischen Daten. Die Implementierung bezieht die benötigten Daten über die Yahoo-Finance-API und konfiguriert die Anfrage so, dass die Yahoo-Finance-API die in \cref{subsec:bereinigung} beschriebenen Bereinigungsschritte bereits durchgeführt. Die Daten werden dann als CSV-Dateien gespeichert und in Trainings-, Validierungs- und Testdaten aufgeteilt.
-
-Anschließend folgt das in \cref{subsec:aktienauswahl} beschriebene Verfahren zur Aktienauswahl. Die genaue Implmentierung des Verfahrens wird in \cref{sec:sdes_zur_aktienauswahl} beschrieben. Die Aktienauswahl nutzt als Input die historischen Kursdaten der Aktien, sowie die makroökonomischen Daten. Der Output der Aktienauswahl sind 10 Aktien, die gespeichert werden.
-
-Nach der Aktienauswahl werden die drei Modelle trainiert. Das Training der Modelle findet auf den vorher ausgewählten 10 Aktien statt. Die genaue Implementierung der Modelle wird in \cref{sec:linear_separation}, \cref{sec:preprocessed_svr} und \cref{sec:stocktimesfm} beschrieben.
-
+Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für die Aktienauswahl zuständig, während das zweite Skript die drei Modelle trainiert und evaluiert. \cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung über beide Skripte hinweg. Diese Aufteilung ermöglicht es, die Aktienauswahl unabhängig von der Modellevaluation durchzuführen und umgekehrt.
 \begin{figure}[htbp]
     \centering
-    \includesvg[width=0.8\textwidth,inkscapelatex=false]{Bilder/gesamtueberblick_datenfluss}
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/gesamtueberblick_datenfluss}
     \caption{Gesamtüberblick: Datenfluss von der Beschaffung bis zur Evaluation}
     \label{fig:gesamtueberblick_datenfluss}
 \end{figure}
+
+\subsubsection{Aktienauswahl}
+Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei ist wie folgt aufgebaut:
+\begin{itemize}
+    \item  \textbf{Liste an Aktien:} Die Liste enthält alle Aktien, die zum Training der Modelle verwendet werden, wenn das Skript zur Aktienauswahl nicht ausgeführt wird.
+    \item \textbf{Start- und Enddatum für Trainingsdaten}
+    \item \textbf{Start- und Enddatum für Validierungsdaten}
+    \item \textbf{Start- und Enddatum für Testdaten}
+    \item \textbf{Start- und Enddatum für den gesamten Zeitraum:} Diese Daten werden vom Skript verwendet, das die Daten herunterlädt.
+    \item \textbf{Konfigurationsparameter für den Download:} Mit den Parametern lässt sich festlegen, ob bereinigte Daten heruntergeladen werden sollen und ob die Daten auch nochmal heruntergeladen werden sollen, wenn bereits Daten vorhanden sind.
+    \item \textbf{Liste der Makrofaktoren:} Die Liste enthält die Makrofaktoren, die zum Training der Modelle verwendet werden.
+    \item \textbf{Konfigurationsparameter die Aktienauswahl:} Mit den Parametern lässt sich festlegen, wie viele Simulationen durchgeführt werden sollen, wie groß die Gruppen sein sollen und wie viele Aktien ausgewählt werden sollen.
+\end{itemize}
+Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren können über ein Hilfsskript heruntergeladen werden. Dieses Skript nutzt die Yahoo-Finance-API, um die Daten herunterzuladen. Die Daten werden als CSV-Dateien gespeichert.
+
+Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werden. Das Skript ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
+\begin{algorithm}
+    \caption{Skript Aktienauswahl}\label{alg:Skript_Aktienauswahl}
+    \begin{algorithmic}[1]
+        \Require Konfigurationsdatei, historische Kursdaten, Makrofaktoren
+        \State $config \gets \Call{LoadConfig}{}$
+        \State $train_strart, train_end \gets config.trainStart, config.trainEnd$
+        \State $tickers \gets$ S\&P 500 Ticker
+        \State $stockData \gets \emptyset$
+        \ForAll{$ticker \in tickers$}
+        \State Lade die Aktienkursdaten für Trainingszeitraum
+        \If{Datenpunkte $\geq 500$}
+        \State Füge die Schlusskurse der Aktie zu $stockData$ hinzu
+        \EndIf
+        \EndFor
+        \State $factors \gets$ Liste der Makrofaktoren aus $config$
+        \State $factorData \gets \emptyset$
+        \ForAll{$factor \in factors$}
+        \State Lade Makrofaktor-Zeitreihe für Trainingszeitraum
+        \If{Datenpunkte $\geq 500$}
+        \State Füge $factor$ zu $factorData$ hinzu
+        \EndIf
+        \EndFor
+        \State $numSimulations, groupSize, numSelected \gets$ Werte aus $config$
+        \State $selector \gets \Call{SDESelector}{numSimulations, groupSize, numSelected}$
+        \State $selected \gets \Call{selector.select}{stockData, factorData}$ Selector wird augeführt
+        \State Speichere $selected$ als JSON
+        \State Die JSON Datei mit den ausgewählten Aktien wird gespeichert.
+    \end{algorithmic}
+\end{algorithm}
+Das Skript lädt als Erstes die Konfigurationsdatei und dann die Liste aller Aktien, die im S\&P 500 gelistet sind. Es wird eine leere Datenstruktur erstellt, die die Schlusskurse der Aktien speichert. Dann werden für alle Aktien in der Liste die historischen Kursdaten für den Trainingszeitraum geladen. Diese Kursdaten werden direkt aus der CSV-Datei gelesen, sollten die Daten nicht vorhanden sein, bricht das Skript mit einem Fehler ab. Wenn die Anzahl der Datenpunkte größer oder gleich 500 ist, werden die Schlusskurse der Aktie zu der Datenstruktur hinzugefügt. Analog wird mit den Makrofaktoren verfahren, dadurch entstehen die Datenstrukturen mit den Aktienkursen und den Makrofaktoren. Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
+
+
+\subsubsection{Modelevaluation}
+Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die Modellkonfiguration, die historischen Kursdaten der ausgewählten Aktien und die Liste mit den ausgewählten Aktien. Sind diese Voraussetzungen nicht erfüllt, werden die betroffenen Aktien und Modelle übersprungen. Das Skript ist in \cref{alg:Skript_Modelevaluation} dargestellt.
+\begin{algorithm}
+    \caption{Skript Modelevaluation}\label{alg:Skript_Modelevaluation}
+    \begin{algorithmic}[1]
+        \Require Konfigurationsdatei, Modellkonfiguration, historische Kursdaten, ausgewählte Aktien
+        \State $config \gets \Call{LoadConfig}{}$
+        \State $stocks \gets$ Liste der ausgewählten Aktien
+        \State $models \gets$ Modellkonfiguration (LinearSeparation, SVR, TimesFM)
+        \State $results \gets \emptyset$
+        \ForAll{$ticker \in stocks$}
+        \State $train, val, test \gets \Call{GetDataSplit}{ticker, config}$ \Comment{60/10/30 Split}
+        \If{$|test| < 60$}
+        \State Überspringe $ticker$
+        \EndIf
+        \ForAll{$model \in models$}
+        \State $trainedModel \gets \Call{model.train}{train, val}$
+        \State $metrics \gets \Call{RunBacktest}{trainedModel, test, model.config}$
+        \State Füge $metrics$ mit $ticker$ und $model.name$ zu $results$ hinzu
+        \EndFor
+        \EndFor
+        \State Ausgeben der $results$
+        \State Ausgeben der aggregierten Druchschnittswerte pro Modell
+    \end{algorithmic}
+\end{algorithm}
+Das Skript lädt als Erstes die Konfigurationsdatei und die Liste der Aktien. Beim Laden der Aktienliste wird überprüft, ob die JSON-Datei aus dem Aktienauswahl-Skript vorhanden ist. Ist dies der Fall werden die dort hinterlegten Aktien geladen, andernfalls liest das Skript die Aktien aus der Konfigurationsdatei. Hallo\cref{app:svr_features}
+
+\subsubsection{Backtest}\label{subsubsec:backtest}
+Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken.
+\begin{algorithm}
+    \caption{RunBacktest}\label{alg:RunBacktest}
+    \begin{algorithmic}[1]
+        \Require trainiertes Modell, Testdaten, Modellkonfiguration
+        \State $cerebro \gets$ neue Backtest-Engine
+        \State Füge $testDaten$ im Yahoo-Finance-Format zu $cerebro$ hinzu
+        \State Füge \texttt{PredictionStrategy} mit Modell und Konfigurationsparametern hinzu
+        \State Setze Startkapital auf \$100.000
+        \State Füge Analyzer hinzu: Sharpe-Ratio, Drawdown, MAE, RMSE, MAPE, $R^2_{OOS}$, DA
+        \State $ergebnis \gets$ Führe $cerebro$ aus
+        \State $totalReturn \gets (Endwert - Startkapital) / Startkapital$
+        \State $bhReturn \gets (letzterKurs - ersterKurs) / ersterKurs$
+        \State $excessReturn \gets totalReturn - bhReturn$
+        \State Extrahiere Sharpe-Ratio, max.\ Drawdown und Vorhersagemetriken aus Analyzern
+        \State \Return Metriken: $totalReturn$, $bhReturn$, $excessReturn$, Sharpe, Drawdown, MAPE, $R^2_{OOS}$, DA
+    \end{algorithmic}
+\end{algorithm}
+
 
 \section{SDEs zur Aktienauswahl}\label{sec:sdes_zur_aktienauswahl}
 
