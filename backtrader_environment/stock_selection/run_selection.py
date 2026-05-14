@@ -18,8 +18,12 @@ def main():
     train_start = config.get("training_start", "2020-01-02")
     train_end = config.get("training_end", "2023-12-29")
 
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              "data", "selection")
+    os.makedirs(output_dir, exist_ok=True)
+
     tickers = get_sp500_2020_tickers()
-    print(f"Loading data for {len(tickers)} S&P 500 stocks...")
+    print(f"Loading {len(tickers)} S&P 500 stocks...")
 
     stock_data = {}
     for ticker in tickers:
@@ -30,7 +34,7 @@ def main():
         except FileNotFoundError:
             continue
 
-    print(f"Loaded {len(stock_data)} stocks with sufficient data.")
+    print(f"Loaded {len(stock_data)} stocks.")
 
     macro_factors_config = config.get("macro_factors", {})
     factor_data = {}
@@ -40,12 +44,12 @@ def main():
             if len(series) >= 500:
                 factor_data[key] = series
         except FileNotFoundError:
-            print(f"  WARNING: No macro data for '{key}'. Skipping.")
+            continue
 
     print(f"Loaded {len(factor_data)} macro factors.")
 
     if len(stock_data) < 20 or len(factor_data) < 2:
-        print("ERROR: Not enough data. Download data first with download_assets.py")
+        print("ERROR: Not enough data.")
         sys.exit(1)
 
     selector = SDEStockSelector(
@@ -53,23 +57,38 @@ def main():
         group_size=sde_config.get("group_size", 4),
         num_factors=sde_config.get("num_factors", 2),
         num_selected=sde_config.get("num_selected", 10),
+        output_dir=output_dir,
     )
 
-    print(f"Running SDE selection ({sde_config.get('num_simulations', 100)} simulations)...")
+    print(f"Running {sde_config.get('num_simulations', 100)} simulations...")
     selected = selector.select(stock_data, factor_data)
+    details = selector.get_detailed_results()
 
-    print(f"\nSelected {len(selected)} stocks:")
-    for i, ticker in enumerate(selected, 1):
-        print(f"  {i}. {ticker}")
+    full_results = {
+        "selected_stocks": selected,
+        "ranking": {
+            ticker: {
+                "rank": i + 1,
+                "dominant_factors": list(details["dominant_pairs"].get(ticker, [])),
+                "avg_roi": details["avg_roi"].get(ticker, 0),
+            }
+            for i, ticker in enumerate(selected)
+        },
+        "all_dominant_pairs": {
+            ticker: list(pair) for ticker, pair in details["dominant_pairs"].items()
+        },
+        "all_avg_roi": details["avg_roi"],
+        "example_group": {
+            "tickers": details["example_simulation"]["tickers"] if details["example_simulation"] else [],
+            "factors": list(details["example_simulation"]["factors"]) if details["example_simulation"] else [],
+        },
+    }
 
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                              "data", "selection")
-    os.makedirs(output_dir, exist_ok=True)
     output_path = os.path.join(output_dir, "selected_stocks.json")
-
     with open(output_path, "w") as f:
-        json.dump(selected, f, indent=2)
-    print(f"\nResults saved to {output_path}")
+        json.dump(full_results, f, indent=2)
+
+    print(f"Done. Results: {output_path}")
 
 
 if __name__ == "__main__":

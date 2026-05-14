@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from itertools import combinations
 import warnings
+import matplotlib.pyplot as plt
+import os
 
 
 class SDEStockSelector:
@@ -18,11 +20,17 @@ class SDEStockSelector:
     6. Repeat N times, rank by average placement
     """
 
-    def __init__(self, num_simulations=100, group_size=4, num_factors=2, num_selected=10):
+    def __init__(self, num_simulations=100, group_size=4, num_factors=2, num_selected=10,
+                 output_dir=None):
         self.num_simulations = num_simulations
         self.group_size = group_size
         self.num_factors = num_factors
         self.num_selected = num_selected
+        self.output_dir = output_dir
+
+        self.dominant_pairs = {}
+        self.avg_roi = {}
+        self.example_simulation = None
 
     def select(self, stock_data: dict[str, pd.Series],
                factor_data: dict[str, pd.Series],
@@ -46,27 +54,53 @@ class SDEStockSelector:
         dominant_pairs = self._find_dominant_pairs(
             stock_directions, factor_directions, tickers, factor_keys
         )
+        self.dominant_pairs = dominant_pairs
 
         pools = self._group_by_factor_pair(tickers, dominant_pairs, factor_keys)
 
         rankings = {t: [] for t in tickers}
+        roi_accumulator = {t: [] for t in tickers}
+        example_saved = False
 
         for iteration in range(self.num_simulations):
             groups = self._form_simulation_groups(pools)
 
             for group_tickers, factor_pair in groups:
-                winner = self._simulate_group(
+                result = self._simulate_group(
                     group_tickers, factor_pair,
                     stock_directions, factor_directions,
-                    stock_data, simulation_days
+                    stock_data, simulation_days,
+                    save_example=(not example_saved and iteration == 0)
                 )
-                if winner is not None:
-                    for i, t in enumerate(sorted(
-                        group_tickers,
-                        key=lambda x: x == winner,
-                        reverse=True
-                    )):
-                        rankings[t].append(i)
+                if result is None:
+                    continue
+
+                winner, group_rois, simulation_history = result
+
+                if simulation_history is not None and not example_saved:
+                    self.example_simulation = {
+                        "tickers": group_tickers,
+                        "factors": factor_pair,
+                        "history": simulation_history,
+                    }
+                    self._save_example_plot(group_tickers, factor_pair, simulation_history)
+                    example_saved = True
+
+                for t in group_tickers:
+                    roi_accumulator[t].append(group_rois[t])
+
+                for i, t in enumerate(sorted(
+                    group_tickers,
+                    key=lambda x: x == winner,
+                    reverse=True
+                )):
+                    rankings[t].append(i)
+
+        for t in tickers:
+            if roi_accumulator[t]:
+                self.avg_roi[t] = np.mean(roi_accumulator[t])
+            else:
+                self.avg_roi[t] = float("-inf")
 
         avg_rankings = {}
         for t in tickers:
@@ -77,6 +111,14 @@ class SDEStockSelector:
 
         sorted_tickers = sorted(avg_rankings, key=avg_rankings.get)
         return sorted_tickers[:self.num_selected]
+
+    def get_detailed_results(self):
+        """Return detailed results for reporting."""
+        return {
+            "dominant_pairs": self.dominant_pairs,
+            "avg_roi": self.avg_roi,
+            "example_simulation": self.example_simulation,
+        }
 
     def _discretize_all(self, data: dict[str, pd.Series]) -> dict[str, np.ndarray]:
         """Discretize price series to {+1, 0, -1} based on daily direction."""
@@ -129,6 +171,36 @@ class SDEStockSelector:
             pools[pair_key].append(ticker)
         return pools
 
+    def _save_example_plot(self, group_tickers, factor_pair, history):
+        """Save example simulation plot to file."""
+        if self.output_dir is None:
+            return
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+
+        days = np.arange(history["stocks"].shape[0])
+
+        for i, ticker in enumerate(group_tickers):
+            normalized = history["stocks"][:, i] * 100
+            ax.plot(days, normalized, label=ticker, linewidth=1.5)
+
+        for i, factor in enumerate(factor_pair):
+            normalized = history["factors"][:, i] * 100
+            ax.plot(days, normalized, label=factor, linewidth=1.5, linestyle='--')
+
+        ax.set_xlabel("Simulationstage")
+        ax.set_ylabel("Normalisierter Wert (Start = 100)")
+        ax.set_title("Euler-Maruyama Simulation einer Gruppe")
+        ax.legend(loc="best")
+        ax.grid(True, alpha=0.3)
+        ax.axhline(y=100, color='gray', linestyle='--', alpha=0.5)
+
+        plt.tight_layout()
+
+        plot_path = os.path.join(self.output_dir, "example_simulation.png")
+        plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+        plt.close()
+
     def _form_simulation_groups(self, pools):
         """Randomly form simulation groups of `group_size` stocks from each pool."""
         groups = []
@@ -142,8 +214,9 @@ class SDEStockSelector:
 
     def _simulate_group(self, group_tickers, factor_pair,
                         stock_dirs, factor_dirs,
-                        stock_data, simulation_days):
-        """Simulate one group via Euler-Maruyama and return the winner ticker."""
+                        stock_data, simulation_days,
+                        save_example=False):
+        """Simulate one group via Euler-Maruyama and return the winner ticker, ROIs, and optionally history."""
         g = len(group_tickers)
         f = len(factor_pair)
         dim = g + f
@@ -195,17 +268,34 @@ class SDEStockSelector:
         start_prices = np.array([
             stock_data[t].iloc[-1] for t in group_tickers
         ])
-        S = start_prices.copy()
 
-        for _ in range(simulation_days):
+        S = np.ones(g)
+        F = np.ones(f)
+
+        history = None
+        if save_example:
+            history = {"stocks": np.zeros((simulation_days + 1, g)),
+                       "factors": np.zeros((simulation_days + 1, f))}
+            history["stocks"][0] = S.copy()
+            history["factors"][0] = F.copy()
+
+        for day in range(simulation_days):
             Z = np.random.randn(dim)
             dW = sqrt_dt * Z
             noise = B @ dW
             S = S + mu[:g] * dt + noise[:g]
+            F = F + mu[g:] * dt + noise[g:]
 
-        roi = (S - start_prices) / start_prices
+            if save_example:
+                history["stocks"][day + 1] = S.copy()
+                history["factors"][day + 1] = F.copy()
+
+        roi = (S - 1.0) / 1.0
         winner_idx = np.argmax(roi)
-        return group_tickers[winner_idx]
+
+        group_rois = {t: roi[i] for i, t in enumerate(group_tickers)}
+
+        return group_tickers[winner_idx], group_rois, history if save_example else None
 
 
 def _generate_all_combinations(dim):
