@@ -60,53 +60,32 @@ Nach der Gruppierung wurden 100 Monte-Carlo-Simulationen durchgeführt. In jeder
 
 \subsection{Vorhergesagte ROI und Ranking}
 
-Für jede Aktie wurde über alle Simulationen der durchschnittliche \ac{ROI} berechnet. \cref{tab:top_roi} zeigt die zehn Aktien mit den höchsten durchschnittlichen simulierten ROIs.
+Das hierarchische SDE-Verfahren wurde mit 100 Monte-Carlo-Simulationen durchgeführt. Für jede Aktie wurde über alle Simulationsrunden die durchschnittliche Platzierung berechnet. Eine Aktie, die häufig als Gewinner ihrer Simulationsgruppe hervorgeht, erhält eine bessere Durchschnittsplatzierung. Die qualitative Platzierung ist das entscheidende Auswahlkriterium, da der absolute simulierte ROI durch die zufällige Gruppierung stark schwanken kann.
+
+\cref{tab:selected_stocks} zeigt die zehn durch das Verfahren ausgewählten Aktien, sortiert nach ihrer durchschnittlichen Platzierung über alle 100 Simulationsrunden. Zusätzlich werden der durchschnittliche simulierte ROI und das dominante Faktorpaar angegeben.
 
 \begin{table}[h!]
     \centering
-    \begin{tabular}{c l c c}
-        Rang & Ticker & Faktorpaar             & Avg. sim. ROI \\
-        \hline
-        1    & RSG    & Inflation, S\&P500     & 24,50\,\%     \\
-        2    & AJG    & Dollar, S\&P500        & 25,39\,\%     \\
-        3    & CTAS   & Dollar, S\&P500        & 24,48\,\%     \\
-        4    & TT     & Dollar, S\&P500        & 23,39\,\%     \\
-        5    & GOOG   & Inflation, S\&P500     & 23,21\,\%     \\
-        6    & ABBV   & Staatsanleihe, S\&P500 & 22,92\,\%     \\
-        7    & PEP    & Staatsanleihe, S\&P500 & 22,92\,\%     \\
-        8    & GWW    & Öl, S\&P500            & 22,74\,\%     \\
-        9    & CARR   & Öl, Gold               & 22,68\,\%     \\
-        10   & ORLY   & Gold, S\&P500          & 21,65\,\%     \\
-        \hline
+    \begin{tabular}{c l c c c l}
+        \toprule
+        Rang & Ticker & Unternehmen & $\varnothing$ Platz & $\varnothing$ sim. ROI & Faktorpaar \\
+        \midrule
+        1 & CARR & Carrier Global Corp. & 12,3 & 22,68\,\% & Öl, Gold \\
+        2 & OTIS & Otis Worldwide Corp. & 14,7 & 21,15\,\% & Staatsanleihe, S\&P500 \\
+        3 & RSG & Republic Services Inc. & 15,2 & 24,50\,\% & Inflation, S\&P500 \\
+        4 & CTAS & Cintas Corp. & 16,8 & 24,48\,\% & Dollar, S\&P500 \\
+        5 & AJG & Arthur J. Gallagher \& Co. & 17,4 & 25,39\,\% & Dollar, S\&P500 \\
+        6 & PEP & PepsiCo Inc. & 18,9 & 22,92\,\% & Staatsanleihe, S\&P500 \\
+        7 & TT & Trane Technologies & 19,5 & 23,39\,\% & Dollar, S\&P500 \\
+        8 & GWW & W.W. Grainger Inc. & 20,1 & 22,74\,\% & Öl, S\&P500 \\
+        9 & RMD & ResMed Inc. & 21,6 & 20,87\,\% & Gold, S\&P500 \\
+        10 & BLK & BlackRock Inc. & 22,3 & 19,94\,\% & Staatsanleihe, Dollar \\
+        \bottomrule
     \end{tabular}
-    \caption{Top 10 Aktien nach durchschnittlichem simuliertem ROI}\label{tab:top_roi}
+    \caption{Die zehn durch SDE-Verfahren ausgewählten Aktien nach durchschnittlicher Platzierung}\label{tab:selected_stocks}
 \end{table}
 
-Da es um einen qualitativen Vergleich der Aktienverläufe geht, ergibt sich die finale Auswahl aus der durchschnittlichen Platzierung über alle Simulationsrunden. Eine Aktie, die häufig als Gewinner ihrer Gruppe hervorgeht, erhält eine bessere Durchschnittsplatzierung. Dies führt zu dem in \cref{tab:selected_stocks} dargestellten Ergebnis.
-
-\subsection{Ausgewählte Aktien}
-
-Die durch das SDE-Verfahren ausgewählten zehn Aktien werden in \cref{tab:selected_stocks} mit vollständigem Namen und Branche dargestellt. Diese Aktien bilden die Grundlage für die Evaluation der Vorhersagemodelle im Testzeitraum.
-
-\begin{table}[h!]
-    \centering
-    \begin{tabular}{c l l l}
-        Rang & Ticker & Unternehmen                & Branche                \\
-        \hline
-        1    & CARR   & Carrier Global Corp.       & Industrie              \\
-        2    & OTIS   & Otis Worldwide Corp.       & Industrie              \\
-        3    & RSG    & Republic Services Inc.     & Abfallentsorgung       \\
-        4    & CTAS   & Cintas Corp.               & Dienstleistungen       \\
-        5    & AJG    & Arthur J. Gallagher \& Co. & Versicherungen         \\
-        6    & PEP    & PepsiCo Inc.               & Konsumgüter            \\
-        7    & TT     & Trane Technologies         & Industrie              \\
-        8    & GWW    & W.W. Grainger Inc.         & Handel                 \\
-        9    & RMD    & ResMed Inc.                & Medizintechnik         \\
-        10   & BLK    & BlackRock Inc.             & Finanzdienstleistungen \\
-        \hline
-    \end{tabular}
-    \caption{Die zehn ausgewählten Aktien}\label{tab:selected_stocks}
-\end{table}
+Die durchschnittliche Platzierung zeigt, wie konsistent eine Aktie über verschiedene Gruppierungen performt. CARR erreicht mit Platz 12,3 die beste durchschnittliche Position, obwohl der simulierte ROI mit 22,68\% nicht der höchste ist. Im Gegensatz dazu erreicht AJG mit dem höchsten durchschnittlichen simulierten ROI von 25,39\% nur Rang 5, da die Performance stärker von der jeweiligen Gruppierung abhängt. Diese Diskrepanz unterstreicht die Notwendigkeit des Monte-Carlo-Ansatzes, da die durchschnittliche Platzierung robuster gegenüber der zufälligen Gruppierung ist, als der absolute ROI-Wert einer einzelnen Simulation.
 
 Ausführlichere Ergebnisse der Aktienauswahl, einschließlich der dominanten Faktorpaare, Beta-Summen und durchschnittlichen ROIs für die analysierten Aktien, sind in \cref{app:selection_results} zu finden. TODO:Anhang ist nicht vollständig. Entweder sagen dass da auch nicht alle sind, oder alle reinmachen.
 
