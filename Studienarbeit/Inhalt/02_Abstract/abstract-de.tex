@@ -9,11 +9,8 @@
 
 \vspace{0.25cm}
 
-Dies ist der Beginn des Abstracts. Für die finale Bachelorarbeit musst du ein Abstract in deinem Dokument mit einbauen. So, schreibe es am besten jetzt in Deutsch und Englisch. Das Abstract ist eine kurze Zusammenfassung mit ca. 200 bis 250 Wörtern.
-
-\vspace{0.25cm}
-
-Versuche in das Abstract folgende Punkte aufzunehmen: Fragestellung der Arbeit, methodische Vorgehensweise oder die Hauptergebnisse deiner Arbeit.
+Die Vorhersage von Aktienkursen stellt aufgrund der Volatilität und nicht-linearen Natur von Aktienkursen eine große Herausforderung dar. Diese Arbeit stellt eine vollständige Pipeline zur algorithmischen Aktienkursvorhersage und Evaluation vor. Aus dem S\&P 500 werden mittels stochastischer Differentialgleichungen unter Berücksichtigung makroökonomischer Faktoren zehn profitable Aktien ausgewählt. Daraufhin werden drei unterschiedliche Modellansätze zur Aktienkursvorhersage untersucht. LinearSeparation ist ein neu entwickeltes Verfahren basierend auf HP-Filtern und ARMA, Preprocessed SVR verwendet Support Vector Regression mit technischen Indikatoren und Sentiment-Daten und TimesFM verwendet ein vortrainiertes Foundation Model im Zero-Shot-Modus. Die Modelle werden auf den zehn gewählten Aktien getestet und evaluiert.
+Die Evaluation erfolgt zweistufig. Zunächst werden die Modelle anhand statistischer Fehlermaße (MAPE, RMSE, OOS-$R^2$, Directional Accuracy) bewertet und anschließend in einer simulierten Handelsstrategie mit Half-Kelly-Positionsgrößen und signalbasiertem Trading getestet. Die Ergebnisse zeigen, dass trotz guter Punktvorhersagequalität (MAPE 1,08--1,30\%) keines der Modelle die Buy-and-Hold-Strategie konsistent übertrifft. SVR erzielt mit durchschnittlich 6,56\% Return und dem niedrigsten Maximum Drawdown (13,95\%) die beste Performance. Die Diskrepanz zwischen präzisen Punktvorhersagen und schwacher Trading-Performance verdeutlicht die fundamentale Schwierigkeit, aus guten Vorhersagen profitable Handelssignale abzuleiten.
 
 
 \end{addmargin}

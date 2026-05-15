@@ -8,12 +8,8 @@
 \end{center}
 
 \vspace{0.25cm}
-
-This is the starting point of the Abstract. For the final bachelor thesis, there must be an abstract included in your document. So, start now writing it in German and English. The abstract is a short summary with around 200 to 250 words.
-
-\vspace{0.25cm}
-
-Try to include in this abstract the main question of your work, the methods you used or the main results of your work.
+Predicting stock prices poses a significant challenge due to the volatility and non-linear nature of stock prices. This work presents a complete pipeline for algorithmic stock price prediction and evaluation. Ten profitable stocks are selected from the S\&P 500 using stochastic differential equations while accounting for macroeconomic factors. Three different modelling approaches for stock price prediction are then examined. LinearSeparation is a newly developed method based on HP filters and ARMA, Preprocessed SVR uses Support Vector Regression with technical indicators and sentiment data, and TimesFM employs a pre-trained foundation model in zero-shot mode. The models are tested and evaluated on the ten selected stocks.
+The evaluation is conducted in two stages. First, the models are assessed using statistical error metrics (MAPE, RMSE, OOS-$R^2$, Directional Accuracy), and subsequently tested in a simulated trading strategy with Half-Kelly position sizing and signal-based trading. The results show that despite good point forecast quality (MAPE 1.08–1.30\%), none of the models consistently outperforms the buy-and-hold strategy. SVR achieves the best performance with an average return of 6.56\% and the lowest maximum drawdown (13.95\%). The discrepancy between precise point forecasts and weak trading performance highlights the fundamental difficulty of deriving profitable trading signals from accurate predictions.
 
 
 \end{addmargin}
