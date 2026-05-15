@@ -1,82 +1,347 @@
 \chapter{Vollständige Ergebnisse der Aktienauswahl}\label{app:selection_results}
 
-Dieses Kapitel enthält die vollständigen Ergebnisse der SDE-basierten Aktienauswahl aus \cref{sec:sde}.
+Dieses Kapitel enthält die vollständigen Ergebnisse der SDE-basierten Aktienauswahl aus \cref{sec:sde}. Die Daten umfassen alle 450 analysierten Aktien aus dem S\&P500-Universum (Stand Januar 2020).
 
 \section{Dominante Faktorpaare aller Aktien}
 
-\cref{tab:all_factor_pairs} zeigt für jede der 450 analysierten Aktien das zugewiesene dominante Faktorpaar sowie die zugehörige Beta-Summe $\sum|\beta|$.
+\cref{tab:all_factor_pairs} zeigt für jede der 450 analysierten Aktien das zugewiesene dominante Faktorpaar sowie die zugehörige Beta-Summe $\sum|\beta|$. Die Tabelle ist alphabetisch nach Ticker sortiert und verwendet ein dreispaltiges Format zur besseren Ausnutzung der Seitenbreite.
 
-\begin{longtable}{l c c c}
+\begin{longtable}{l c c c | l c c c | l c c c}
     \caption{Dominante Faktorpaare aller analysierten Aktien}\label{tab:all_factor_pairs} \\
     \toprule
-    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ & Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ & Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
     \midrule
     \endfirsthead
-    \multicolumn{4}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
+    \multicolumn{12}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
     \toprule
-    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+    Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ & Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ & Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
     \midrule
     \endhead
     \midrule
-    \multicolumn{4}{r}{Fortsetzung auf nächster Seite} \\
+    \multicolumn{12}{r}{Fortsetzung auf nächster Seite} \\
     \endfoot
     \bottomrule
     \endlastfoot
-    % Die vollständige Tabelle kann aus der JSON-Datei
-    % data/selection/selected\_stocks.json generiert werden.
-    % Hier ein Ausschnitt der ersten 20 Einträge:
-    A    & Gold     & S\&P500  & 0,543 \\
-    AAL  & Dollar   & S\&P500  & 0,521 \\
-    AAP  & Öl       & S\&P500  & 0,489 \\
-    AAPL & Staatsanleihe & S\&P500  & 0,628 \\
-    ABBV & Staatsanleihe & S\&P500  & 0,567 \\
-    ABT  & Dollar   & S\&P500  & 0,498 \\
-    ACN  & Staatsanleihe & S\&P500  & 0,641 \\
-    ADBE & Staatsanleihe & S\&P500  & 0,589 \\
-    ADI  & Staatsanleihe & S\&P500  & 0,576 \\
-    ADM  & Öl       & S\&P500  & 0,512 \\
-    \multicolumn{4}{c}{\ldots} \\
+    A & Gold & S\&P500 & 0,577 & AAL & S\&P500 & Dollar & 0,443 & AAP & Öl & S\&P500 & 0,361 \\
+    AAPL & Staatsanleihe & S\&P500 & 0,628 & ABBV & Staatsanleihe & S\&P500 & 0,315 & ABT & S\&P500 & Dollar & 0,456 \\
+    ACN & Staatsanleihe & S\&P500 & 0,641 & ADBE & Staatsanleihe & S\&P500 & 0,587 & ADI & Staatsanleihe & S\&P500 & 0,589 \\
+    ADM & Öl & S\&P500 & 0,425 & ADP & S\&P500 & Inflation & 0,625 & ADSK & Staatsanleihe & S\&P500 & 0,595 \\
+    AEE & Gold & S\&P500 & 0,336 & AEP & Staatsanleihe & S\&P500 & 0,390 & AES & Öl & S\&P500 & 0,478 \\
+    AFL & Staatsanleihe & S\&P500 & 0,536 & AIG & Staatsanleihe & S\&P500 & 0,525 & AIV & S\&P500 & Dollar & 0,459 \\
+    AIZ & Staatsanleihe & S\&P500 & 0,447 & AJG & S\&P500 & Dollar & 0,469 & AKAM & Staatsanleihe & S\&P500 & 0,505 \\
+    ALB & S\&P500 & Dollar & 0,498 & ALGN & S\&P500 & Dollar & 0,532 & ALK & S\&P500 & Dollar & 0,431 \\
+    ALL & Staatsanleihe & S\&P500 & 0,391 & ALLE & S\&P500 & Dollar & 0,534 & AMAT & S\&P500 & Dollar & 0,563 \\
+    AMCR & S\&P500 & Dollar & 0,478 & AMD & Gold & S\&P500 & 0,480 & AME & Öl & S\&P500 & 0,577 \\
+    AMGN & S\&P500 & Inflation & 0,338 & AMP & Staatsanleihe & S\&P500 & 0,628 & AMT & Staatsanleihe & S\&P500 & 0,495 \\
+    AMZN & S\&P500 & Dollar & 0,514 & ANET & Gold & S\&P500 & 0,518 & AON & Gold & S\&P500 & 0,443 \\
+    AOS & S\&P500 & Dollar & 0,491 & APA & Öl & S\&P500 & 0,626 & APD & S\&P500 & Dollar & 0,552 \\
+    APH & Öl & S\&P500 & 0,596 & APTV & Staatsanleihe & S\&P500 & 0,580 & ARE & S\&P500 & Dollar & 0,457 \\
+    ATO & Gold & S\&P500 & 0,304 & AVB & S\&P500 & Dollar & 0,435 & AVGO & S\&P500 & Inflation & 0,590 \\
+    AVY & Staatsanleihe & S\&P500 & 0,552 & AWK & Staatsanleihe & S\&P500 & 0,451 & AXP & Staatsanleihe & S\&P500 & 0,593 \\
+    AZO & Öl & S\&P500 & 0,324 & BA & S\&P500 & Dollar & 0,419 & BAC & Staatsanleihe & S\&P500 & 0,592 \\
+    BAX & Gold & S\&P500 & 0,347 & BBY & Gold & S\&P500 & 0,468 & BDX & Öl & S\&P500 & 0,339 \\
+    BEN & Öl & S\&P500 & 0,536 & BF-B & S\&P500 & Dollar & 0,445 & BIIB & Öl & S\&P500 & 0,415 \\
+    BIO & S\&P500 & Dollar & 0,411 & BK & Staatsanleihe & S\&P500 & 0,541 & BKNG & S\&P500 & Dollar & 0,530 \\
+    BKR & Öl & S\&P500 & 0,532 & BLK & Gold & S\&P500 & 0,620 & BMY & Staatsanleihe & S\&P500 & 0,308 \\
+    BR & Öl & S\&P500 & 0,525 & BRK-B & Staatsanleihe & S\&P500 & 0,576 & BSX & S\&P500 & Dollar & 0,469 \\
+    BWA & Öl & S\&P500 & 0,459 & BXP & S\&P500 & Dollar & 0,469 & C & Staatsanleihe & S\&P500 & 0,572 \\
+    CAG & Öl & S\&P500 & 0,238 & CAH & Staatsanleihe & S\&P500 & 0,410 & CARR & Öl & Gold & 0,000 \\
+    CAT & Öl & S\&P500 & 0,529 & CB & Staatsanleihe & S\&P500 & 0,450 & CBOE & Gold & S\&P500 & 0,373 \\
+    CBRE & S\&P500 & Dollar & 0,566 & CCI & Gold & S\&P500 & 0,379 & CCL & Staatsanleihe & S\&P500 & 0,469 \\
+    CDNS & Staatsanleihe & S\&P500 & 0,571 & CDW & Gold & S\&P500 & 0,615 & CE & S\&P500 & Dollar & 0,509 \\
+    CF & Öl & S\&P500 & 0,396 & CFG & Staatsanleihe & S\&P500 & 0,549 & CHD & Staatsanleihe & S\&P500 & 0,272 \\
+    CHRW & Öl & S\&P500 & 0,395 & CHTR & Staatsanleihe & S\&P500 & 0,429 & CI & Staatsanleihe & S\&P500 & 0,368 \\
+    CINF & Staatsanleihe & S\&P500 & 0,464 & CL & Staatsanleihe & S\&P500 & 0,384 & CLX & Staatsanleihe & S\&P500 & 0,281 \\
+    CMCSA & S\&P500 & Dollar & 0,507 & CME & Öl & S\&P500 & 0,379 & CMG & S\&P500 & Dollar & 0,476 \\
+    CMI & Staatsanleihe & S\&P500 & 0,495 & CMS & Staatsanleihe & S\&P500 & 0,366 & CNC & Staatsanleihe & S\&P500 & 0,343 \\
+    CNP & Gold & S\&P500 & 0,314 & COF & Staatsanleihe & S\&P500 & 0,563 & COO & S\&P500 & Dollar & 0,532 \\
+    COP & Öl & S\&P500 & 0,624 & COST & Staatsanleihe & S\&P500 & 0,521 & CPB & S\&P500 & Inflation & 0,197 \\
+    CPRT & S\&P500 & Dollar & 0,541 & CRM & Gold & S\&P500 & 0,540 & CSCO & Gold & S\&P500 & 0,612 \\
+    CSX & Öl & S\&P500 & 0,567 & CTAS & S\&P500 & Dollar & 0,587 & CTSH & Öl & S\&P500 & 0,573 \\
+    CTVA & Öl & S\&P500 & 0,456 & CVS & Staatsanleihe & S\&P500 & 0,388 & CVX & Öl & S\&P500 & 0,608 \\
+    D & Staatsanleihe & S\&P500 & 0,355 & DAL & S\&P500 & Dollar & 0,437 & DD & Öl & S\&P500 & 0,577 \\
+    DE & Staatsanleihe & S\&P500 & 0,450 & DG & Staatsanleihe & S\&P500 & 0,315 & DGX & S\&P500 & Dollar & 0,333 \\
+    DHI & Staatsanleihe & S\&P500 & 0,498 & DHR & Staatsanleihe & S\&P500 & 0,492 & DIS & S\&P500 & Dollar & 0,529 \\
+    DLR & Staatsanleihe & S\&P500 & 0,506 & DLTR & Öl & S\&P500 & 0,394 & DOV & S\&P500 & Dollar & 0,590 \\
+    DOW & Öl & S\&P500 & 0,567 & DPZ & Staatsanleihe & S\&P500 & 0,356 & DRI & Staatsanleihe & S\&P500 & 0,407 \\
+    DTE & Staatsanleihe & S\&P500 & 0,300 & DUK & Staatsanleihe & S\&P500 & 0,290 & DVA & S\&P500 & Dollar & 0,360 \\
+    DVN & Öl & S\&P500 & 0,614 & DXC & Staatsanleihe & S\&P500 & 0,539 & DXCM & Öl & S\&P500 & 0,428 \\
+    EA & Staatsanleihe & S\&P500 & 0,378 & EBAY & S\&P500 & Inflation & 0,446 & ECL & S\&P500 & Dollar & 0,610 \\
+    ED & Staatsanleihe & S\&P500 & 0,296 & EFX & Staatsanleihe & S\&P500 & 0,510 & EIX & Gold & S\&P500 & 0,366 \\
+    EL & Gold & S\&P500 & 0,582 & EMN & S\&P500 & Dollar & 0,543 & EMR & Staatsanleihe & S\&P500 & 0,604 \\
+    EOG & Öl & S\&P500 & 0,565 & EQIX & Staatsanleihe & S\&P500 & 0,522 & EQR & S\&P500 & Dollar & 0,463 \\
+    ES & Staatsanleihe & S\&P500 & 0,364 & ESS & S\&P500 & Dollar & 0,443 & ETN & Öl & S\&P500 & 0,548 \\
+    ETR & Staatsanleihe & S\&P500 & 0,347 & ETSY & Gold & S\&P500 & 0,358 & EVRG & Staatsanleihe & S\&P500 & 0,379 \\
+    EW & S\&P500 & Dollar & 0,474 & EXC & Staatsanleihe & S\&P500 & 0,421 & EXPD & Öl & S\&P500 & 0,492 \\
+    EXPE & Staatsanleihe & S\&P500 & 0,501 & EXR & Staatsanleihe & S\&P500 & 0,394 & F & Staatsanleihe & S\&P500 & 0,450 \\
+    FANG & Öl & S\&P500 & 0,606 & FAST & S\&P500 & Inflation & 0,539 & FCX & S\&P500 & Dollar & 0,545 \\
+    FDX & Staatsanleihe & S\&P500 & 0,489 & FE & Staatsanleihe & S\&P500 & 0,335 & FFIV & Gold & S\&P500 & 0,531 \\
+    FIS & S\&P500 & Dollar & 0,484 & FISV & S\&P500 & Dollar & 0,502 & FITB & Staatsanleihe & S\&P500 & 0,560 \\
+    FLS & Öl & S\&P500 & 0,539 & FMC & S\&P500 & Dollar & 0,451 & FOX & Staatsanleihe & S\&P500 & 0,400 \\
+    FOXA & S\&P500 & Dollar & 0,395 & FRT & S\&P500 & Dollar & 0,469 & FTI & Öl & S\&P500 & 0,431 \\
+    FTNT & S\&P500 & Dollar & 0,519 & FTV & S\&P500 & Dollar & 0,573 & GD & Öl & S\&P500 & 0,454 \\
+    GE & Staatsanleihe & S\&P500 & 0,447 & GILD & Gold & S\&P500 & 0,340 & GIS & Staatsanleihe & S\&P500 & 0,214 \\
+    GL & Staatsanleihe & S\&P500 & 0,536 & GLW & S\&P500 & Dollar & 0,568 & GM & Staatsanleihe & S\&P500 & 0,509 \\
+    GOOG & S\&P500 & Inflation & 0,615 & GOOGL & S\&P500 & Dollar & 0,596 & GPC & Staatsanleihe & S\&P500 & 0,419 \\
+    GPN & S\&P500 & Dollar & 0,530 & GRMN & S\&P500 & Dollar & 0,558 & GS & Staatsanleihe & S\&P500 & 0,556 \\
+    GWW & Öl & S\&P500 & 0,436 & HAL & Öl & S\&P500 & 0,623 & HAS & Staatsanleihe & S\&P500 & 0,443 \\
+    HBAN & Staatsanleihe & S\&P500 & 0,548 & HCA & Öl & S\&P500 & 0,445 & HD & Staatsanleihe & S\&P500 & 0,526 \\
+    HIG & Staatsanleihe & S\&P500 & 0,431 & HII & Staatsanleihe & S\&P500 & 0,386 & HLT & Staatsanleihe & S\&P500 & 0,494 \\
+    HOLX & S\&P500 & Dollar & 0,420 & HON & S\&P500 & Dollar & 0,570 & HPE & Öl & S\&P500 & 0,525 \\
+    HPQ & S\&P500 & Dollar & 0,585 & HRL & Gold & S\&P500 & 0,187 & HSIC & S\&P500 & Dollar & 0,424 \\
+    HST & S\&P500 & Dollar & 0,478 & HSY & Staatsanleihe & S\&P500 & 0,355 & HUM & S\&P500 & Inflation & 0,312 \\
+    HWM & Staatsanleihe & S\&P500 & 0,479 & IBM & Öl & S\&P500 & 0,463 & ICE & S\&P500 & Dollar & 0,488 \\
+    IDXX & Staatsanleihe & S\&P500 & 0,520 & IEX & S\&P500 & Dollar & 0,478 & IFF & S\&P500 & Dollar & 0,518 \\
+    ILMN & Staatsanleihe & S\&P500 & 0,417 & INCY & Gold & S\&P500 & 0,279 & INTC & S\&P500 & Dollar & 0,574 \\
+    INTU & Staatsanleihe & S\&P500 & 0,616 & IP & Staatsanleihe & S\&P500 & 0,469 & IPGP & Öl & S\&P500 & 0,509 \\
+    IQV & Öl & S\&P500 & 0,569 & IR & Öl & S\&P500 & 0,579 & IRM & S\&P500 & Dollar & 0,474 \\
+    ISRG & Staatsanleihe & S\&P500 & 0,592 & IT & Öl & S\&P500 & 0,550 & ITW & S\&P500 & Dollar & 0,575 \\
+    IVZ & Öl & S\&P500 & 0,560 & J & Öl & S\&P500 & 0,441 & JBHT & Öl & S\&P500 & 0,386 \\
+    JCI & S\&P500 & Dollar & 0,505 & JKHY & Staatsanleihe & S\&P500 & 0,463 & JNJ & S\&P500 & Dollar & 0,340 \\
+    JPM & Staatsanleihe & S\&P500 & 0,580 & KEY & Staatsanleihe & S\&P500 & 0,539 & KEYS & S\&P500 & Dollar & 0,559 \\
+    KHC & Staatsanleihe & S\&P500 & 0,236 & KIM & Öl & S\&P500 & 0,483 & KLAC & S\&P500 & Dollar & 0,560 \\
+    KMB & Staatsanleihe & S\&P500 & 0,284 & KMI & Öl & S\&P500 & 0,604 & KMX & Staatsanleihe & S\&P500 & 0,493 \\
+    KO & S\&P500 & Dollar & 0,441 & KR & Öl & S\&P500 & 0,200 & KSS & Staatsanleihe & S\&P500 & 0,440 \\
+    L & Staatsanleihe & S\&P500 & 0,585 & LDOS & Öl & S\&P500 & 0,372 & LEG & Staatsanleihe & S\&P500 & 0,508 \\
+    LEN & Staatsanleihe & S\&P500 & 0,540 & LH & S\&P500 & Dollar & 0,352 & LHX & Öl & S\&P500 & 0,352 \\
+    LIN & S\&P500 & Dollar & 0,582 & LKQ & Staatsanleihe & S\&P500 & 0,535 & LLY & Gold & S\&P500 & 0,315 \\
+    LMT & Öl & S\&P500 & 0,317 & LNT & Staatsanleihe & S\&P500 & 0,386 & LOW & Öl & S\&P500 & 0,470 \\
+    LRCX & S\&P500 & Dollar & 0,551 & LUMN & Staatsanleihe & S\&P500 & 0,319 & LUV & Öl & S\&P500 & 0,417 \\
+    LVS & Staatsanleihe & S\&P500 & 0,444 & LW & Staatsanleihe & S\&P500 & 0,375 & LYB & Öl & S\&P500 & 0,563 \\
+    LYV & Staatsanleihe & S\&P500 & 0,531 & MA & S\&P500 & Dollar & 0,581 & MAA & Staatsanleihe & S\&P500 & 0,424 \\
+    MAR & S\&P500 & Dollar & 0,498 & MAS & S\&P500 & Dollar & 0,541 & MCD & S\&P500 & Dollar & 0,407 \\
+    MCHP & S\&P500 & Dollar & 0,592 & MCK & Staatsanleihe & S\&P500 & 0,375 & MCO & Staatsanleihe & S\&P500 & 0,646 \\
+    MDLZ & S\&P500 & Dollar & 0,405 & MDT & S\&P500 & Dollar & 0,491 & MET & Staatsanleihe & S\&P500 & 0,579 \\
+    MGM & Staatsanleihe & S\&P500 & 0,509 & MHK & S\&P500 & Dollar & 0,498 & MKC & Staatsanleihe & S\&P500 & 0,384 \\
+    MKTX & Staatsanleihe & S\&P500 & 0,388 & MLM & S\&P500 & Dollar & 0,535 & MMM & S\&P500 & Dollar & 0,458 \\
+    MNST & S\&P500 & Dollar & 0,492 & MO & S\&P500 & Dollar & 0,288 & MOS & Öl & S\&P500 & 0,451 \\
+    MPC & Öl & S\&P500 & 0,501 & MRK & Öl & S\&P500 & 0,244 & MS & Öl & S\&P500 & 0,567 \\
+    MSCI & Staatsanleihe & S\&P500 & 0,582 & MSFT & Staatsanleihe & S\&P500 & 0,660 & MSI & S\&P500 & Dollar & 0,543 \\
+    MTB & Staatsanleihe & S\&P500 & 0,500 & MTD & S\&P500 & Dollar & 0,475 & MU & S\&P500 & Dollar & 0,508 \\
+    NCLH & Staatsanleihe & S\&P500 & 0,457 & NDAQ & Staatsanleihe & S\&P500 & 0,553 & NEE & Gold & S\&P500 & 0,470 \\
+    NEM & Gold & S\&P500 & 0,525 & NFLX & Staatsanleihe & S\&P500 & 0,450 & NI & Staatsanleihe & S\&P500 & 0,299 \\
+    NKE & Öl & S\&P500 & 0,507 & NOC & Staatsanleihe & S\&P500 & 0,264 & NOV & Öl & S\&P500 & 0,499 \\
+    NOW & Staatsanleihe & S\&P500 & 0,525 & NRG & Öl & S\&P500 & 0,389 & NSC & Öl & S\&P500 & 0,498 \\
+    NTAP & Öl & S\&P500 & 0,490 & NTRS & Staatsanleihe & S\&P500 & 0,535 & NUE & Öl & S\&P500 & 0,502 \\
+    NVDA & S\&P500 & Dollar & 0,525 & NVR & Staatsanleihe & S\&P500 & 0,486 & NWL & Staatsanleihe & S\&P500 & 0,444 \\
+    NWS & S\&P500 & Dollar & 0,513 & NWSA & S\&P500 & Dollar & 0,507 & O & Staatsanleihe & S\&P500 & 0,390 \\
+    ODFL & S\&P500 & Dollar & 0,482 & OKE & Öl & S\&P500 & 0,609 & OMC & S\&P500 & Dollar & 0,482 \\
+    ORCL & Staatsanleihe & S\&P500 & 0,437 & ORLY & Gold & S\&P500 & 0,315 & OTIS & Öl & Gold & 0,000 \\
+    OXY & Öl & S\&P500 & 0,610 & PAYC & S\&P500 & Dollar & 0,495 & PAYX & Öl & S\&P500 & 0,596 \\
+    PCAR & Öl & S\&P500 & 0,468 & PEG & Staatsanleihe & S\&P500 & 0,328 & PEP & Staatsanleihe & S\&P500 & 0,432 \\
+    PFE & Staatsanleihe & S\&P500 & 0,279 & PFG & Staatsanleihe & S\&P500 & 0,571 & PG & S\&P500 & Dollar & 0,350 \\
+    PGR & Staatsanleihe & S\&P500 & 0,347 & PH & Staatsanleihe & S\&P500 & 0,600 & PHM & Staatsanleihe & S\&P500 & 0,462 \\
+    PKG & Staatsanleihe & S\&P500 & 0,385 & PLD & Staatsanleihe & S\&P500 & 0,509 & PM & S\&P500 & Dollar & 0,391 \\
+    PNC & Staatsanleihe & S\&P500 & 0,551 & PNR & Öl & S\&P500 & 0,512 & PNW & Staatsanleihe & S\&P500 & 0,296 \\
+    PPG & S\&P500 & Dollar & 0,548 & PPL & S\&P500 & Dollar & 0,374 & PRGO & S\&P500 & Dollar & 0,392 \\
+    PRU & Staatsanleihe & S\&P500 & 0,599 & PSA & Staatsanleihe & S\&P500 & 0,385 & PSX & Öl & S\&P500 & 0,504 \\
+    PVH & Staatsanleihe & S\&P500 & 0,444 & PWR & Öl & S\&P500 & 0,540 & PYPL & Staatsanleihe & S\&P500 & 0,530 \\
+    QCOM & S\&P500 & Dollar & 0,572 & QRVO & S\&P500 & Dollar & 0,549 & RCL & Staatsanleihe & S\&P500 & 0,479 \\
+    REG & S\&P500 & Dollar & 0,463 & REGN & Staatsanleihe & S\&P500 & 0,378 & RF & Staatsanleihe & S\&P500 & 0,546 \\
+    RHI & Staatsanleihe & S\&P500 & 0,520 & RJF & Staatsanleihe & S\&P500 & 0,584 & RL & Öl & S\&P500 & 0,416 \\
+    RMD & S\&P500 & Dollar & 0,448 & ROK & Staatsanleihe & S\&P500 & 0,568 & ROL & Staatsanleihe & S\&P500 & 0,428 \\
+    ROP & Staatsanleihe & S\&P500 & 0,543 & ROST & Staatsanleihe & S\&P500 & 0,530 & RSG & S\&P500 & Inflation & 0,414 \\
+    RTX & Staatsanleihe & S\&P500 & 0,446 & SBAC & Staatsanleihe & S\&P500 & 0,466 & SBUX & S\&P500 & Dollar & 0,569 \\
+    SCHW & Staatsanleihe & S\&P500 & 0,555 & SEE & S\&P500 & Dollar & 0,453 & SHW & Staatsanleihe & S\&P500 & 0,570 \\
+    SJM & S\&P500 & Dollar & 0,185 & SLB & Öl & S\&P500 & 0,575 & SLG & S\&P500 & Dollar & 0,413 \\
+    SNA & Öl & S\&P500 & 0,514 & SNPS & Staatsanleihe & S\&P500 & 0,598 & SO & Staatsanleihe & S\&P500 & 0,384 \\
+    SPG & S\&P500 & Dollar & 0,476 & SPGI & Staatsanleihe & S\&P500 & 0,585 & SRE & Öl & S\&P500 & 0,369 \\
+    STE & S\&P500 & Inflation & 0,490 & STT & Staatsanleihe & S\&P500 & 0,583 & STX & S\&P500 & Dollar & 0,513 \\
+    STZ & S\&P500 & Inflation & 0,444 & SWK & S\&P500 & Dollar & 0,544 & SWKS & S\&P500 & Dollar & 0,599 \\
+    SYF & Staatsanleihe & S\&P500 & 0,488 & SYK & S\&P500 & Dollar & 0,545 & SYY & Staatsanleihe & S\&P500 & 0,452 \\
+    T & S\&P500 & Dollar & 0,335 & TAP & S\&P500 & Dollar & 0,330 & TDG & S\&P500 & Dollar & 0,533 \\
+    TDY & Öl & S\&P500 & 0,540 & TEL & Gold & S\&P500 & 0,656 & TER & S\&P500 & Dollar & 0,567 \\
+    TFC & Staatsanleihe & S\&P500 & 0,569 & TFX & Staatsanleihe & S\&P500 & 0,458 & TGT & Öl & S\&P500 & 0,424 \\
+    TJX & Staatsanleihe & S\&P500 & 0,499 & TMO & Gold & S\&P500 & 0,468 & TMUS & S\&P500 & Dollar & 0,435 \\
+    TPR & Staatsanleihe & S\&P500 & 0,440 & TROW & S\&P500 & Dollar & 0,592 & TRV & Staatsanleihe & S\&P500 & 0,469 \\
+    TSCO & S\&P500 & Dollar & 0,361 & TSN & S\&P500 & Inflation & 0,315 & TT & S\&P500 & Dollar & 0,505 \\
+    TTWO & Staatsanleihe & S\&P500 & 0,399 & TXN & Öl & S\&P500 & 0,638 & TXT & Staatsanleihe & S\&P500 & 0,551 \\
+    TYL & Staatsanleihe & S\&P500 & 0,553 & UA & S\&P500 & Dollar & 0,462 & UAA & Staatsanleihe & S\&P500 & 0,466 \\
+    UAL & S\&P500 & Dollar & 0,412 & UDR & S\&P500 & Dollar & 0,440 & UHS & Gold & S\&P500 & 0,428 \\
+    ULTA & Staatsanleihe & S\&P500 & 0,438 & UNH & Staatsanleihe & S\&P500 & 0,365 & UNM & Staatsanleihe & S\&P500 & 0,544 \\
+    UNP & Öl & S\&P500 & 0,461 & UPS & S\&P500 & Dollar & 0,417 & URI & Öl & S\&P500 & 0,520 \\
+    USB & Staatsanleihe & S\&P500 & 0,478 & V & S\&P500 & Dollar & 0,560 & VFC & Staatsanleihe & S\&P500 & 0,424 \\
+    VLO & Öl & S\&P500 & 0,476 & VMC & S\&P500 & Dollar & 0,500 & VNO & S\&P500 & Dollar & 0,445 \\
+    VRSK & Staatsanleihe & S\&P500 & 0,539 & VRSN & Staatsanleihe & S\&P500 & 0,577 & VRTX & S\&P500 & Dollar & 0,292 \\
+    VTR & S\&P500 & Dollar & 0,394 & VZ & S\&P500 & Inflation & 0,318 & WAB & Öl & S\&P500 & 0,541 \\
+    WAT & S\&P500 & Dollar & 0,422 & WDC & S\&P500 & Dollar & 0,515 & WEC & Staatsanleihe & S\&P500 & 0,368 \\
+    WELL & S\&P500 & Dollar & 0,389 & WFC & Staatsanleihe & S\&P500 & 0,525 & WHR & S\&P500 & Dollar & 0,449 \\
+    WM & Gold & S\&P500 & 0,425 & WMB & Öl & S\&P500 & 0,527 & WMT & S\&P500 & Inflation & 0,324 \\
+    WRB & Staatsanleihe & S\&P500 & 0,452 & WST & S\&P500 & Dollar & 0,445 & WU & S\&P500 & Dollar & 0,394 \\
+    WY & S\&P500 & Dollar & 0,540 & WYNN & Staatsanleihe & S\&P500 & 0,456 & XEL & Staatsanleihe & S\&P500 & 0,337 \\
+    XOM & Öl & S\&P500 & 0,605 & XRAY & S\&P500 & Dollar & 0,468 & XRX & S\&P500 & Dollar & 0,466 \\
+    XYL & S\&P500 & Dollar & 0,543 & YUM & S\&P500 & Dollar & 0,485 & ZBH & S\&P500 & Dollar & 0,454 \\
+    ZBRA & S\&P500 & Dollar & 0,546 & ZION & Staatsanleihe & S\&P500 & 0,520 & ZTS & S\&P500 & Dollar & 0,522 \\
 \end{longtable}
 
 \section{Durchschnittliche simulierte ROIs}
 
-\cref{tab:all_avg_roi} zeigt die durchschnittlichen simulierten ROIs aller Aktien, sortiert nach Rang.
+\cref{tab:all_avg_roi} zeigt die durchschnittlichen simulierten ROIs aller 450 Aktien, sortiert nach ROI in absteigender Reihenfolge. Die Tabelle verwendet ein dreispaltiges Format zur besseren Ausnutzung der Seitenbreite.
 
-\begin{longtable}{c l c c}
-    \caption{Durchschnittliche simulierte ROIs aller Aktien}\label{tab:all_avg_roi} \\
+\begin{longtable}{c l c c | c l c c | c l c c}
+    \caption{Durchschnittliche simulierte ROIs aller Aktien (sortiert nach ROI)}\label{tab:all_avg_roi} \\
     \toprule
-    Rang & Ticker & Faktorpaar & Avg. ROI \\
+    Rang & Ticker & Faktorpaar & ROI & Rang & Ticker & Faktorpaar & ROI & Rang & Ticker & Faktorpaar & ROI \\
     \midrule
     \endfirsthead
-    \multicolumn{4}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
+    \multicolumn{12}{c}{\tablename\ \thetable{} -- Fortsetzung} \\
     \toprule
-    Rang & Ticker & Faktorpaar & Avg. ROI \\
+    Rang & Ticker & Faktorpaar & ROI & Rang & Ticker & Faktorpaar & ROI & Rang & Ticker & Faktorpaar & ROI \\
     \midrule
     \endhead
     \midrule
-    \multicolumn{4}{r}{Fortsetzung auf nächster Seite} \\
+    \multicolumn{12}{r}{Fortsetzung auf nächster Seite} \\
     \endfoot
     \bottomrule
     \endlastfoot
-    % Die vollständige Tabelle kann aus der JSON-Datei
-    % data/selection/selected\_stocks.json generiert werden.
-    % Hier die Top 30:
-    1  & RSG  & Inflation, S\&P500 & 24,50\,\% \\
-    2  & AJG  & Dollar, S\&P500   & 25,39\,\% \\
-    3  & CTAS & Dollar, S\&P500   & 24,48\,\% \\
-    4  & TT   & Dollar, S\&P500   & 23,39\,\% \\
-    5  & GOOG & Inflation, S\&P500 & 23,21\,\% \\
-    6  & ABBV & Staatsanleihe, S\&P500 & 22,92\,\% \\
-    7  & PEP  & Staatsanleihe, S\&P500 & 22,92\,\% \\
-    8  & GWW  & Öl, S\&P500       & 22,74\,\% \\
-    9  & CARR & Öl, Gold          & 22,68\,\% \\
-    10 & ORLY & Gold, S\&P500     & 21,65\,\% \\
-    11 & COST & Staatsanleihe, S\&P500 & 22,07\,\% \\
-    12 & BLK  & Gold, S\&P500     & 21,61\,\% \\
-    13 & VRSK & Staatsanleihe, S\&P500 & 21,51\,\% \\
-    14 & NOW  & Staatsanleihe, S\&P500 & 21,63\,\% \\
-    15 & IDXX & Staatsanleihe, S\&P500 & 21,31\,\% \\
-    \multicolumn{4}{c}{\ldots} \\
+    1 & IT & Öl, S\&P500 & 25,74\,\% & 2 & AJG & S\&P500, Dollar & 25,39\,\% & 3 & RSG & S\&P500, Inflation & 24,50\,\% \\
+    4 & CTAS & S\&P500, Dollar & 24,48\,\% & 5 & TT & S\&P500, Dollar & 23,39\,\% & 6 & GOOG & S\&P500, Inflation & 23,21\,\% \\
+    7 & ABBV & Staatsanleihe, S\&P500 & 22,92\,\% & 8 & PEP & Staatsanleihe, S\&P500 & 22,92\,\% & 9 & GWW & Öl, S\&P500 & 22,74\,\% \\
+    10 & CARR & Öl, Gold & 22,68\,\% & 11 & ORLY & Gold, S\&P500 & 21,65\,\% & 12 & VRSK & Staatsanleihe, S\&P500 & 21,51\,\% \\
+    13 & WMB & Öl, S\&P500 & 21,45\,\% & 14 & AFL & Staatsanleihe, S\&P500 & 21,45\,\% & 15 & FE & Staatsanleihe, S\&P500 & 21,35\,\% \\
+    16 & ISRG & Staatsanleihe, S\&P500 & 20,68\,\% & 17 & GD & Öl, S\&P500 & 20,50\,\% & 18 & AKAM & Staatsanleihe, S\&P500 & 20,22\,\% \\
+    19 & AME & Öl, S\&P500 & 19,96\,\% & 20 & TDY & Öl, S\&P500 & 19,85\,\% & 21 & COST & Staatsanleihe, S\&P500 & 19,64\,\% \\
+    22 & SNPS & Staatsanleihe, S\&P500 & 19,15\,\% & 23 & IDXX & Staatsanleihe, S\&P500 & 19,12\,\% & 24 & CPRT & S\&P500, Dollar & 18,93\,\% \\
+    25 & ODFL & S\&P500, Dollar & 18,86\,\% & 26 & TRV & Staatsanleihe, S\&P500 & 18,61\,\% & 27 & NRG & Öl, S\&P500 & 18,61\,\% \\
+    28 & NVDA & S\&P500, Dollar & 18,56\,\% & 29 & MCO & Staatsanleihe, S\&P500 & 18,46\,\% & 30 & HD & Staatsanleihe, S\&P500 & 18,37\,\% \\
+    31 & RMD & S\&P500, Dollar & 18,35\,\% & 32 & WM & Gold, S\&P500 & 18,09\,\% & 33 & AIZ & Staatsanleihe, S\&P500 & 18,05\,\% \\
+    34 & CDNS & Staatsanleihe, S\&P500 & 18,03\,\% & 35 & ADM & Öl, S\&P500 & 17,65\,\% & 36 & EFX & Staatsanleihe, S\&P500 & 17,63\,\% \\
+    37 & PHM & Staatsanleihe, S\&P500 & 17,55\,\% & 38 & GPC & Staatsanleihe, S\&P500 & 17,53\,\% & 39 & A & Gold, S\&P500 & 17,47\,\% \\
+    40 & IEX & S\&P500, Dollar & 17,47\,\% & 41 & MTD & S\&P500, Dollar & 17,40\,\% & 42 & FTNT & S\&P500, Dollar & 17,39\,\% \\
+    43 & PLD & Staatsanleihe, S\&P500 & 17,34\,\% & 44 & ORCL & Staatsanleihe, S\&P500 & 17,32\,\% & 45 & BLK & Gold, S\&P500 & 17,24\,\% \\
+    46 & MCK & Staatsanleihe, S\&P500 & 17,21\,\% & 47 & NOW & Staatsanleihe, S\&P500 & 17,11\,\% & 48 & PNR & Öl, S\&P500 & 17,05\,\% \\
+    49 & MO & S\&P500, Dollar & 16,93\,\% & 50 & TDG & S\&P500, Dollar & 16,82\,\% & 51 & PM & S\&P500, Dollar & 16,70\,\% \\
+    52 & MSI & S\&P500, Dollar & 16,67\,\% & 53 & ROL & Staatsanleihe, S\&P500 & 16,62\,\% & 54 & FAST & S\&P500, Inflation & 16,54\,\% \\
+    55 & ADBE & Staatsanleihe, S\&P500 & 16,51\,\% & 56 & PWR & Öl, S\&P500 & 16,49\,\% & 57 & JKHY & Staatsanleihe, S\&P500 & 16,41\,\% \\
+    58 & JCI & S\&P500, Dollar & 16,41\,\% & 59 & TROW & S\&P500, Dollar & 16,41\,\% & 60 & PAYC & S\&P500, Dollar & 16,31\,\% \\
+    61 & LOW & Öl, S\&P500 & 16,30\,\% & 62 & PG & S\&P500, Dollar & 16,22\,\% & 63 & HWM & Staatsanleihe, S\&P500 & 16,21\,\% \\
+    64 & GOOGL & S\&P500, Dollar & 16,21\,\% & 65 & MSFT & Staatsanleihe, S\&P500 & 16,19\,\% & 66 & NVR & Staatsanleihe, S\&P500 & 16,03\,\% \\
+    67 & KO & S\&P500, Dollar & 16,02\,\% & 68 & IRM & S\&P500, Dollar & 15,70\,\% & 69 & CL & Staatsanleihe, S\&P500 & 15,69\,\% \\
+    70 & ADP & S\&P500, Inflation & 15,63\,\% & 71 & AZO & Öl, S\&P500 & 15,58\,\% & 72 & ROP & Staatsanleihe, S\&P500 & 15,52\,\% \\
+    73 & DOV & S\&P500, Dollar & 15,47\,\% & 74 & PCAR & Öl, S\&P500 & 15,35\,\% & 75 & OTIS & Öl, Gold & 15,22\,\% \\
+    76 & BRK-B & Staatsanleihe, S\&P500 & 15,18\,\% & 77 & VRTX & S\&P500, Dollar & 14,96\,\% & 78 & MPC & Öl, S\&P500 & 14,80\,\% \\
+    79 & ITW & S\&P500, Dollar & 14,79\,\% & 80 & AVGO & S\&P500, Inflation & 14,79\,\% & 81 & APH & Öl, S\&P500 & 14,78\,\% \\
+    82 & CHD & Staatsanleihe, S\&P500 & 14,78\,\% & 83 & YUM & S\&P500, Dollar & 14,77\,\% & 84 & ACN & Staatsanleihe, S\&P500 & 14,65\,\% \\
+    85 & HPQ & S\&P500, Dollar & 14,62\,\% & 86 & DHI & Staatsanleihe, S\&P500 & 14,53\,\% & 87 & CLX & Staatsanleihe, S\&P500 & 14,52\,\% \\
+    88 & ATO & Gold, S\&P500 & 14,52\,\% & 89 & CMS & Staatsanleihe, S\&P500 & 14,49\,\% & 90 & ETN & Öl, S\&P500 & 14,40\,\% \\
+    91 & ROK & Staatsanleihe, S\&P500 & 14,35\,\% & 92 & CI & Staatsanleihe, S\&P500 & 14,31\,\% & 93 & DXCM & Öl, S\&P500 & 14,30\,\% \\
+    94 & CMCSA & S\&P500, Dollar & 14,27\,\% & 95 & DHR & Staatsanleihe, S\&P500 & 14,27\,\% & 96 & AIG & Staatsanleihe, S\&P500 & 14,19\,\% \\
+    97 & LIN & S\&P500, Dollar & 14,19\,\% & 98 & NSC & Öl, S\&P500 & 14,13\,\% & 99 & UNH & Staatsanleihe, S\&P500 & 14,07\,\% \\
+    100 & DVA & S\&P500, Dollar & 13,95\,\% & 101 & NI & Staatsanleihe, S\&P500 & 13,94\,\% & 102 & PAYX & Öl, S\&P500 & 13,75\,\% \\
+    103 & WST & S\&P500, Dollar & 13,63\,\% & 104 & DTE & Staatsanleihe, S\&P500 & 13,53\,\% & 105 & CMG & S\&P500, Dollar & 13,52\,\% \\
+    106 & LH & S\&P500, Dollar & 13,46\,\% & 107 & AEE & Gold, S\&P500 & 13,39\,\% & 108 & TSCO & S\&P500, Dollar & 13,34\,\% \\
+    109 & AEP & Staatsanleihe, S\&P500 & 13,33\,\% & 110 & NTAP & Öl, S\&P500 & 13,30\,\% & 111 & STE & S\&P500, Inflation & 13,18\,\% \\
+    112 & RJF & Staatsanleihe, S\&P500 & 13,13\,\% & 113 & VRSN & Staatsanleihe, S\&P500 & 13,05\,\% & 114 & UNP & Öl, S\&P500 & 12,97\,\% \\
+    115 & MCD & S\&P500, Dollar & 12,97\,\% & 116 & ADI & Staatsanleihe, S\&P500 & 12,96\,\% & 117 & BIO & S\&P500, Dollar & 12,94\,\% \\
+    118 & STZ & S\&P500, Inflation & 12,92\,\% & 119 & WRB & Staatsanleihe, S\&P500 & 12,91\,\% & 120 & CNP & Gold, S\&P500 & 12,81\,\% \\
+    121 & EXC & Staatsanleihe, S\&P500 & 12,67\,\% & 122 & WHR & S\&P500, Dollar & 12,64\,\% & 123 & LLY & Gold, S\&P500 & 12,56\,\% \\
+    124 & BR & Öl, S\&P500 & 12,56\,\% & 125 & DE & Staatsanleihe, S\&P500 & 12,25\,\% & 126 & AMAT & S\&P500, Dollar & 12,19\,\% \\
+    127 & PSA & Staatsanleihe, S\&P500 & 12,16\,\% & 128 & MKC & Staatsanleihe, S\&P500 & 12,13\,\% & 129 & ECL & S\&P500, Dollar & 12,07\,\% \\
+    130 & BSX & S\&P500, Dollar & 12,02\,\% & 131 & PEG & Staatsanleihe, S\&P500 & 11,98\,\% & 132 & BBY & Gold, S\&P500 & 11,94\,\% \\
+    133 & ETR & Staatsanleihe, S\&P500 & 11,82\,\% & 134 & KR & Öl, S\&P500 & 11,81\,\% & 135 & HON & S\&P500, Dollar & 11,77\,\% \\
+    136 & PH & Staatsanleihe, S\&P500 & 11,77\,\% & 137 & MDLZ & S\&P500, Dollar & 11,71\,\% & 138 & PGR & Staatsanleihe, S\&P500 & 11,61\,\% \\
+    139 & APD & S\&P500, Dollar & 11,58\,\% & 140 & IR & Öl, S\&P500 & 11,52\,\% & 141 & MAS & S\&P500, Dollar & 11,52\,\% \\
+    142 & ANET & Gold, S\&P500 & 11,43\,\% & 143 & ARE & S\&P500, Dollar & 11,37\,\% & 144 & CAH & Staatsanleihe, S\&P500 & 11,35\,\% \\
+    145 & CHRW & Öl, S\&P500 & 11,35\,\% & 146 & TMO & Gold, S\&P500 & 11,26\,\% & 147 & OKE & Öl, S\&P500 & 11,24\,\% \\
+    148 & CB & Staatsanleihe, S\&P500 & 11,23\,\% & 149 & AAPL & Staatsanleihe, S\&P500 & 11,22\,\% & 150 & MNST & S\&P500, Dollar & 11,20\,\% \\
+    151 & SPGI & Staatsanleihe, S\&P500 & 11,20\,\% & 152 & EXPD & Öl, S\&P500 & 11,12\,\% & 153 & DGX & S\&P500, Dollar & 11,11\,\% \\
+    154 & NUE & Öl, S\&P500 & 11,09\,\% & 155 & UNM & Staatsanleihe, S\&P500 & 11,06\,\% & 156 & IBM & Öl, S\&P500 & 11,01\,\% \\
+    157 & INTU & Staatsanleihe, S\&P500 & 10,99\,\% & 158 & MET & Staatsanleihe, S\&P500 & 10,99\,\% & 159 & AON & Gold, S\&P500 & 10,95\,\% \\
+    160 & SYK & S\&P500, Dollar & 10,91\,\% & 161 & HIG & Staatsanleihe, S\&P500 & 10,90\,\% & 162 & SO & Staatsanleihe, S\&P500 & 10,84\,\% \\
+    163 & RHI & Staatsanleihe, S\&P500 & 10,84\,\% & 164 & SRE & Öl, S\&P500 & 10,66\,\% & 165 & MSCI & Staatsanleihe, S\&P500 & 10,57\,\% \\
+    166 & NOC & Staatsanleihe, S\&P500 & 10,55\,\% & 167 & TMUS & S\&P500, Dollar & 10,55\,\% & 168 & SNA & Öl, S\&P500 & 10,48\,\% \\
+    169 & KEYS & S\&P500, Dollar & 10,48\,\% & 170 & SJM & S\&P500, Dollar & 10,41\,\% & 171 & V & S\&P500, Dollar & 10,34\,\% \\
+    172 & AMP & Staatsanleihe, S\&P500 & 10,31\,\% & 173 & EA & Staatsanleihe, S\&P500 & 10,26\,\% & 174 & SHW & Staatsanleihe, S\&P500 & 10,25\,\% \\
+    175 & EQIX & Staatsanleihe, S\&P500 & 10,17\,\% & 176 & KIM & Öl, S\&P500 & 10,16\,\% & 177 & CBOE & Gold, S\&P500 & 10,13\,\% \\
+    178 & CVX & Öl, S\&P500 & 10,09\,\% & 179 & O & Staatsanleihe, S\&P500 & 10,08\,\% & 180 & DLR & Staatsanleihe, S\&P500 & 10,07\,\% \\
+    181 & FDX & Staatsanleihe, S\&P500 & 10,04\,\% & 182 & ED & Staatsanleihe, S\&P500 & 9,95\,\% & 183 & AVB & S\&P500, Dollar & 9,91\,\% \\
+    184 & CRM & Gold, S\&P500 & 9,89\,\% & 185 & AMCR & S\&P500, Dollar & 9,79\,\% & 186 & CHTR & Staatsanleihe, S\&P500 & 9,78\,\% \\
+    187 & L & Staatsanleihe, S\&P500 & 9,72\,\% & 188 & HRL & Gold, S\&P500 & 9,71\,\% & 189 & HCA & Öl, S\&P500 & 9,71\,\% \\
+    190 & SPG & S\&P500, Dollar & 9,49\,\% & 191 & BK & Staatsanleihe, S\&P500 & 9,48\,\% & 192 & FANG & Öl, S\&P500 & 9,45\,\% \\
+    193 & EIX & Gold, S\&P500 & 9,40\,\% & 194 & ULTA & Staatsanleihe, S\&P500 & 9,37\,\% & 195 & WELL & S\&P500, Dollar & 9,36\,\% \\
+    196 & WU & S\&P500, Dollar & 9,35\,\% & 197 & RL & Öl, S\&P500 & 9,35\,\% & 198 & MA & S\&P500, Dollar & 9,32\,\% \\
+    199 & ALB & S\&P500, Dollar & 9,31\,\% & 200 & XRX & S\&P500, Dollar & 9,29\,\% & 201 & HUM & S\&P500, Inflation & 9,28\,\% \\
+    202 & CAT & Öl, S\&P500 & 9,24\,\% & 203 & DUK & Staatsanleihe, S\&P500 & 9,24\,\% & 204 & LEN & Staatsanleihe, S\&P500 & 9,16\,\% \\
+    205 & EXR & Staatsanleihe, S\&P500 & 9,15\,\% & 206 & LDOS & Öl, S\&P500 & 9,05\,\% & 207 & KLAC & S\&P500, Dollar & 8,99\,\% \\
+    208 & FISV & S\&P500, Dollar & 8,97\,\% & 209 & CDW & Gold, S\&P500 & 8,94\,\% & 210 & CTVA & Öl, S\&P500 & 8,91\,\% \\
+    211 & AWK & Staatsanleihe, S\&P500 & 8,90\,\% & 212 & VMC & S\&P500, Dollar & 8,80\,\% & 213 & CE & S\&P500, Dollar & 8,78\,\% \\
+    214 & ALL & Staatsanleihe, S\&P500 & 8,78\,\% & 215 & LW & Staatsanleihe, S\&P500 & 8,75\,\% & 216 & WY & S\&P500, Dollar & 8,73\,\% \\
+    217 & STT & Staatsanleihe, S\&P500 & 8,71\,\% & 218 & TPR & Staatsanleihe, S\&P500 & 8,66\,\% & 219 & UA & S\&P500, Dollar & 8,65\,\% \\
+    220 & AMZN & S\&P500, Dollar & 8,52\,\% & 221 & ADSK & Staatsanleihe, S\&P500 & 8,51\,\% & 222 & KHC & Staatsanleihe, S\&P500 & 8,45\,\% \\
+    223 & LMT & Öl, S\&P500 & 8,45\,\% & 224 & NDAQ & Staatsanleihe, S\&P500 & 8,43\,\% & 225 & COF & Staatsanleihe, S\&P500 & 8,41\,\% \\
+    226 & HSY & Staatsanleihe, S\&P500 & 8,31\,\% & 227 & URI & Öl, S\&P500 & 8,30\,\% & 228 & GL & Staatsanleihe, S\&P500 & 8,29\,\% \\
+    229 & MLM & S\&P500, Dollar & 8,22\,\% & 230 & HII & Staatsanleihe, S\&P500 & 8,12\,\% & 231 & TEL & Gold, S\&P500 & 8,01\,\% \\
+    232 & QCOM & S\&P500, Dollar & 7,94\,\% & 233 & WMT & S\&P500, Inflation & 7,89\,\% & 234 & HAS & Staatsanleihe, S\&P500 & 7,87\,\% \\
+    235 & ICE & S\&P500, Dollar & 7,73\,\% & 236 & BKR & Öl, S\&P500 & 7,72\,\% & 237 & HLT & Staatsanleihe, S\&P500 & 7,71\,\% \\
+    238 & BAX & Gold, S\&P500 & 7,70\,\% & 239 & J & Öl, S\&P500 & 7,60\,\% & 240 & TTWO & Staatsanleihe, S\&P500 & 7,59\,\% \\
+    241 & AES & Öl, S\&P500 & 7,53\,\% & 242 & CMI & Staatsanleihe, S\&P500 & 7,52\,\% & 243 & XRAY & S\&P500, Dollar & 7,49\,\% \\
+    244 & ESS & S\&P500, Dollar & 7,44\,\% & 245 & DPZ & Staatsanleihe, S\&P500 & 7,43\,\% & 246 & MOS & Öl, S\&P500 & 7,33\,\% \\
+    247 & XYL & S\&P500, Dollar & 7,26\,\% & 248 & AVY & Staatsanleihe, S\&P500 & 7,22\,\% & 249 & GRMN & S\&P500, Dollar & 7,18\,\% \\
+    250 & GIS & Staatsanleihe, S\&P500 & 7,16\,\% & 251 & TXT & Staatsanleihe, S\&P500 & 7,15\,\% & 252 & EVRG & Staatsanleihe, S\&P500 & 7,11\,\% \\
+    253 & TER & S\&P500, Dollar & 7,04\,\% & 254 & CCI & Gold, S\&P500 & 6,96\,\% & 255 & NTRS & Staatsanleihe, S\&P500 & 6,89\,\% \\
+    256 & IQV & Öl, S\&P500 & 6,83\,\% & 257 & VTR & S\&P500, Dollar & 6,78\,\% & 258 & UHS & Gold, S\&P500 & 6,75\,\% \\
+    259 & EBAY & S\&P500, Inflation & 6,74\,\% & 260 & ZTS & S\&P500, Dollar & 6,66\,\% & 261 & PPG & S\&P500, Dollar & 6,51\,\% \\
+    262 & WAT & S\&P500, Dollar & 6,50\,\% & 263 & TYL & Staatsanleihe, S\&P500 & 6,48\,\% & 264 & LKQ & Staatsanleihe, S\&P500 & 6,48\,\% \\
+    265 & DRI & Staatsanleihe, S\&P500 & 6,26\,\% & 266 & NWSA & S\&P500, Dollar & 6,18\,\% & 267 & CME & Öl, S\&P500 & 6,16\,\% \\
+    268 & FLS & Öl, S\&P500 & 6,15\,\% & 269 & ROST & Staatsanleihe, S\&P500 & 6,08\,\% & 270 & XEL & Staatsanleihe, S\&P500 & 6,06\,\% \\
+    271 & DVN & Öl, S\&P500 & 6,06\,\% & 272 & STX & S\&P500, Dollar & 6,05\,\% & 273 & SYF & Staatsanleihe, S\&P500 & 6,03\,\% \\
+    274 & KMB & Staatsanleihe, S\&P500 & 6,00\,\% & 275 & DLTR & Öl, S\&P500 & 5,99\,\% & 276 & AOS & S\&P500, Dollar & 5,91\,\% \\
+    277 & COP & Öl, S\&P500 & 5,78\,\% & 278 & SEE & S\&P500, Dollar & 5,74\,\% & 279 & LYB & Öl, S\&P500 & 5,71\,\% \\
+    280 & CSCO & Gold, S\&P500 & 5,71\,\% & 281 & NEE & Gold, S\&P500 & 5,65\,\% & 282 & ALLE & S\&P500, Dollar & 5,61\,\% \\
+    283 & MCHP & S\&P500, Dollar & 5,59\,\% & 284 & JBHT & Öl, S\&P500 & 5,55\,\% & 285 & BDX & Öl, S\&P500 & 5,46\,\% \\
+    286 & AXP & Staatsanleihe, S\&P500 & 5,43\,\% & 287 & PRU & Staatsanleihe, S\&P500 & 5,31\,\% & 288 & HPE & Öl, S\&P500 & 5,29\,\% \\
+    289 & FTV & S\&P500, Dollar & 5,25\,\% & 290 & DOW & Öl, S\&P500 & 5,24\,\% & 291 & BKNG & S\&P500, Dollar & 5,24\,\% \\
+    292 & TXN & Öl, S\&P500 & 5,24\,\% & 293 & CINF & Staatsanleihe, S\&P500 & 5,24\,\% & 294 & NWS & S\&P500, Dollar & 5,23\,\% \\
+    295 & FFIV & Gold, S\&P500 & 5,21\,\% & 296 & REG & S\&P500, Dollar & 5,18\,\% & 297 & MU & S\&P500, Dollar & 5,14\,\% \\
+    298 & ZBRA & S\&P500, Dollar & 5,13\,\% & 299 & UAA & Staatsanleihe, S\&P500 & 5,11\,\% & 300 & PNW & Staatsanleihe, S\&P500 & 5,06\,\% \\
+    301 & SBAC & Staatsanleihe, S\&P500 & 5,05\,\% & 302 & GE & Staatsanleihe, S\&P500 & 4,99\,\% & 303 & PNC & Staatsanleihe, S\&P500 & 4,98\,\% \\
+    304 & PKG & Staatsanleihe, S\&P500 & 4,98\,\% & 305 & CSX & Öl, S\&P500 & 4,93\,\% & 306 & ABT & S\&P500, Dollar & 4,88\,\% \\
+    307 & UDR & S\&P500, Dollar & 4,70\,\% & 308 & FITB & Staatsanleihe, S\&P500 & 4,55\,\% & 309 & PFG & Staatsanleihe, S\&P500 & 4,55\,\% \\
+    310 & EMN & S\&P500, Dollar & 4,45\,\% & 311 & FRT & S\&P500, Dollar & 4,35\,\% & 312 & IVZ & Öl, S\&P500 & 4,34\,\% \\
+    313 & DXC & Staatsanleihe, S\&P500 & 4,30\,\% & 314 & PYPL & Staatsanleihe, S\&P500 & 4,28\,\% & 315 & GPN & S\&P500, Dollar & 4,26\,\% \\
+    316 & CBRE & S\&P500, Dollar & 4,13\,\% & 317 & PPL & S\&P500, Dollar & 4,12\,\% & 318 & MAR & S\&P500, Dollar & 4,00\,\% \\
+    319 & MTB & Staatsanleihe, S\&P500 & 3,94\,\% & 320 & GLW & S\&P500, Dollar & 3,89\,\% & 321 & CNC & Staatsanleihe, S\&P500 & 3,88\,\% \\
+    322 & WAB & Öl, S\&P500 & 3,83\,\% & 323 & XOM & Öl, S\&P500 & 3,75\,\% & 324 & BWA & Öl, S\&P500 & 3,70\,\% \\
+    325 & MS & Öl, S\&P500 & 3,68\,\% & 326 & EQR & S\&P500, Dollar & 3,50\,\% & 327 & MAA & Staatsanleihe, S\&P500 & 3,49\,\% \\
+    328 & EW & S\&P500, Dollar & 3,42\,\% & 329 & NWL & Staatsanleihe, S\&P500 & 3,33\,\% & 330 & CAG & Öl, S\&P500 & 3,31\,\% \\
+    331 & PSX & Öl, S\&P500 & 3,20\,\% & 332 & TFC & Staatsanleihe, S\&P500 & 3,19\,\% & 333 & RF & Staatsanleihe, S\&P500 & 3,12\,\% \\
+    334 & TGT & Öl, S\&P500 & 2,96\,\% & 335 & SWKS & S\&P500, Dollar & 2,95\,\% & 336 & BAC & Staatsanleihe, S\&P500 & 2,90\,\% \\
+    337 & OMC & S\&P500, Dollar & 2,81\,\% & 338 & CPB & S\&P500, Inflation & 2,72\,\% & 339 & CTSH & Öl, S\&P500 & 2,65\,\% \\
+    340 & VFC & Staatsanleihe, S\&P500 & 2,57\,\% & 341 & FIS & S\&P500, Dollar & 2,44\,\% & 342 & APA & Öl, S\&P500 & 2,43\,\% \\
+    343 & TAP & S\&P500, Dollar & 2,39\,\% & 344 & FMC & S\&P500, Dollar & 2,37\,\% & 345 & HOLX & S\&P500, Dollar & 2,34\,\% \\
+    346 & LNT & Staatsanleihe, S\&P500 & 2,29\,\% & 347 & WDC & S\&P500, Dollar & 2,27\,\% & 348 & DG & Staatsanleihe, S\&P500 & 2,26\,\% \\
+    349 & SLB & Öl, S\&P500 & 2,24\,\% & 350 & SLG & S\&P500, Dollar & 2,18\,\% & 351 & ETSY & Gold, S\&P500 & 2,11\,\% \\
+    352 & IPGP & Öl, S\&P500 & 2,08\,\% & 353 & T & S\&P500, Dollar & 2,04\,\% & 354 & SBUX & S\&P500, Dollar & 2,01\,\% \\
+    355 & MRK & Öl, S\&P500 & 2,00\,\% & 356 & EL & Gold, S\&P500 & 2,00\,\% & 357 & KMX & Staatsanleihe, S\&P500 & 1,97\,\% \\
+    358 & QRVO & S\&P500, Dollar & 1,97\,\% & 359 & JPM & Staatsanleihe, S\&P500 & 1,90\,\% & 360 & D & Staatsanleihe, S\&P500 & 1,89\,\% \\
+    361 & KMI & Öl, S\&P500 & 1,80\,\% & 362 & BF-B & S\&P500, Dollar & 1,79\,\% & 363 & TFX & Staatsanleihe, S\&P500 & 1,75\,\% \\
+    364 & EMR & Staatsanleihe, S\&P500 & 1,74\,\% & 365 & TJX & Staatsanleihe, S\&P500 & 1,74\,\% & 366 & INTC & S\&P500, Dollar & 1,73\,\% \\
+    367 & WEC & Staatsanleihe, S\&P500 & 1,68\,\% & 368 & SCHW & Staatsanleihe, S\&P500 & 1,65\,\% & 369 & CF & Öl, S\&P500 & 1,61\,\% \\
+    370 & UPS & S\&P500, Dollar & 1,57\,\% & 371 & CVS & Staatsanleihe, S\&P500 & 1,26\,\% & 372 & LHX & Öl, S\&P500 & 1,17\,\% \\
+    373 & MDT & S\&P500, Dollar & 1,11\,\% & 374 & WFC & Staatsanleihe, S\&P500 & 0,85\,\% & 375 & GS & Staatsanleihe, S\&P500 & 0,84\,\% \\
+    376 & LRCX & S\&P500, Dollar & 0,73\,\% & 377 & NFLX & Staatsanleihe, S\&P500 & 0,68\,\% & 378 & GM & Staatsanleihe, S\&P500 & 0,52\,\% \\
+    379 & C & Staatsanleihe, S\&P500 & 0,49\,\% & 380 & ZION & Staatsanleihe, S\&P500 & 0,48\,\% & 381 & HST & S\&P500, Dollar & 0,36\,\% \\
+    382 & MMM & S\&P500, Dollar & 0,35\,\% & 383 & JNJ & S\&P500, Dollar & 0,14\,\% & 384 & AMD & Gold, S\&P500 & 0,02\,\% \\
+    385 & REGN & Staatsanleihe, S\&P500 & -0,05\,\% & 386 & FOXA & S\&P500, Dollar & -0,11\,\% & 387 & NKE & Öl, S\&P500 & -0,31\,\% \\
+    388 & ES & Staatsanleihe, S\&P500 & -0,50\,\% & 389 & APTV & Staatsanleihe, S\&P500 & -0,67\,\% & 390 & RTX & Staatsanleihe, S\&P500 & -0,75\,\% \\
+    391 & DD & Öl, S\&P500 & -0,97\,\% & 392 & CFG & Staatsanleihe, S\&P500 & -0,99\,\% & 393 & COO & S\&P500, Dollar & -0,99\,\% \\
+    394 & F & Staatsanleihe, S\&P500 & -1,14\,\% & 395 & USB & Staatsanleihe, S\&P500 & -1,14\,\% & 396 & MGM & Staatsanleihe, S\&P500 & -1,31\,\% \\
+    397 & HSIC & S\&P500, Dollar & -1,36\,\% & 398 & NOV & Öl, S\&P500 & -1,71\,\% & 399 & VLO & Öl, S\&P500 & -1,78\,\% \\
+    400 & AIV & S\&P500, Dollar & -1,81\,\% & 401 & BEN & Öl, S\&P500 & -1,88\,\% & 402 & FTI & Öl, S\&P500 & -1,89\,\% \\
+    403 & KEY & Staatsanleihe, S\&P500 & -2,02\,\% & 404 & AAP & Öl, S\&P500 & -2,06\,\% & 405 & PVH & Staatsanleihe, S\&P500 & -2,42\,\% \\
+    406 & IP & Staatsanleihe, S\&P500 & -2,49\,\% & 407 & LYV & Staatsanleihe, S\&P500 & -2,51\,\% & 408 & RCL & Staatsanleihe, S\&P500 & -2,62\,\% \\
+    409 & ALK & S\&P500, Dollar & -2,64\,\% & 410 & MKTX & Staatsanleihe, S\&P500 & -2,81\,\% & 411 & BXP & S\&P500, Dollar & -3,09\,\% \\
+    412 & SYY & Staatsanleihe, S\&P500 & -3,15\,\% & 413 & HAL & Öl, S\&P500 & -3,26\,\% & 414 & BA & S\&P500, Dollar & -3,28\,\% \\
+    415 & WYNN & Staatsanleihe, S\&P500 & -3,52\,\% & 416 & ILMN & Staatsanleihe, S\&P500 & -3,61\,\% & 417 & FCX & S\&P500, Dollar & -3,72\,\% \\
+    418 & TSN & S\&P500, Inflation & -3,88\,\% & 419 & VZ & S\&P500, Inflation & -3,98\,\% & 420 & LUMN & Staatsanleihe, S\&P500 & -4,18\,\% \\
+    421 & EXPE & Staatsanleihe, S\&P500 & -4,19\,\% & 422 & IFF & S\&P500, Dollar & -4,26\,\% & 423 & LEG & Staatsanleihe, S\&P500 & -4,34\,\% \\
+    424 & BMY & Staatsanleihe, S\&P500 & -4,41\,\% & 425 & SWK & S\&P500, Dollar & -4,84\,\% & 426 & HBAN & Staatsanleihe, S\&P500 & -4,91\,\% \\
+    427 & OXY & Öl, S\&P500 & -5,33\,\% & 428 & UAL & S\&P500, Dollar & -5,56\,\% & 429 & AMT & Staatsanleihe, S\&P500 & -5,77\,\% \\
+    430 & NEM & Gold, S\&P500 & -6,03\,\% & 431 & GILD & Gold, S\&P500 & -6,18\,\% & 432 & MHK & S\&P500, Dollar & -6,31\,\% \\
+    433 & PRGO & S\&P500, Dollar & -6,33\,\% & 434 & DAL & S\&P500, Dollar & -6,34\,\% & 435 & VNO & S\&P500, Dollar & -6,46\,\% \\
+    436 & AMGN & S\&P500, Inflation & -6,61\,\% & 437 & EOG & Öl, S\&P500 & -7,04\,\% & 438 & ZBH & S\&P500, Dollar & -7,50\,\% \\
+    439 & LUV & Öl, S\&P500 & -7,79\,\% & 440 & NCLH & Staatsanleihe, S\&P500 & -8,27\,\% & 441 & DIS & S\&P500, Dollar & -8,34\,\% \\
+    442 & INCY & Gold, S\&P500 & -8,51\,\% & 443 & AAL & S\&P500, Dollar & -8,67\,\% & 444 & FOX & Staatsanleihe, S\&P500 & -9,11\,\% \\
+    445 & LVS & Staatsanleihe, S\&P500 & -10,37\,\% & 446 & KSS & Staatsanleihe, S\&P500 & -10,37\,\% & 447 & ALGN & S\&P500, Dollar & -12,23\,\% \\
+    448 & BIIB & Öl, S\&P500 & -12,89\,\% & 449 & CCL & Staatsanleihe, S\&P500 & -13,51\,\% & 450 & PFE & Staatsanleihe, S\&P500 & -15,43\,\% \\
 \end{longtable}
-
-Die vollständigen Rohdaten sind in der Datei \texttt{data/selection/selected\_stocks.json} im Projektverzeichnis verfügbar.
