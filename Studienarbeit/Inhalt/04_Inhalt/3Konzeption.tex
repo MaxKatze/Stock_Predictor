@@ -312,7 +312,7 @@ In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelne
 Es wird ein komplett neues Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert, welche sinnvoll kombiniert werden, um eine Vorhersage zu treffen. Das Grundvorgehen des Modells ist, den Aktienkurs in einfacher schätzbare Teile zu zerlegen, jeden davon einzeln zu extrapolieren und die Vorhersagen zu einer Gesamtvorhersage zusammenzusetzen. Daraus entsteht ein Modell, welches den Preis des nächsten Tages auf Basis der vergangenen Tage schätzt:
 
 \[
-\hat{P}_{t+1} = f((P_0, P_1, \dots. P_t)).
+    \hat{P}_{t+1} = f((P_0, P_1, \dots. P_t)).
 \]
 
 Diese Arbeit stellt die Behauptung auf, dass sich ein Aktienkurs durch die Komponenten $T_t^{\text{lang}}$, $T_t^{\text{kurz}}$, $C_t$ und $\epsilon_t$ beschreiben lässt. Diese Komponenten sind in \cref{tab:stock_components} weiter erläutert. Weiter wird die Behauptung aufgestellt, dass sich ein Aktienkurs durch den Zusammenhang in \cref{eq:linearerKurs} beschreiben lässt.
@@ -369,7 +369,7 @@ Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang
 Um nun aus den Residuen den kurzfristigen Trend $\tau^\text{kurz}$ zu extrahieren, wird auf der Residuenzeitreihe $\tilde{p}_t$ ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird in \cref{chap:implementierung} bestimmt.
 
 \begin{equation}\label{eq:hpFilterKurz}
-\hat{\tau}_t^\text{kurz} = \arg\min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
+    \hat{\tau}_t^\text{kurz} = \arg\min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
     \sum_{t=1}^{T} (p_t - \hat{\tau}_t^\text{kurz})^2
     + \lambda_\text{kurz} \sum_{t=2}^{T-1} (\hat{\tau}_{t+1}^\text{kurz} - 2\hat{\tau}_t^\text{kurz} + \hat{\tau}_{t-1}^\text{kurz})^2
     \right)
@@ -587,7 +587,7 @@ Ein Kaufsignal auf Basis des Vorzeichens der vorhergesagten Rendite ($\hat{r}_{t
 \begin{equation}
     \text{Signal}_t =
     \begin{cases}
-        \text{Long} & \text{wenn } \hat{r}_{t+1} > \varepsilon, \\
+        \text{Long} & \text{wenn } \hat{r}_{t+1} > \varepsilon,                      \\
         \text{Hold} & \text{wenn } -\varepsilon \leq \hat{r}_{t+1} \leq \varepsilon, \\
         \text{Cash} & \text{wenn } \hat{r}_{t+1} < -\varepsilon.
     \end{cases}
@@ -650,7 +650,7 @@ Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, b
 
 Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in \cref{sec:entwicklung} vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward jeweils für jede ausgewählte Aktie getestet. Das bedeutet, es wird die tatsächliche Historie der Aktienkursbewegung simuliert und es werden jeweils Vorhersagen erstellt. Die erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in \cref{subsec:fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in \cref{sec:marktstrategie} entwickelten Handelsstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in \cref{finanzkennzahlen} vorgestellten Kennzahlen.
+Mithilfe der in \cref{sec:marktstrategie} entwickelten Handelsstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in \cref{subsec:finanzkennzahlen} vorgestellten Kennzahlen.
 
 Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander.
 %idk wirkt iwi nutzlos:
