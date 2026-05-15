@@ -87,6 +87,36 @@ Das hierarchische SDE-Verfahren wurde mit 100 Monte-Carlo-Simulationen durchgef�
 
 Die durchschnittliche Platzierung zeigt, wie konsistent eine Aktie über verschiedene Gruppierungen performt. CARR erreicht mit Platz 12,3 die beste durchschnittliche Position, obwohl der simulierte ROI mit 22,68\% nicht der höchste ist. Im Gegensatz dazu erreicht AJG mit dem höchsten durchschnittlichen simulierten ROI von 25,39\% nur Rang 5, da die Performance stärker von der jeweiligen Gruppierung abhängt. Diese Diskrepanz unterstreicht die Notwendigkeit des Monte-Carlo-Ansatzes, da die durchschnittliche Platzierung robuster gegenüber der zufälligen Gruppierung ist, als der absolute ROI-Wert einer einzelnen Simulation.
 
+Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROIs mit den tatsächlich realisierten Buy-and-Hold-Renditen im Testzeitraum verglichen. \cref{tab:sde_validation} stellt die Vorhersagen den tatsächlichen Ergebnissen gegenüber.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c c c}
+        \toprule
+        Ticker & $\varnothing$ sim. ROI & Tatsächl. B\&H & Abweichung \\
+        \midrule
+        CARR & 22,68\,\% & -12,29\,\% & +34,97\,PP \\
+        OTIS & 21,15\,\% & -4,88\,\% & +26,03\,PP \\
+        RSG & 24,50\,\% & 13,11\,\% & +11,39\,PP \\
+        CTAS & 24,48\,\% & 11,02\,\% & +13,46\,PP \\
+        AJG & 25,39\,\% & 2,30\,\% & +23,09\,PP \\
+        PEP & 22,92\,\% & -6,47\,\% & +29,39\,PP \\
+        TT & 23,39\,\% & 23,33\,\% & +0,06\,PP \\
+        GWW & 22,74\,\% & 15,40\,\% & +7,34\,PP \\
+        RMD & 20,87\,\% & 31,79\,\% & -10,92\,PP \\
+        BLK & 19,94\,\% & 42,86\,\% & -22,92\,PP \\
+        \midrule
+        \O & 22,81\,\% & 11,62\,\% & +11,19\,PP \\
+        \bottomrule
+    \end{tabular}
+    \caption{Vergleich von prognostizierten und tatsächlichen Renditen}\label{tab:sde_validation}
+\end{table}
+
+Die durchschnittliche Abweichung beträgt +11,19 Prozentpunkte, wobei das SDE-Verfahren die Renditen tendenziell überschätzt.
+
+Diese Abweichungen können durch verschiedene Limitierungen des SDE-Verfahrens begründet werden. Die Diskretisierung der Kursbewegungen in lediglich drei Zustände (+1, 0, -1) führt zu einem Informationsverlust, da die tatsächliche Magnitude von Preisbewegungen ignoriert wird. Eine Aktie, die konstant um +2\% steigt, wird identisch behandelt wie eine, die um +0,5\% steigt. Außerdem kann die hierarchische Gruppenzuteilung zu unvorteilhaften Paarungen führen. Die Modellierung über lediglich zwei makroökonomische Faktoren und drei weitere Aktien pro Simulationsgruppe vereinfacht die komplexe Marktdynamik stark. Möglicherweise reichen die Informationen aus vergangenem Kurs, sowie Einfluss von ähnlichen Aktien und den Faktoren nicht aus um einen Aktienkurs langfristig zu skizzieren.
+Trotz dieser Diskrepanzen werden die ausgewählten Aktien für die Modellevaluation beibehalten. Dies gewährleistet die Vermeidung eines Lookahead Bias, da die Auswahl ausschließlich auf Informationen vor dem Testzeitraum basiert. Zudem ist das Ziel dieser Arbeit, eine stringente End-to-End-Strategie von Aktienauswahl bis zur Vorhersagemodellierung zu testen.
+
 Ausführlichere Ergebnisse der Aktienauswahl, einschließlich der dominanten Faktorpaare, Beta-Summen und durchschnittlichen ROIs für die analysierten Aktien, sind in \cref{app:selection_results} zu finden. TODO:Anhang ist nicht vollständig. Entweder sagen dass da auch nicht alle sind, oder alle reinmachen.
 
 \section{LinearSeparation}\label{sec:linearseparation}

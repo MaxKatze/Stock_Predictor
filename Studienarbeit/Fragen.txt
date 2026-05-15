@@ -17,8 +17,6 @@ Kapitelzahlen der Reihenfolgen sind halt bisschen unintuitiv. Weil erst 3.6 dann
 Schaubilder im Ablauf von Konzeption verbessern (richtiger ablauf und selbe Reihenfolge wie im Text)
 lambda als Parameter von HP Filter in der Implementierung disktuieren.
 Todo im Anhang
-SDE Result Tabellen mit höchster ROI und Endauswahl zusammenfassen.
-SDE Result ausgewählte Aktien ROI mit den tatsächlien ROI vergleichen, Abweichung bestimmen. Dann sagen, dass die Aktien aus lookahead Bias Gründen weiterverwendet werden.
 Wie nennen wir drittes Modell? TimesFm oder StockTimesFM?
 Abstract schreiben
 nach TODO suchen und alle bearbeiten
