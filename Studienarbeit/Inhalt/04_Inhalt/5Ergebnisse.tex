@@ -425,9 +425,9 @@ Die Visualisierung zeigt mehrere charakteristische Eigenschaften:
     \item \textbf{Risikomanagement:} Rechtzeitige Verkäufe bei negativen Trends
 \end{itemize}
 
-\section{TimesFM}\label{sec:stocktimesfm}
+\section{TimesFM}\label{sec:timesfm}
 
-In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:stocktimesfm} vorgestellten TimesFM Foundation Models präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell. Die Inferenz der Vorhersagen wurde auf einem Apple M2 Pro Silicon Chip mit 16GB RAM berechnet.
+In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:timesfm} vorgestellten TimesFM Foundation Models präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell. Die Inferenz der Vorhersagen wurde auf einem Apple M2 Pro Silicon Chip mit 16GB RAM berechnet.
 
 TimesFM unterscheidet sich fundamental von den bisherigen Ansätzen, da das Modell direkt auf den Testdaten angewendet wird, ohne auf den spezifischen Aktien trainiert worden zu sein. Außerdem gehen bis zu 512 vergangene Werte im Kontextwindow in die Vorhersage ein.
 Da keine aktienspezifische Anpassung stattfindet, erfolgt die Schwellenwert-Bestimmung $\varepsilon$ wie bei den anderen Modellen aus dem \ac{MAE} auf den Validierungsdaten. \cref{tab:timesfm_epsilon} zeigt die ermittelten Schwellenwerte.
