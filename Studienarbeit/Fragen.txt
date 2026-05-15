@@ -12,10 +12,8 @@ Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kom
 TODO:
 
 Fig. 3.1 und 3.2 gefallen mir, aber ich würde sie mit Bildern unterfüttern. Niemand versteht, was Ihr in Fig. 3.2 macht, ohne das Problem anhand von Daten zu sehen.
-Das gilt auch für die nachfolgenden Formeln.
 Kapitelzahlen der Reihenfolgen sind halt bisschen unintuitiv. Weil erst 3.6 dann 3.4 usw
-Schaubilder im Ablauf von Konzeption verbessern (richtiger ablauf und selbe Reihenfolge wie im Text)
-lambda als Parameter von HP Filter in der Implementierung disktuieren.
+
 Wie nennen wir drittes Modell? TimesFm oder StockTimesFM?
 Abstract schreiben
 nach TODO suchen und alle bearbeiten
