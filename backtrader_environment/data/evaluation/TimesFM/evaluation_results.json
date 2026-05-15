@@ -1,0 +1,261 @@
+{
+  "config": {
+    "initial_cash": 100000.0,
+    "stocks": [
+      "CARR",
+      "OTIS",
+      "RSG",
+      "CTAS",
+      "AJG",
+      "PEP",
+      "TT",
+      "GWW",
+      "RMD",
+      "BLK"
+    ],
+    "model": "TimesFM",
+    "data_split": {
+      "training_start": "2020-01-02",
+      "training_end": "2023-12-29",
+      "validation_start": "2024-01-02",
+      "validation_end": "2024-06-28",
+      "test_start": "2024-07-01",
+      "test_end": "2025-12-31"
+    },
+    "model_config": {
+      "train_fn": "<function train_timesfm at 0x11f8527a0>",
+      "forecast_horizon": 1,
+      "warmup_period": 0
+    }
+  },
+  "results": [
+    {
+      "total_return": -0.07932840274801027,
+      "bh_return": -0.1229151214472998,
+      "excess_return": 0.043586718699289526,
+      "sharpe_ratio": -11.385580500547064,
+      "max_drawdown": 0.2500932039946392,
+      "mae": "0.9597188",
+      "rmse": 1.3567575709109052,
+      "mape": "0.014643678",
+      "oos_r2": "-0.02171135",
+      "directional_accuracy": 0.4946808510638298,
+      "trade_statistics": {
+        "buy_orders": 7,
+        "sell_orders": 0,
+        "close_positions": 4,
+        "total_trades": 11
+      },
+      "ticker": "CARR",
+      "model": "TimesFM",
+      "epsilon": 0.004113393675147071
+    },
+    {
+      "total_return": -0.23803915415895988,
+      "bh_return": -0.048812664361243284,
+      "excess_return": -0.18922648979771658,
+      "sharpe_ratio": -1.4188487198956974,
+      "max_drawdown": 0.29228453988894887,
+      "mae": "0.9056576",
+      "rmse": 1.4045837703505366,
+      "mape": "0.00973419",
+      "oos_r2": "-0.05303955",
+      "directional_accuracy": 0.4734042553191489,
+      "trade_statistics": {
+        "buy_orders": 8,
+        "sell_orders": 0,
+        "close_positions": 5,
+        "total_trades": 13
+      },
+      "ticker": "OTIS",
+      "model": "TimesFM",
+      "epsilon": 0.0025537926756385126
+    },
+    {
+      "total_return": 0.1420671589660077,
+      "bh_return": 0.1310959046220051,
+      "excess_return": 0.01097125434400259,
+      "sharpe_ratio": 1.4947488495996248,
+      "max_drawdown": 0.08802697694456939,
+      "mae": "1.7973417",
+      "rmse": 2.5781466396463992,
+      "mape": "0.008226114",
+      "oos_r2": "-0.045284748",
+      "directional_accuracy": 0.523936170212766,
+      "trade_statistics": {
+        "buy_orders": 11,
+        "sell_orders": 5,
+        "close_positions": 3,
+        "total_trades": 19
+      },
+      "ticker": "RSG",
+      "model": "TimesFM",
+      "epsilon": 0.0016338534908110454
+    },
+    {
+      "total_return": 0.019564248717951413,
+      "bh_return": 0.1101971873801932,
+      "excess_return": -0.09063293866224179,
+      "sharpe_ratio": -0.1661474361098141,
+      "max_drawdown": 0.16918429223431622,
+      "mae": "2.0201063",
+      "rmse": 2.9875942263248256,
+      "mape": "0.010086823",
+      "oos_r2": "-0.03844893",
+      "directional_accuracy": 0.4946808510638298,
+      "trade_statistics": {
+        "buy_orders": 10,
+        "sell_orders": 1,
+        "close_positions": 5,
+        "total_trades": 16
+      },
+      "ticker": "CTAS",
+      "model": "TimesFM",
+      "epsilon": 0.0022516206139534846
+    },
+    {
+      "total_return": 0.04124103581299598,
+      "bh_return": 0.02300663492734207,
+      "excess_return": 0.01823440088565391,
+      "sharpe_ratio": 0.05499457480817423,
+      "max_drawdown": 0.14737429854254946,
+      "mae": "3.1019979",
+      "rmse": 4.3552653312222755,
+      "mape": "0.0105202515",
+      "oos_r2": "-0.005239129",
+      "directional_accuracy": 0.5452127659574468,
+      "trade_statistics": {
+        "buy_orders": 8,
+        "sell_orders": 6,
+        "close_positions": 3,
+        "total_trades": 17
+      },
+      "ticker": "AJG",
+      "model": "TimesFM",
+      "epsilon": 0.0024180182479639385
+    },
+    {
+      "total_return": -0.04876338050354112,
+      "bh_return": -0.06471422828277279,
+      "excess_return": 0.01595084777923167,
+      "sharpe_ratio": -65.79934707319863,
+      "max_drawdown": 0.10396946680831717,
+      "mae": "1.3692727",
+      "rmse": 1.8674464983853394,
+      "mape": "0.009504442",
+      "oos_r2": "-0.018526673",
+      "directional_accuracy": 0.4867021276595745,
+      "trade_statistics": {
+        "buy_orders": 4,
+        "sell_orders": 0,
+        "close_positions": 2,
+        "total_trades": 6
+      },
+      "ticker": "PEP",
+      "model": "TimesFM",
+      "epsilon": 0.002248691767866347
+    },
+    {
+      "total_return": 0.22537840507313361,
+      "bh_return": 0.23325225407872313,
+      "excess_return": -0.007873849005589517,
+      "sharpe_ratio": 6.594908679033636,
+      "max_drawdown": 0.15534294379894834,
+      "mae": "4.5344405",
+      "rmse": 6.476909706370965,
+      "mape": "0.011927804",
+      "oos_r2": "-0.013129711",
+      "directional_accuracy": 0.5079787234042553,
+      "trade_statistics": {
+        "buy_orders": 8,
+        "sell_orders": 2,
+        "close_positions": 2,
+        "total_trades": 12
+      },
+      "ticker": "TT",
+      "model": "TimesFM",
+      "epsilon": 0.003221429661340504
+    },
+    {
+      "total_return": 0.10398021704356085,
+      "bh_return": 0.1539701293846732,
+      "excess_return": -0.049989912341112344,
+      "sharpe_ratio": 0.40319168943589984,
+      "max_drawdown": 0.13964857727846947,
+      "mae": "10.468984",
+      "rmse": 14.973642206807934,
+      "mape": "0.010392417",
+      "oos_r2": "-0.025097251",
+      "directional_accuracy": 0.48138297872340424,
+      "trade_statistics": {
+        "buy_orders": 6,
+        "sell_orders": 1,
+        "close_positions": 2,
+        "total_trades": 9
+      },
+      "ticker": "GWW",
+      "model": "TimesFM",
+      "epsilon": 0.002527977170514912
+    },
+    {
+      "total_return": 0.1378263072567235,
+      "bh_return": 0.3178753034288759,
+      "excess_return": -0.18004899617215236,
+      "sharpe_ratio": 1.144597834882935,
+      "max_drawdown": 0.09293049888147906,
+      "mae": "2.9507608",
+      "rmse": 4.208412673252655,
+      "mape": "0.012390249",
+      "oos_r2": "-0.03774023",
+      "directional_accuracy": 0.44680851063829785,
+      "trade_statistics": {
+        "buy_orders": 6,
+        "sell_orders": 2,
+        "close_positions": 4,
+        "total_trades": 12
+      },
+      "ticker": "RMD",
+      "model": "TimesFM",
+      "epsilon": 0.005053896954308817
+    },
+    {
+      "total_return": 0.09609716090469185,
+      "bh_return": 0.4286190666164525,
+      "excess_return": -0.33252190571176066,
+      "sharpe_ratio": 0.30592086731342355,
+      "max_drawdown": 0.1437636035000173,
+      "mae": "10.498306",
+      "rmse": 15.217612472727684,
+      "mape": "0.010778677",
+      "oos_r2": "-0.025071383",
+      "directional_accuracy": 0.5425531914893617,
+      "trade_statistics": {
+        "buy_orders": 7,
+        "sell_orders": 3,
+        "close_positions": 5,
+        "total_trades": 15
+      },
+      "ticker": "BLK",
+      "model": "TimesFM",
+      "epsilon": 0.002863551824937889
+    }
+  ],
+  "summary": {
+    "metrics": {
+      "total_return": 0.04000235963645536,
+      "excess_return": -0.07615508699823956,
+      "sharpe_ratio": -6.877156123467752,
+      "max_drawdown": 0.15826184018722544,
+      "mape": 0.010820465162396431,
+      "oos_r2": -0.028328895568847656,
+      "directional_accuracy": 0.4997340425531915
+    },
+    "trade_statistics": {
+      "total_trades": 130,
+      "buy_orders": 75,
+      "sell_orders": 20,
+      "close_positions": 35,
+      "average_per_stock": 13.0
+    }
+  }
+}

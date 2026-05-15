@@ -1,0 +1,331 @@
+{
+  "config": {
+    "initial_cash": 100000.0,
+    "stocks": [
+      "CARR",
+      "OTIS",
+      "RSG",
+      "CTAS",
+      "AJG",
+      "PEP",
+      "TT",
+      "GWW",
+      "RMD",
+      "BLK"
+    ],
+    "model": "SVR",
+    "data_split": {
+      "training_start": "2020-01-02",
+      "training_end": "2023-12-29",
+      "validation_start": "2024-01-02",
+      "validation_end": "2024-06-28",
+      "test_start": "2024-07-01",
+      "test_end": "2025-12-31"
+    },
+    "model_config": {
+      "train_fn": "<function train_svr at 0x11cfc3600>",
+      "forecast_horizon": 5,
+      "warmup_period": 0
+    }
+  },
+  "results": [
+    {
+      "total_return": 0.07148803519134395,
+      "bh_return": -0.1229151214472998,
+      "excess_return": 0.19440315663864374,
+      "sharpe_ratio": 0.20288843801311643,
+      "max_drawdown": 0.15766788250051836,
+      "mae": 1.1055613698683024,
+      "rmse": 1.5196619467501207,
+      "mape": 0.017025041075826412,
+      "oos_r2": -0.2817924994857792,
+      "directional_accuracy": 0.48138297872340424,
+      "trade_statistics": {
+        "buy_orders": 10,
+        "sell_orders": 6,
+        "close_positions": 0,
+        "total_trades": 16
+      },
+      "ticker": "CARR",
+      "model": "SVR",
+      "epsilon": 0.004507552297823439,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.1,
+        "gamma": 0.001,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": -0.3180054944341135,
+      "bh_return": -0.048812664361243284,
+      "excess_return": -0.26919283007287026,
+      "sharpe_ratio": -3.586643713165126,
+      "max_drawdown": 0.33761907777855604,
+      "mae": 0.9021183989286744,
+      "rmse": 1.425062562369665,
+      "mape": 0.009705580603836422,
+      "oos_r2": -0.08396999338226974,
+      "directional_accuracy": 0.550531914893617,
+      "trade_statistics": {
+        "buy_orders": 16,
+        "sell_orders": 12,
+        "close_positions": 0,
+        "total_trades": 28
+      },
+      "ticker": "OTIS",
+      "model": "SVR",
+      "epsilon": 0.002525057597546372,
+      "hyperparameters": {
+        "C": 1,
+        "epsilon": 0.01,
+        "gamma": 10,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.14498010915363468,
+      "bh_return": 0.1310959046220051,
+      "excess_return": 0.013884204531629585,
+      "sharpe_ratio": 2.4534417777512414,
+      "max_drawdown": 0.10621770667379721,
+      "mae": 2.0076042958724805,
+      "rmse": 2.8122383182028794,
+      "mape": 0.009195065402829347,
+      "oos_r2": -0.24372277653106988,
+      "directional_accuracy": 0.5585106382978723,
+      "trade_statistics": {
+        "buy_orders": 16,
+        "sell_orders": 8,
+        "close_positions": 3,
+        "total_trades": 27
+      },
+      "ticker": "RSG",
+      "model": "SVR",
+      "epsilon": 0.002011596122083669,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.001,
+        "gamma": 0.001,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.2572640246385659,
+      "bh_return": 0.1101971873801932,
+      "excess_return": 0.14706683725837272,
+      "sharpe_ratio": 5.247905012341959,
+      "max_drawdown": 0.15959902103487647,
+      "mae": 2.2809946660056073,
+      "rmse": 3.2802968569089104,
+      "mape": 0.011424934483241927,
+      "oos_r2": -0.2518960172797573,
+      "directional_accuracy": 0.5292553191489362,
+      "trade_statistics": {
+        "buy_orders": 10,
+        "sell_orders": 8,
+        "close_positions": 1,
+        "total_trades": 19
+      },
+      "ticker": "CTAS",
+      "model": "SVR",
+      "epsilon": 0.002431886873235683,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.001,
+        "gamma": 0.001,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.14401453400298445,
+      "bh_return": 0.02300663492734207,
+      "excess_return": 0.12100789907564238,
+      "sharpe_ratio": 1.07509303673002,
+      "max_drawdown": 0.10677551377024046,
+      "mae": 3.9881078127913816,
+      "rmse": 5.3633417180419025,
+      "mape": 0.013737016443923849,
+      "oos_r2": -0.5244425903822174,
+      "directional_accuracy": 0.5372340425531915,
+      "trade_statistics": {
+        "buy_orders": 15,
+        "sell_orders": 8,
+        "close_positions": 5,
+        "total_trades": 28
+      },
+      "ticker": "AJG",
+      "model": "SVR",
+      "epsilon": 0.002831089675744656,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.01,
+        "gamma": 0.01,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": -0.01565758801489341,
+      "bh_return": -0.06471422828277279,
+      "excess_return": 0.049056640267879384,
+      "sharpe_ratio": -4.581953457752421,
+      "max_drawdown": 0.12209273098449938,
+      "mae": 1.6735836241935915,
+      "rmse": 2.248705087887862,
+      "mape": 0.011640394049637086,
+      "oos_r2": -0.47686603646856107,
+      "directional_accuracy": 0.48936170212765956,
+      "trade_statistics": {
+        "buy_orders": 14,
+        "sell_orders": 3,
+        "close_positions": 6,
+        "total_trades": 23
+      },
+      "ticker": "PEP",
+      "model": "SVR",
+      "epsilon": 0.002639219587155116,
+      "hyperparameters": {
+        "C": 1000,
+        "epsilon": 0.01,
+        "gamma": 0.001,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.09366394900101688,
+      "bh_return": 0.23325225407872313,
+      "excess_return": -0.13958830507770625,
+      "sharpe_ratio": 0.33656555718600817,
+      "max_drawdown": 0.15028910528933273,
+      "mae": 4.726341185689382,
+      "rmse": 6.715699313946805,
+      "mape": 0.012414922125582387,
+      "oos_r2": -0.08921055368129838,
+      "directional_accuracy": 0.5292553191489362,
+      "trade_statistics": {
+        "buy_orders": 9,
+        "sell_orders": 7,
+        "close_positions": 0,
+        "total_trades": 16
+      },
+      "ticker": "TT",
+      "model": "SVR",
+      "epsilon": 0.0032328669829875287,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.001,
+        "gamma": 10,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.16820073067726626,
+      "bh_return": 0.1539701293846732,
+      "excess_return": 0.01423060129259307,
+      "sharpe_ratio": 1.3917927467016653,
+      "max_drawdown": 0.11814011012559505,
+      "mae": 15.955725048875472,
+      "rmse": 21.574756773048975,
+      "mape": 0.015820341640876888,
+      "oos_r2": -1.1281489437671266,
+      "directional_accuracy": 0.48404255319148937,
+      "trade_statistics": {
+        "buy_orders": 13,
+        "sell_orders": 2,
+        "close_positions": 7,
+        "total_trades": 22
+      },
+      "ticker": "GWW",
+      "model": "SVR",
+      "epsilon": 0.003971727302911201,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.01,
+        "gamma": 1,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": -0.024158732702184205,
+      "bh_return": 0.3178753034288759,
+      "excess_return": -0.3420340361310601,
+      "sharpe_ratio": -1.730873522994674,
+      "max_drawdown": 0.08129855430009,
+      "mae": 3.1460259298452535,
+      "rmse": 4.4078425590907875,
+      "mape": 0.01317703956573075,
+      "oos_r2": -0.13842424677937437,
+      "directional_accuracy": 0.523936170212766,
+      "trade_statistics": {
+        "buy_orders": 6,
+        "sell_orders": 1,
+        "close_positions": 4,
+        "total_trades": 11
+      },
+      "ticker": "RMD",
+      "model": "SVR",
+      "epsilon": 0.004674376013809347,
+      "hyperparameters": {
+        "C": 0.1,
+        "epsilon": 0.05,
+        "gamma": 0.01,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    },
+    {
+      "total_return": 0.13469947745642363,
+      "bh_return": 0.4286190666164525,
+      "excess_return": -0.29391958916002886,
+      "sharpe_ratio": 1.2368267199761236,
+      "max_drawdown": 0.055015887927680855,
+      "mae": 15.670987520694077,
+      "rmse": 21.62001985057255,
+      "mape": 0.01616018352271162,
+      "oos_r2": -1.0690607368066596,
+      "directional_accuracy": 0.4920212765957447,
+      "trade_statistics": {
+        "buy_orders": 9,
+        "sell_orders": 0,
+        "close_positions": 8,
+        "total_trades": 17
+      },
+      "ticker": "BLK",
+      "model": "SVR",
+      "epsilon": 0.003604469286026546,
+      "hyperparameters": {
+        "C": 10,
+        "epsilon": 0.05,
+        "gamma": 0.01,
+        "lookback_window": 60,
+        "prediction_horizon": 5
+      }
+    }
+  ],
+  "summary": {
+    "metrics": {
+      "total_return": 0.06564890449700447,
+      "excess_return": -0.05050854213769046,
+      "sharpe_ratio": 0.20450425947879128,
+      "max_drawdown": 0.13947155903851866,
+      "mape": 0.01303005189141967,
+      "oos_r2": -0.42875343945641137,
+      "directional_accuracy": 0.5175531914893617
+    },
+    "trade_statistics": {
+      "total_trades": 207,
+      "buy_orders": 118,
+      "sell_orders": 55,
+      "close_positions": 34,
+      "average_per_stock": 20.7
+    }
+  }
+}

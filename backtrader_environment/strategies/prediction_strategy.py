@@ -164,8 +164,21 @@ class PredictionStrategy(GeneralStrategy):
                 df = self._get_ohlcv_dataframe(d)
                 model.fit(df)
                 self._model_fitted[d] = True
+            elif hasattr(model, "append") and hasattr(model, "data_buffer"):
+                # For models like SVR that use append() for incremental updates
+                # Get current bar data
+                current_bar = pd.DataFrame({
+                    'open': [d.open[0]],
+                    'high': [d.high[0]],
+                    'low': [d.low[0]],
+                    'close': [d.close[0]],
+                    'volume': [d.volume[0] if hasattr(d, 'volume') else 0]
+                }, index=[d.datetime.date(0)])
+                model.append(current_bar)
             elif hasattr(model, "data_buffer"):
                 df = self._get_ohlcv_dataframe(d)
+                # SVR expects lowercase column names
+                df.columns = df.columns.str.lower()
                 model.data_buffer = df
                 model.last_close = current_price
 
