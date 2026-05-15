@@ -27,12 +27,13 @@ class SVRPredictionModel(PredictionModel):
     Features follow the specification in Konzeption Section 3.2.2 (9 dimensions).
     """
 
-    def __init__(self, C=1.0, epsilon=0.1, gamma=1.0, lookback_window=60, sentiment_data=None):
+    def __init__(self, C=1.0, epsilon=0.1, gamma=1.0, lookback_window=60, sentiment_data=None, prediction_horizon=5):
         self.C = C
         self.epsilon = epsilon
         self.gamma = gamma
         self.lookback_window = lookback_window
         self.sentiment_data = sentiment_data
+        self.prediction_horizon = prediction_horizon  # Predict N days ahead
 
         self.svr = None
         self.scaler = StandardScaler()
@@ -66,7 +67,8 @@ class SVRPredictionModel(PredictionModel):
         self.last_close = df["close"].iloc[-1]
 
         features_df = _compute_features(df, self.sentiment_data)
-        targets = np.log(df["close"] / df["close"].shift(1)).values
+        # Predict N-day ahead return instead of 1-day
+        targets = np.log(df["close"].shift(-self.prediction_horizon) / df["close"]).values
 
         valid_mask = ~np.isnan(targets) & ~features_df.isna().any(axis=1).values
         features_arr = features_df.values[valid_mask]
@@ -87,15 +89,23 @@ class SVRPredictionModel(PredictionModel):
         self.is_fitted = True
 
     def predict(self, n=1):
-        """Predict next price based on current features."""
+        """Predict next price based on current features.
+
+        Returns prediction for N days ahead (based on prediction_horizon).
+        """
         if not self.is_fitted or self.data_buffer is None:
             return float("nan")
 
         features_df = _compute_features(self.data_buffer, self.sentiment_data)
         last_features = features_df.values[-1:]
+
+        if np.any(np.isnan(last_features)):
+            return float("nan")
+
         X = self.scaler.transform(last_features)
 
         r_hat = self.svr.predict(X)[0]
+        # Predicted price is N days ahead
         price_hat = self.last_close * np.exp(r_hat)
 
         if n == 1:
@@ -123,16 +133,17 @@ class SVRPredictionModel(PredictionModel):
         """Grid search over C, epsilon, gamma on validation set."""
         val_df = self._to_dataframe(validation_data)
         val_features = _compute_features(val_df, self.sentiment_data)
-        val_targets = np.log(val_df["close"] / val_df["close"].shift(1)).values
+        val_targets = np.log(val_df["close"].shift(-self.prediction_horizon) / val_df["close"]).values
 
         valid_mask = ~np.isnan(val_targets) & ~val_features.isna().any(axis=1).values
         X_val = self.scaler.transform(val_features.values[valid_mask])
         y_val = val_targets[valid_mask]
         y_val = np.clip(y_val, -0.2, 0.2)
 
+        # Extended grid search with more parameter combinations
         C_grid = [0.1, 1, 10, 100, 1000]
-        eps_grid = [0.001, 0.01, 0.1, 0.5, 1]
-        gamma_grid = [0.01, 0.1, 1, 10, 50, 100]
+        eps_grid = [0.001, 0.01, 0.05, 0.1, 0.5]
+        gamma_grid = [0.001, 0.01, 0.1, 1, 10, "scale", "auto"]
 
         best_rmse = np.inf
         best_params = (self.C, self.epsilon, self.gamma)
@@ -245,7 +256,9 @@ def _compute_exponential_sentiment(dates: pd.DatetimeIndex, sentiment_data: pd.D
     sentiment_data = sentiment_data.sort_index()
 
     for date in dates:
-        past_sentiments = sentiment_data[sentiment_data.index <= date].tail(10)
+        # Convert date to pandas Timestamp for comparison
+        date_ts = pd.Timestamp(date)
+        past_sentiments = sentiment_data[sentiment_data.index <= date_ts].tail(10)
         if len(past_sentiments) == 0:
             result[date] = 0.0
             continue
@@ -278,7 +291,10 @@ def _compute_trading_pause(dates: pd.DatetimeIndex) -> pd.Series:
             continue
 
         prev_date = dates[i - 1]
-        days_diff = (date - prev_date).days
+        # Convert both to Timestamp for consistent comparison
+        date_ts = pd.Timestamp(date)
+        prev_date_ts = pd.Timestamp(prev_date)
+        days_diff = (date_ts - prev_date_ts).days
 
         result.iloc[i] = 1 if days_diff > 1 else 0
 

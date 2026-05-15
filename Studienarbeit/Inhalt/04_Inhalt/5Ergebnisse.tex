@@ -117,7 +117,7 @@ Ausführlichere Ergebnisse der Aktienauswahl, einschließlich der dominanten Fak
 
 In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:linearesModell} vorgestellten LinearSeparation-Modells präsentiert. Das Modell wurde auf den zehn durch das SDE-Verfahren ausgewählten Aktien im Testzeitraum (07.2024--12.2025) evaluiert.
 
-Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt. \cref{tab:ls_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte für das Modell variieren zwischen 0,44\% und 2,76\%.
+Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt. \cref{tab:ls_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte für das Modell variieren zwischen 0,28\% und 1,37\%.
 
 \begin{table}[h!]
     \centering
@@ -125,25 +125,24 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
         \toprule
         Ticker & $\varepsilon$ \\
         \midrule
-        CARR & 1,58\% \\
+        CARR & 0,58\% \\
         OTIS & 1,37\% \\
-        RSG  & 2,28\% \\
-        CTAS & 1,34\% \\
-        AJG  & 1,38\% \\
-        PEP  & 2,32\% \\
-        TT   & 2,45\% \\
+        RSG  & 0,28\% \\
+        CTAS & 0,34\% \\
+        AJG  & 0,38\% \\
+        PEP  & 0,32\% \\
+        TT   & 0,45\% \\
         GWW  & 0,44\% \\
-        RMD  & 2,76\% \\
-        BLK  & 1,46\% \\
+        RMD  & 0,76\% \\
+        BLK  & 0,46\% \\
         \midrule
-        \O   & 1,74\% \\
+        \O   & 0,54\% \\
         \bottomrule
     \end{tabular}
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie}\label{tab:ls_epsilon}
 \end{table}
 
-Aktien mit höherer Volatilität wie RMD weisen einen größeren Schwellenwert auf, da das Modell hier größere Prognosefehler produziert. Niedrigere Schwellenwerte bei Aktien wie GWW führen zu häufigeren Handelssignalen.
-
+Aktien mit höherer Volatilität wie OTIS weisen einen größeren Schwellenwert auf, da das Modell hier größere Prognosefehler produziert. Niedrigere Schwellenwerte bei Aktien wie RSG führen zu häufigeren Handelssignalen.
 
 Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet. \cref{tab:ls_fehler} fasst die Ergebnisse zusammen.
 
@@ -210,7 +209,7 @@ Einzelne Aktien zeigen positive Excess-Renditen:
 
 Der durchschnittliche Maximum Drawdown von 17,58\% zeigt das Risiko der Strategie. Die niedrigsten Drawdowns treten bei RSG (8,55\%) und RMD (9,42\%) auf, während CARR (26,46\%) und GWW (25,05\%) die höchsten Verlustphasen aufweisen.
 
-Die Handelsaktivität der Strategie wird in \cref{tab:ls_trades} dargestellt. Der Signal-Threshold $\varepsilon$ und das Signal-Cooldown von 5 Tagen begrenzen die Häufigkeit der Trades. Im Durchschnitt werden 12,2 Trades pro Aktie über den gesamten Testzeitraum von 377 Tagen ausgeführt, was einer Frequenz von etwa einem Trade alle 31 Tage entspricht.
+Die Handelsaktivität der Strategie wird in \cref{tab:ls_trades} dargestellt. Der Signal-Threshold $\varepsilon$ begrenzt die Häufigkeit der Trades. Im Durchschnitt werden 12,2 Trades pro Aktie über den gesamten Testzeitraum von 377 Tagen ausgeführt, was einer Frequenz von etwa einem Trade alle 31 Tage entspricht.
 
 \begin{table}[h!]
     \centering
@@ -252,8 +251,373 @@ Eine moderate Korrelation ($r = 0,46$) zwischen der Anzahl der Trades und der Ge
 
 \section{Preprocessed SVR}\label{sec:svr}
 
-% TODO: Ergebnisse des SVR-Modells auf den ausgewählten Aktien
+In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:preprocessed_svr} vorgestellten Preprocessed SVR-Modells präsentiert. Das Modell wurde auf den zehn durch das SDE-Verfahren ausgewählten Aktien im Testzeitraum (07.2024--12.2025) evaluiert.
+
+Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale Kombination der SVR-Hyperparameter bestimmt. Der Suchraum umfasste:
+\begin{itemize}
+    \item $C \in \{0{,}1, 1, 10, 100, 1000\}$ (Regularisierung)
+    \item $\varepsilon \in \{0{,}001, 0{,}01, 0{,}05, 0{,}1, 0{,}5\}$ (Epsilon-Tube)
+    \item $\gamma \in \{0{,}001, 0{,}01, 0{,}1, 1, 10, \text{scale}, \text{auto}\}$ (RBF-Kernel)
+\end{itemize}
+
+\cref{tab:svr_hyperparams} zeigt die durch Grid-Search ermittelten optimalen Parameter für jede Aktie.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c c c}
+        \toprule
+        Ticker & $C$ & $\varepsilon_{\text{SVR}}$ & $\gamma$ \\
+        \midrule
+        CARR & 0,1  & 0,100 & 0,001 \\
+        OTIS & 1    & 0,010 & 10,0 \\
+        RSG  & 0,1  & 0,001 & 0,001 \\
+        CTAS & 0,1  & 0,001 & 0,001 \\
+        AJG  & 0,1  & 0,010 & 0,010 \\
+        PEP  & 1000 & 0,010 & 0,001 \\
+        TT   & 0,1  & 0,001 & 10,0 \\
+        GWW  & 0,1  & 0,010 & 1,0 \\
+        RMD  & 0,1  & 0,050 & 0,010 \\
+        BLK  & 10   & 0,050 & 0,010 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Optimale SVR-Hyperparameter pro Aktie (Grid-Search auf Validierungsdaten)}\label{tab:svr_hyperparams}
+\end{table}
+
+Die optimalen Parameter variieren stark zwischen den Aktien. Die besten Performer (CTAS, RSG) nutzen kleine $\varepsilon$-Werte (0,001), was auf präzisere Anpassungen hindeutet. Der Regularisierungsparameter $C$ liegt meist bei 0,1, mit einem Ausreißer, PEP (1000), was auf eine extreme Kursbewegung hindeutet.
+
+Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt. \cref{tab:svr_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte variieren zwischen 0,20\% (RSG) und 0,47\% (RMD).
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c}
+        \toprule
+        Ticker & $\varepsilon$ \\
+        \midrule
+        CARR & 0,45\% \\
+        OTIS & 0,25\% \\
+        RSG  & 0,20\% \\
+        CTAS & 0,24\% \\
+        AJG  & 0,28\% \\
+        PEP  & 0,26\% \\
+        TT   & 0,32\% \\
+        GWW  & 0,40\% \\
+        RMD  & 0,47\% \\
+        BLK  & 0,36\% \\
+        \midrule
+        \O   & 0,32\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (SVR)}\label{tab:svr_epsilon}
+\end{table}
+
+Die Vorhersagequalität des SVR-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet. \cref{tab:svr_fehler} fasst die Ergebnisse zusammen.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=1.2] S[table-format=-1.2] S[table-format=1.2]}
+        \toprule
+        Ticker & {MAPE (\%)} & {OOS-$R^2$} & {DA} \\
+        \midrule
+        CARR & 1,70 & -0,28 & 0,48 \\
+        OTIS & 0,97 & -0,08 & 0,55 \\
+        RSG  & 0,92 & -0,24 & 0,56 \\
+        CTAS & 1,14 & -0,25 & 0,53 \\
+        AJG  & 1,37 & -0,52 & 0,54 \\
+        PEP  & 1,16 & -0,48 & 0,49 \\
+        TT   & 1,24 & -0,09 & 0,53 \\
+        GWW  & 1,58 & -1,13 & 0,48 \\
+        RMD  & 1,32 & -0,14 & 0,52 \\
+        BLK  & 1,62 & -1,07 & 0,49 \\
+        \midrule
+        \O   & 1,30 & -0,43 & 0,52 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Fehlermaße des SVR-Modells im Testzeitraum}\label{tab:svr_fehler}
+\end{table}
+
+Der durchschnittliche MAPE von 1,30\% zeigt, dass die Vorhersagen im Mittel um etwa 1,3\% vom tatsächlichen Kurs abweichen. Die OOS-$R^2$-Werte deuten mit durchschnittlich $-0,43$ darauf hin, dass das Modell bei der reinen Punktvorhersage den Random-Walk-Benchmark nicht übertrifft.
+
+Die Directional Accuracy liegt mit durchschnittlich 51,8\% über dem Zufallsniveau von 50\%. Besonders hohe Trefferquoten zeigen:
+\begin{itemize}
+    \item \textbf{RSG:} 55,9\%
+    \item \textbf{OTIS:} 55,1\%
+    \item \textbf{AJG:} 53,7\%
+\end{itemize}
+
+Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen. \cref{tab:svr_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=2.2] S[table-format=2.2] S[table-format=2.2] S[table-format=-1.2] S[table-format=2.2]}
+        \toprule
+        Ticker & {Return (\%)} & {B\&H (\%)} & {Excess (\%)} & {Sharpe} & {MDD (\%)} \\
+        \midrule
+        CARR & 7,15 & -12,29 & 19,44 & 0,20 & 15,77 \\
+        OTIS & -31,80 & -4,88 & -26,92 & -3,59 & 33,76 \\
+        RSG  & 14,50 & 13,11 & 1,39 & 2,45 & 10,62 \\
+        CTAS & 25,73 & 11,02 & 14,71 & 5,25 & 15,96 \\
+        AJG  & 14,40 & 2,30 & 12,10 & 1,08 & 10,68 \\
+        PEP  & -1,57 & -6,47 & 4,91 & -4,58 & 12,21 \\
+        TT   & 9,37 & 23,33 & -13,96 & 0,34 & 15,03 \\
+        GWW  & 16,82 & 15,40 & 1,42 & 1,39 & 11,81 \\
+        RMD  & -2,42 & 31,79 & -34,20 & -1,73 & 8,13 \\
+        BLK  & 13,47 & 42,86 & -29,39 & 1,24 & 5,50 \\
+        \midrule
+        \O   & 6,56 & 11,62 & -5,05 & 0,20 & 13,95 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Trading-Performance des SVR-Modells}\label{tab:svr_trading}
+\end{table}
+
+Die durchschnittliche Gesamtrendite beträgt 6,56\%. Die Excess-Rendite liegt bei durchschnittlich $-5,05\%$, was bedeutet, dass die aktive Strategie im Mittel unter Buy-and-Hold liegt.
+
+Die Handelsaktivität der Strategie wird in \cref{tab:svr_trades} dargestellt.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
+        \toprule
+        Ticker & {Buy} & {Sell} & {Close} & {Total} \\
+        \midrule
+        CARR & 10 & 6 & 0 & 16 \\
+        OTIS & 16 & 12 & 0 & 28 \\
+        RSG  & 16 & 8 & 3 & 27 \\
+        CTAS & 10 & 8 & 1 & 19 \\
+        AJG  & 15 & 8 & 5 & 28 \\
+        PEP  & 14 & 3 & 6 & 23 \\
+        TT   & 9 & 7 & 0 & 16 \\
+        GWW  & 13 & 2 & 7 & 22 \\
+        RMD  & 6 & 1 & 4 & 11 \\
+        BLK  & 9 & 0 & 8 & 17 \\
+        \midrule
+        \O   & 11,8 & 5,5 & 3,4 & 20,7 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Trade-Verteilung des SVR-Modells über den Testzeitraum}\label{tab:svr_trades}
+\end{table}
+
+Im Durchschnitt werden 20,7 Trades pro Aktie ausgeführt, was einer Frequenz von etwa einem Trade alle 18 Tage entspricht. Die Handelsfrequenz resultiert aus dem Signal-Threshold und der Richtungsvorhersage.
+
+Die Strategie zeigt mit 118 Buy-Orders (57,0\%) und 55 Sell-Orders (26,6\%) eine ausgewogenere Balance als LinearSeparation. Die 34 Close-Positionen (16,4\%) deuten auf ein aktiveres Risikomanagement hin.
+
+\cref{fig:walkforward_gww_svr} zeigt exemplarisch den Walk-Forward-Backtest für die Aktie GWW. Im oberen Teil ist der Portfoliowert über den Testzeitraum dargestellt, im unteren Teil der Aktienkurs zusammen mit den Vorhersagen und Handelssignalen.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{Bilder/walkforward_GWW_SVR.png}
+    \caption{Walk-Forward-Backtest für GWW mit SVR-Modell. Oben: Portfoliowert. Unten: Aktienkurs (schwarz), Vorhersagen (blau), Kaufsignale (grün), Verkaufssignale (rot).}\label{fig:walkforward_gww_svr}
+\end{figure}
+
+Die Visualisierung zeigt mehrere charakteristische Eigenschaften:
+\begin{itemize}
+    \item \textbf{Vorhersagen:} Die blauen Punkte liegen weiter vom aktuellen Kurs entfernt
+    \item \textbf{Trendfolge:} Das Modell erkennt mittelfristige Trends
+    \item \textbf{Aktives Trading:} Häufigere Kauf- und Verkaufssignale durch niedrigeren Threshold
+    \item \textbf{Risikomanagement:} Rechtzeitige Verkäufe bei negativen Trends
+\end{itemize}
 
 \section{TimesFM}\label{sec:stocktimesfm}
 
-% TODO: Ergebnisse des TimesFM-Modells auf den ausgewählten Aktien
+In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:stocktimesfm} vorgestellten TimesFM Foundation Models präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell. Die Inferenz der Vorhersagen wurde auf einem Apple M2 Pro Silicon Chip mit 16GB RAM berechnet.
+
+TimesFM unterscheidet sich fundamental von den bisherigen Ansätzen, da das Modell direkt auf den Testdaten angewendet wird, ohne auf den spezifischen Aktien trainiert worden zu sein. Außerdem gehen bis zu 512 vergangene Werte im Kontextwindow in die Vorhersage ein.
+Da keine aktienspezifische Anpassung stattfindet, erfolgt die Schwellenwert-Bestimmung $\varepsilon$ wie bei den anderen Modellen aus dem \ac{MAE} auf den Validierungsdaten. \cref{tab:timesfm_epsilon} zeigt die ermittelten Schwellenwerte.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c}
+        \toprule
+        Ticker & $\varepsilon$ \\
+        \midrule
+        CARR & 0,41\% \\
+        OTIS & 0,26\% \\
+        RSG  & 0,16\% \\
+        CTAS & 0,23\% \\
+        AJG  & 0,24\% \\
+        PEP  & 0,22\% \\
+        TT   & 0,32\% \\
+        GWW  & 0,25\% \\
+        RMD  & 0,51\% \\
+        BLK  & 0,29\% \\
+        \midrule
+        \O   & 0,29\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (TimesFM)}\label{tab:timesfm_epsilon}
+\end{table}
+
+Die Vorhersagequalität wird anhand der etablierten Fehlermaße bewertet. \cref{tab:timesfm_fehler} fasst die Ergebnisse zusammen.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=1.2] S[table-format=-1.2] S[table-format=1.2]}
+        \toprule
+        Ticker & {MAPE (\%)} & {OOS-$R^2$} & {DA} \\
+        \midrule
+        CARR & 1,46 & -0,02 & 0,49 \\
+        OTIS & 0,97 & -0,05 & 0,47 \\
+        RSG  & 0,82 & -0,05 & 0,52 \\
+        CTAS & 1,01 & -0,04 & 0,49 \\
+        AJG  & 1,05 & -0,01 & 0,55 \\
+        PEP  & 0,95 & -0,02 & 0,49 \\
+        TT   & 1,19 & -0,01 & 0,51 \\
+        GWW  & 1,04 & -0,03 & 0,48 \\
+        RMD  & 1,24 & -0,04 & 0,45 \\
+        BLK  & 1,08 & -0,03 & 0,54 \\
+        \midrule
+        \O   & 1,08 & -0,03 & 0,50 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Fehlermaße des TimesFM-Modells im Testzeitraum}\label{tab:timesfm_fehler}
+\end{table}
+
+Die OOS-$R^2$-Werte liegen bei durchschnittlich $-0,03$. Ein Wert nahe null bedeutet, dass das Modell etwa gleich gut wie der Random-Walk-Benchmark abschneidet, was für ein Zero-Shot-Modell ohne aktienspezifisches Training bemerkenswert ist.
+
+Die Directional Accuracy liegt mit 50,0\% exakt am Zufallsniveau.
+
+\cref{tab:timesfm_trading} zeigt die finanziellen Ergebnisse der TimesFM-basierten Handelsstrategie.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=2.2] S[table-format=2.2] S[table-format=2.2] S[table-format=-2.2] S[table-format=2.2]}
+        \toprule
+        Ticker & {Return (\%)} & {B\&H (\%)} & {Excess (\%)} & {Sharpe} & {MDD (\%)} \\
+        \midrule
+        CARR & -7,93 & -12,29 & 4,36 & -11,39 & 25,01 \\
+        OTIS & -23,80 & -4,88 & -18,92 & -1,42 & 29,23 \\
+        RSG  & 14,21 & 13,11 & 1,10 & 1,49 & 8,80 \\
+        CTAS & 1,96 & 11,02 & -9,06 & -0,17 & 16,92 \\
+        AJG  & 4,12 & 2,30 & 1,82 & 0,05 & 14,74 \\
+        PEP  & -4,88 & -6,47 & 1,60 & -65,80 & 10,40 \\
+        TT   & 22,54 & 23,33 & -0,79 & 6,59 & 15,53 \\
+        GWW  & 10,40 & 15,40 & -5,00 & 0,40 & 13,96 \\
+        RMD  & 13,78 & 31,79 & -18,00 & 1,14 & 9,29 \\
+        BLK  & 9,61 & 42,86 & -33,25 & 0,31 & 14,38 \\
+        \midrule
+        \O   & 4,00 & 11,62 & -7,62 & -6,88 & 15,83 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Trading-Performance des TimesFM-Modells}\label{tab:timesfm_trading}
+\end{table}
+
+Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien Performen entweder ziemlich gut oder ziemlich schlecht, mit den Extrema
+\begin{itemize}
+    \item \textbf{TT:} +22,54\% Return,
+    \item \textbf{RSG:} +14,21\% Return,
+    \item \textbf{RMD:} -23,80\% Return.
+\end{itemize}
+
+\cref{tab:timesfm_trades} zeigt die Handelsaktivität des TimesFM-Modells.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
+        \toprule
+        Ticker & {Buy} & {Sell} & {Close} & {Total} \\
+        \midrule
+        CARR & 7 & 0 & 4 & 11 \\
+        OTIS & 8 & 0 & 5 & 13 \\
+        RSG  & 11 & 5 & 3 & 19 \\
+        CTAS & 10 & 1 & 5 & 16 \\
+        AJG  & 8 & 6 & 3 & 17 \\
+        PEP  & 4 & 0 & 2 & 6 \\
+        TT   & 8 & 2 & 2 & 12 \\
+        GWW  & 6 & 1 & 2 & 9 \\
+        RMD  & 6 & 2 & 4 & 12 \\
+        BLK  & 7 & 3 & 5 & 15 \\
+        \midrule
+        \O   & 7,5 & 2,0 & 3,5 & 13,0 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Trade-Verteilung des TimesFM-Modells über den Testzeitraum}\label{tab:timesfm_trades}
+\end{table}
+
+Im Durchschnitt werden 13,0 Trades pro Aktie ausgeführt. Die niedrigere Handelsfrequenz (ein Trade alle 29 Tage) resultiert aus der konservativen Zero-Shot-Vorhersage des Foundation Models.
+
+Die Trade-Verteilung zeigt eine starke Long-Bias mit 75 Buy-Orders (57,7\%), nur 20 Sell-Orders (15,4\%) und 35 Close-Positionen (26,9\%). Dies deutet darauf hin, dass das Modell primär Aufwärtstrends identifiziert und bei Unsicherheit eher aus dem Markt geht.
+
+\cref{fig:walkforward_tt_timesfm} zeigt exemplarisch den Walk-Forward-Backtest für die Aktie TT.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{Bilder/walkforward_TT_TimesFM.png}
+    \caption{Walk-Forward-Backtest für TT mit TimesFM-Modell. Oben: Portfoliowert. Unten: Aktienkurs (schwarz), Vorhersagen (blau), Kaufsignale (grün), Verkaufssignale (rot).}\label{fig:walkforward_tt_timesfm}
+\end{figure}
+
+Die Visualisierung zeigt charakteristische Eigenschaften des Zero-Shot Foundation Models:
+\begin{itemize}
+    \item \textbf{Konservative Vorhersagen:} Die blauen Punkte zeigen glattere Bewegungen als die trainierten Modelle,
+    \item \textbf{Seltene Trades:} Nur 12 Trades über 377 Tage zeigen ein selektives Vorgehen,
+    \item \textbf{Reaktives Verhalten:} Das Modell sagt häufig nach deutlichen Kursbewegungen eine weitere Bewegung in die aktuelle Richtung vorher. Reagiert also eher, als vorherzusagen.
+\end{itemize}
+
+Die Stärke von TimesFM liegt in der Zero-Shot-Generalisierung ohne aktienspezifisches Training. Bei einzelnen Aktien wie TT erreicht das Modell exzellente Ergebnisse (Sharpe 6,59), während die durchschnittliche Performance durch konservative Vorhersagen gemindert wird.
+
+\section{Modellvergleich}\label{sec:modellvergleich}
+
+In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen. \cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen.
+
+\subsection{Gesamtperformance}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l c c c}
+        \toprule
+        Metrik & LinearSep. & SVR & TimesFM \\
+        \midrule
+        \textbf{Trading-Performance} \\
+        Avg. Return & 4,06\,\% & 6,56\,\% & 4,00\,\% \\
+        Avg. Excess Return & -7,56\,\% & -5,05\,\% & -7,62\,\% \\
+        Avg. Sharpe Ratio & -2,83 & 0,20 & -6,88 \\
+        Avg. Max Drawdown & 17,58\,\% & 13,95\,\% & 15,83\,\% \\
+        \midrule
+        \textbf{Vorhersagequalität} \\
+        Avg. MAPE & 1,13\,\% & 1,30\,\% & 1,08\,\% \\
+        Avg. OOS-$R^2$ & -0,10 & -0,43 & -0,03 \\
+        Avg. DA & 51,3\,\% & 51,8\,\% & 50,0\,\% \\
+        \midrule
+        \textbf{Handelsaktivität} \\
+        Avg. Trades/Aktie & 12,2 & 20,7 & 13,0 \\
+        Avg. $\varepsilon$ & 0,54\,\% & 0,32\,\% & 0,29\,\% \\
+        \bottomrule
+    \end{tabular}
+    \caption{Vergleich der durchschnittlichen Performance-Metriken über alle Aktien}\label{tab:model_comparison}
+\end{table}
+
+SVR zeigt die beste durchschnittliche Gesamtrendite (6,56\%), gefolgt von LinearSeparation (4,06\%) und TimesFM (4,00\%). Alle drei Modelle liegen jedoch unter der Buy-and-Hold-Rendite von durchschnittlich 11,62\%, was sich in negativen Excess Returns widerspiegelt.
+
+Beim Risikomanagement zeigt SVR mit einem durchschnittlichen Sharpe Ratio von 0,20 die beste Balance zwischen Rendite und Risiko. LinearSeparation ($-2,83$) und TimesFM ($-6,88$) weisen negative Sharpe Ratios auf, was auf hohe Volatilität bei geringen Renditen hindeutet.
+
+Der durchschnittliche Maximum Drawdown liegt bei SVR am niedrigsten (13,95\%), gefolgt von TimesFM (15,83\%) und LinearSeparation (17,58\%). Dies deutet auf ein besseres Risikomanagement des SVR-Modells hin.
+
+
+Bei der reinen Vorhersagepräzision zeigt TimesFM den niedrigsten MAPE (1,08\%), dicht gefolgt von LinearSeparation (1,13\%) und SVR (1,30\%). Der geringe Unterschied deutet darauf hin, dass alle drei Modelle ähnlich nahe an den tatsächlichen Kursen liegen.
+
+Die Directional Accuracy zeigt SVR als Spitzenreiter (51,8\%), gefolgt von LinearSeparation (51,3\%) und TimesFM (50,0\% exakt am Zufallsniveau). Die Unterschiede sind marginal, aber SVR zeigt eine konsistent leichte Überlegenheit bei der Richtungsvorhersage.
+
+\subsection{Handelsverhalten}
+
+SVR zeigt mit durchschnittlich 20,7 Trades pro Aktie die höchste Handelsaktivität, was etwa einem Trade alle 18 Tage entspricht. TimesFM (13,0 Trades) und LinearSeparation (12,2 Trades) handeln deutlich konservativer mit etwa einem Trade alle 29-31 Tage.
+
+Die niedrigeren Signal-Schwellenwerte bei TimesFM ($\varepsilon = 0,29\%$) und SVR ($\varepsilon = 0,32\%$) im Vergleich zu LinearSeparation ($\varepsilon = 0,54\%$) erklären die unterschiedliche Handelsfrequenz teilweise. SVR kombiniert niedrige Schwellenwerte mit besserer Richtungsvorhersage, was zu mehr profitablen Trades führt.
+
+
+\subsection{Interpretation und Schlussfolgerungen}
+
+Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern ($C \in [0{,}1, 1000]$, $\gamma \in [0{,}001, 10]$) sichtbar wird.
+
+Die höhere Handelsfrequenz von durchschnittlich 20,7 Trades pro Aktie ermöglicht es der SVR, mehr Marktgelegenheiten zu nutzen. Der niedrigere Signal-Schwellenwert von $\varepsilon = 0{,}32\%$ führt zu häufigeren Handelssignalen, die durch die bessere Richtungsvorhersage öfter profitabel sind. Dies zeigt sich besonders bei Aktien mit starken Aufwärtstrends wie CTAS (+25,73\%) und GWW (+16,82\%), wo das Modell Momentum effektiv ausnutzt. Auch der niedrigste durchschnittliche Maximum Drawdown von 13,95\% deutet auf ein überlegenes Risikomanagement hin. Die höhere Trade-Frequenz ermöglicht schnellere Reaktionen auf negative Marktentwicklungen und damit Eindämmung der Verluste.
+
+Allerdings wurde gezeigt, dass SVR nicht in allen Kategorien die beste Performance erzielt. Bei der reinen Punktvorhersage liefern die Fehlermaße von TimesFM eine bessere Evaluation als SVR. Dies könnte auf das 512-Tage-Kontextfenster zurückzuführen sein, das langfristige Kursmuster besser interpolieren kann. Auch beim OOS-$R^2$ schneidet TimesFM mit $-0{,}03$ am besten ab, während SVR mit $-0{,}43$ deutlich schlechter liegt. Dies könnte sich durch die Komplexität des SVR-Modells erklären lassen. Die vielen Features (technische Indikatoren, Sentiment) können bei kurzfristigen Bewegungen zu Overfitting führen, während TimesFM durch seinen Zero-Shot-Ansatz näher an der naiven Baseline bleibt.
+
+Keines der Modelle übertrifft Buy-and-Hold konsistent. Die negativen OOS-$R^2$-Werte zeigen, dass alle Modelle Schwierigkeiten haben, eine zufällige Schätzung zu überbieten. Die Directional Accuracy liegt nur knapp über Zufall (50-52\%), was die fundamentale Schwierigkeit der Kursvorhersage unterstreicht.
+
+Eine allgemeine zentrale Beobachtung ist die Diskrepanz zwischen guter Punktvorhersagequalität und schwacher Trading-Performance. Die MAPE-Werte von 1,08--1,30\% zeigen, dass alle Modelle die Kurse mit hoher Präzision vorhersagen. Im Durchschnitt weichen die Vorhersagen nur etwa 1\% vom tatsächlichen Kurs ab. Trotz dieser scheinbar guten Punktvorhersagen liegt die durchschnittliche Rendite bei nur 4,00--6,56\%, deutlich unter Buy-and-Hold (11,62\%).
+
+Diese Diskrepanz lässt sich durch mehrere Faktoren erklären:
+
+\begin{itemize}
+    \item \textbf{Signal-Threshold:} Der Schwellenwert $\varepsilon$ filtert kleine Vorhersagen heraus. Viele präzise Vorhersagen führen zu keinem Trade, während wenige große Fehlvorhersagen zu Verlusten führen können.
+    \item \textbf{Timing-Kosten:} Selbst bei korrekter Richtung kann falsches Timing (zu früh oder zu spät) die Profitabilität beeinträchtigen.
+    \item \textbf{Random-Walk-Nähe:} Die negativen OOS-$R^2$-Werte zeigen, dass die Modelle oft den Kurs vom Vortag als Vorhersage nutzen (was einen niedrigen MAPE ergibt), aber keine echte Vorhersagekraft haben. Ein MAPE von 1\% ist nicht beeindruckend, wenn die naive Vorhersage $\hat{p}_t = p_{t-1}$ ähnlich gut performt.
+\end{itemize}
+
+Diese Beobachtung unterstreicht den wichtigen Punkt, dass gute Punktvorhersagen keine profitable Trading-Strategie garantieren. Die Profitabilität hängt von der Fähigkeit ab, handelbare Signale zu generieren, also Vorhersagen, die konsistent in die richtige Richtung zeigen und groß genug sind, um den Signal-Threshold zu überschreiten. Die Directional Accuracy von nur 50--52\% zeigt, dass alle drei Modelle diese Fähigkeit nur marginal besitzen.

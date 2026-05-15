@@ -56,19 +56,38 @@ def compute_validation_mae(model, val_df):
     closes = val_df["Close"].values
     errors = []
 
+    # Check if model supports incremental updates (like ARIMA)
+    has_update = hasattr(model, 'update')
+
+    # For SVR: need to update data_buffer with each new row
+    is_svr = hasattr(model, 'data_buffer') and hasattr(model, 'append')
+
     for i in range(30, len(closes) - 1):
         try:
+            # For SVR models, update data buffer with current validation data
+            if is_svr:
+                # Set data_buffer to validation data up to current point
+                current_val_data = val_df.iloc[:i+1].copy()
+                # Rename columns to lowercase as SVR expects
+                current_val_data.columns = current_val_data.columns.str.lower()
+                model.data_buffer = current_val_data
+                model.last_close = closes[i]
+
             prediction = model.predict(n=1)
             if prediction is None or np.isnan(prediction):
-                model.update(closes[i])
+                if has_update:
+                    model.update(closes[i])
                 continue
 
             actual_return = np.log(closes[i + 1] / closes[i])
             predicted_return = np.log(prediction / closes[i])
             errors.append(abs(predicted_return - actual_return))
-            model.update(closes[i])
-        except Exception:
-            model.update(closes[i])
+
+            if has_update:
+                model.update(closes[i])
+        except Exception as e:
+            if has_update:
+                model.update(closes[i])
             continue
 
     if len(errors) == 0:
@@ -86,8 +105,11 @@ def train_linear_separation(train_df, val_df):
 
 
 def train_svr(train_df, val_df, sentiment_data=None):
-    """Train SVR model with grid search on validation data."""
-    model = SVRPredictionModel()
+    """Train SVR model with grid search on validation data.
+
+    Uses 5-day prediction horizon for better signal quality.
+    """
+    model = SVRPredictionModel(prediction_horizon=5)
     if sentiment_data is not None:
         model.set_sentiment_data(sentiment_data)
     model.fit(train_df, validation_data=val_df)
@@ -131,7 +153,7 @@ MODEL_CONFIGS = {
     },
     "SVR": {
         "train_fn": train_svr,
-        "forecast_horizon": 1,
+        "forecast_horizon": 5,  # Predict 5 days ahead
         "warmup_period": 0,
     },
 }
@@ -375,8 +397,11 @@ def main():
     print(f"Initial Cash: ${INITIAL_CASH:,.0f}")
     print()
 
-    all_results = []
-    example_plot_generated = False
+    # Store results per model
+    results_by_model = {}
+
+    for model_name in selected_models.keys():
+        results_by_model[model_name] = []
 
     for ticker in stocks:
         print(f"\n{'─' * 60}")
@@ -395,12 +420,10 @@ def main():
 
         print(f"  Train: {len(train_df)} days, Val: {len(val_df)} days, Test: {len(test_df)} days")
 
-        
-        
+
 
         for model_name, model_config in selected_models.items():
             print(f"  Running {model_name}...", end=" ")
-
             try:
                 if model_name == "SVR":
                     sentiment_data = get_sentiment_for_model(ticker)
@@ -421,8 +444,13 @@ def main():
                 config_with_threshold = model_config.copy()
                 config_with_threshold["signal_threshold"] = signal_threshold
 
-                generate_plot = model_name == "LinearSeparation"
-                plot_path = os.path.join(OUTPUT_DIR, f"walkforward_{ticker}_{model_name}.png") if generate_plot else None
+                # Create model-specific output directory
+                model_output_dir = os.path.join(OUTPUT_DIR, model_name)
+                os.makedirs(model_output_dir, exist_ok=True)
+
+                # Generate plots for all stocks
+                generate_plot = True
+                plot_path = os.path.join(model_output_dir, f"walkforward_{ticker}_{model_name}.png")
 
                 metrics = run_backtest(
                     model, test_df, config_with_threshold,
@@ -433,13 +461,33 @@ def main():
                 )
 
                 if generate_plot:
-                    example_plot_generated = True
                     print(f"(plot saved)", end=" ")
 
                 metrics["ticker"] = ticker
                 metrics["model"] = model_name
                 metrics["epsilon"] = signal_threshold
-                all_results.append(metrics)
+
+                # Add model-specific hyperparameters
+                if model_name == "SVR" and hasattr(model, 'C'):
+                    metrics["hyperparameters"] = {
+                        "C": model.C,
+                        "epsilon": model.epsilon,
+                        "gamma": model.gamma,
+                        "lookback_window": model.lookback_window,
+                        "prediction_horizon": model.prediction_horizon
+                    }
+                elif model_name == "ARIMA" and hasattr(model, 'order'):
+                    metrics["hyperparameters"] = {
+                        "order": model.order,
+                        "window": getattr(model, 'window', None)
+                    }
+                elif model_name == "LinearSeparation" and hasattr(model, 'order'):
+                    metrics["hyperparameters"] = {
+                        "order": model.order,
+                        "window": getattr(model, 'window', None)
+                    }
+
+                results_by_model[model_name].append(metrics)
 
                 trade_stats = metrics.get("trade_statistics", {})
                 print(f"Return: {metrics['total_return']:.2%}, "
@@ -454,36 +502,200 @@ def main():
                 traceback.print_exc()
                 continue
 
-    if all_results:
+    # Save results per model
+    for model_name, model_results in results_by_model.items():
+        if not model_results:
+            continue
+
         print("\n\n")
         print("=" * 80)
-        print("RESULTS SUMMARY")
+        print(f"RESULTS SUMMARY - {model_name}")
         print("=" * 80)
 
-        df = pd.DataFrame(all_results)
+        df = pd.DataFrame(model_results)
         cols = ["ticker", "model", "epsilon", "total_return", "bh_return", "excess_return",
                 "sharpe_ratio", "max_drawdown", "mape", "oos_r2", "directional_accuracy"]
         print(df[cols].to_string(index=False, float_format=lambda x: f"{x:.4f}"))
 
-        print("\n\nAverage by Model:")
+        print("\n\nAverage Metrics:")
         numeric_cols = ["total_return", "excess_return", "sharpe_ratio",
                         "max_drawdown", "mape", "oos_r2", "directional_accuracy"]
-        print(df.groupby("model")[numeric_cols].mean().to_string(float_format=lambda x: f"{x:.4f}"))
+        avg_metrics = df[numeric_cols].mean()
+        for col in numeric_cols:
+            print(f"  {col}: {avg_metrics[col]:.4f}")
+
+        # Trade statistics summary
+        print("\n\nTrade Statistics:")
+        total_buys = sum(r["trade_statistics"]["buy_orders"] for r in model_results)
+        total_sells = sum(r["trade_statistics"]["sell_orders"] for r in model_results)
+        total_closes = sum(r["trade_statistics"]["close_positions"] for r in model_results)
+        total_trades = sum(r["trade_statistics"]["total_trades"] for r in model_results)
+        print(f"  Total Trades: {total_trades}")
+        if total_trades > 0:
+            print(f"  Buy Orders: {total_buys} ({total_buys/total_trades*100:.1f}%)")
+            print(f"  Sell Orders: {total_sells} ({total_sells/total_trades*100:.1f}%)")
+            print(f"  Close Positions: {total_closes} ({total_closes/total_trades*100:.1f}%)")
+            print(f"  Average per Stock: {total_trades/len(model_results):.1f}")
+        else:
+            print(f"  WARNING: No trades executed! Model may not be generating valid predictions.")
+            print(f"  Buy Orders: {total_buys}")
+            print(f"  Sell Orders: {total_sells}")
+            print(f"  Close Positions: {total_closes}")
+
+        # Save to model-specific directory
+        model_output_dir = os.path.join(OUTPUT_DIR, model_name)
+        os.makedirs(model_output_dir, exist_ok=True)
 
         results_json = {
             "config": {
                 "initial_cash": INITIAL_CASH,
                 "stocks": stocks,
-                "models": list(selected_models.keys()),
+                "model": model_name,
+                "data_split": {
+                    "training_start": config.get("training_start"),
+                    "training_end": config.get("training_end"),
+                    "validation_start": config.get("validation_start"),
+                    "validation_end": config.get("validation_end"),
+                    "test_start": config.get("test_start"),
+                    "test_end": config.get("test_end")
+                },
+                "model_config": MODEL_CONFIGS.get(model_name, {})
             },
-            "results": all_results,
-            "summary_by_model": df.groupby("model")[numeric_cols].mean().to_dict(),
+            "results": model_results,
+            "summary": {
+                "metrics": avg_metrics.to_dict(),
+                "trade_statistics": {
+                    "total_trades": total_trades,
+                    "buy_orders": total_buys,
+                    "sell_orders": total_sells,
+                    "close_positions": total_closes,
+                    "average_per_stock": total_trades / len(model_results)
+                }
+            }
         }
 
-        json_path = os.path.join(OUTPUT_DIR, "evaluation_results.json")
+        json_path = os.path.join(model_output_dir, "evaluation_results.json")
         with open(json_path, "w") as f:
             json.dump(results_json, f, indent=2, default=str)
         print(f"\nResults saved to {json_path}")
+
+        # Save trade statistics CSV
+        trade_stats_rows = []
+        for result in model_results:
+            ts = result["trade_statistics"]
+            row = {
+                "Stock": result["ticker"],
+                "Model": model_name,
+                "Signal_Threshold_Epsilon": result["epsilon"],
+                "Buy_Orders": ts["buy_orders"],
+                "Sell_Orders": ts["sell_orders"],
+                "Close_Positions": ts["close_positions"],
+                "Total_Trades": ts["total_trades"],
+                "Total_Return": result["total_return"],
+                "BuyHold_Return": result["bh_return"],
+                "Excess_Return": result["excess_return"],
+                "Sharpe_Ratio": result["sharpe_ratio"],
+                "Max_Drawdown": result["max_drawdown"],
+                "MAE": result["mae"],
+                "RMSE": result["rmse"],
+                "MAPE": result["mape"],
+                "Directional_Accuracy": result["directional_accuracy"],
+                "OOS_R_Squared": result["oos_r2"]
+            }
+
+            # Add hyperparameters if available
+            if "hyperparameters" in result:
+                for key, value in result["hyperparameters"].items():
+                    row[f"HP_{key}"] = value
+
+            trade_stats_rows.append(row)
+
+        trade_df = pd.DataFrame(trade_stats_rows)
+        csv_path = os.path.join(model_output_dir, "trade_statistics.csv")
+        trade_df.to_csv(csv_path, index=False)
+        print(f"Trade statistics saved to {csv_path}")
+
+        # Save detailed markdown summary
+        md_path = os.path.join(model_output_dir, "evaluation_summary.md")
+        with open(md_path, "w") as f:
+            f.write(f"# {model_name} Model Evaluation Summary\n\n")
+            f.write(f"**Evaluation Date**: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+
+            f.write("## Configuration\n\n")
+            f.write(f"- **Model**: {model_name}\n")
+            f.write(f"- **Initial Cash**: ${INITIAL_CASH:,.0f}\n")
+            f.write(f"- **Number of Stocks**: {len(stocks)}\n")
+            f.write(f"- **Stocks**: {', '.join(stocks)}\n\n")
+
+            f.write("### Data Split\n\n")
+            f.write(f"- **Training**: {config.get('training_start')} to {config.get('training_end')}\n")
+            f.write(f"- **Validation**: {config.get('validation_start')} to {config.get('validation_end')}\n")
+            f.write(f"- **Test**: {config.get('test_start')} to {config.get('test_end')}\n\n")
+
+            f.write("## Average Performance Metrics\n\n")
+            f.write("| Metric | Value |\n")
+            f.write("|--------|-------|\n")
+            f.write(f"| Total Return | {avg_metrics['total_return']:.2%} |\n")
+            f.write(f"| Excess Return | {avg_metrics['excess_return']:.2%} |\n")
+            f.write(f"| Sharpe Ratio | {avg_metrics['sharpe_ratio']:.4f} |\n")
+            f.write(f"| Max Drawdown | {avg_metrics['max_drawdown']:.2%} |\n")
+            f.write(f"| MAPE | {avg_metrics['mape']:.4f} |\n")
+            f.write(f"| RMSE | {df['rmse'].mean():.4f} |\n")
+            f.write(f"| MAE | {df['mae'].mean():.4f} |\n")
+            f.write(f"| OOS R² | {avg_metrics['oos_r2']:.4f} |\n")
+            f.write(f"| Directional Accuracy | {avg_metrics['directional_accuracy']:.2%} |\n\n")
+
+            f.write("## Trade Statistics\n\n")
+            f.write(f"- **Total Trades**: {total_trades}\n")
+            f.write(f"- **Buy Orders**: {total_buys} ({total_buys/total_trades*100:.1f}%)\n")
+            f.write(f"- **Sell Orders**: {total_sells} ({total_sells/total_trades*100:.1f}%)\n")
+            f.write(f"- **Close Positions**: {total_closes} ({total_closes/total_trades*100:.1f}%)\n")
+            f.write(f"- **Average per Stock**: {total_trades/len(model_results):.1f}\n\n")
+
+            f.write("## Results by Stock\n\n")
+            f.write("| Stock | Total Return | Excess Return | Sharpe | Max DD | DA | OOS R² | Trades | ε |\n")
+            f.write("|-------|--------------|---------------|--------|--------|-------|--------|--------|----|\n")
+            for result in model_results:
+                ts = result["trade_statistics"]
+                f.write(f"| {result['ticker']} | {result['total_return']:.2%} | "
+                       f"{result['excess_return']:.2%} | {result['sharpe_ratio']:.2f} | "
+                       f"{result['max_drawdown']:.2%} | {result['directional_accuracy']:.2%} | "
+                       f"{result['oos_r2']:.3f} | {ts['total_trades']} | {result['epsilon']:.4f} |\n")
+
+            f.write("\n## Best Performers\n\n")
+            sorted_by_return = sorted(model_results, key=lambda x: x['total_return'], reverse=True)[:3]
+            f.write("### Top 3 by Total Return\n\n")
+            for i, result in enumerate(sorted_by_return, 1):
+                f.write(f"{i}. **{result['ticker']}**: {result['total_return']:.2%} "
+                       f"(Excess: {result['excess_return']:.2%})\n")
+
+            f.write("\n### Top 3 by Sharpe Ratio\n\n")
+            sorted_by_sharpe = sorted(model_results, key=lambda x: x['sharpe_ratio'] if x['sharpe_ratio'] else -999, reverse=True)[:3]
+            for i, result in enumerate(sorted_by_sharpe, 1):
+                sharpe_str = f"{result['sharpe_ratio']:.2f}" if result['sharpe_ratio'] else "N/A"
+                f.write(f"{i}. **{result['ticker']}**: Sharpe {sharpe_str} "
+                       f"(Return: {result['total_return']:.2%})\n")
+
+            f.write("\n### Top 3 by Directional Accuracy\n\n")
+            sorted_by_da = sorted(model_results, key=lambda x: x['directional_accuracy'], reverse=True)[:3]
+            for i, result in enumerate(sorted_by_da, 1):
+                f.write(f"{i}. **{result['ticker']}**: {result['directional_accuracy']:.2%} "
+                       f"(Return: {result['total_return']:.2%})\n")
+
+            if any("hyperparameters" in r for r in model_results):
+                f.write("\n## Hyperparameters by Stock\n\n")
+                hp_results = [r for r in model_results if "hyperparameters" in r]
+                if hp_results:
+                    hp_keys = list(hp_results[0]["hyperparameters"].keys())
+                    header = "| Stock | " + " | ".join(hp_keys) + " |\n"
+                    separator = "|-------|" + "|".join(["-------"] * len(hp_keys)) + "|\n"
+                    f.write(header)
+                    f.write(separator)
+                    for result in hp_results:
+                        hp_values = [str(result["hyperparameters"][k]) for k in hp_keys]
+                        f.write(f"| {result['ticker']} | " + " | ".join(hp_values) + " |\n")
+
+        print(f"Markdown summary saved to {md_path}")
 
 
 if __name__ == "__main__":
