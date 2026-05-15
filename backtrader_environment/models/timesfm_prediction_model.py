@@ -1,4 +1,4 @@
-"""StockTimesFM Model: Google TimesFM Foundation Model for zero-shot time series forecasting."""
+"""TimesFM Model: Google TimesFM Foundation Model for zero-shot time series forecasting."""
 
 import numpy as np
 import pandas as pd
