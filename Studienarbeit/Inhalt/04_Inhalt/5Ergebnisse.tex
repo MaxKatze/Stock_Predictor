@@ -13,16 +13,16 @@ Im ersten Schritt wurde für jede Aktie mittels OLS-Regression das dominante Fak
 \begin{table}[h!]
     \centering
     \begin{tabular}{l c c c}
-        Ticker & Faktor 1 & Faktor 2 & $\sum|\beta|$ \\
+        Ticker & Faktor 1      & Faktor 2 & $\sum|\beta|$ \\
         \hline
-        MSFT   & Staatsanleihe & S\&P500  & 0,661 \\
-        TEL    & Gold     & S\&P500  & 0,656 \\
-        MCO    & Staatsanleihe & S\&P500  & 0,647 \\
-        ACN    & Staatsanleihe & S\&P500  & 0,641 \\
-        TXN    & Öl       & S\&P500  & 0,638 \\
-        AAPL   & Staatsanleihe & S\&P500  & 0,628 \\
-        AMP    & Staatsanleihe & S\&P500  & 0,628 \\
-        APA    & Öl       & S\&P500  & 0,626 \\
+        MSFT   & Staatsanleihe & S\&P500  & 0,661         \\
+        TEL    & Gold          & S\&P500  & 0,656         \\
+        MCO    & Staatsanleihe & S\&P500  & 0,647         \\
+        ACN    & Staatsanleihe & S\&P500  & 0,641         \\
+        TXN    & Öl            & S\&P500  & 0,638         \\
+        AAPL   & Staatsanleihe & S\&P500  & 0,628         \\
+        AMP    & Staatsanleihe & S\&P500  & 0,628         \\
+        APA    & Öl            & S\&P500  & 0,626         \\
         \hline
     \end{tabular}
     \caption{Aktien mit höchsten Beta-Summen (Ausschnitt)}\label{tab:beta_beispiele}
@@ -33,14 +33,14 @@ Die Verteilung der dominanten Faktorpaare über alle Aktien zeigt, dass der S\&P
 \begin{table}[h!]
     \centering
     \begin{tabular}{l c c}
-        Faktorpaar & Anzahl Aktien & Anteil \\
+        Faktorpaar             & Anzahl Aktien & Anteil   \\
         \hline
-        Staatsanleihe, S\&P500   & 179 & 39,8\,\% \\
-        Dollar, S\&P500     & 139 & 30,9\,\% \\
-        Öl, S\&P500         & 86  & 19,1\,\% \\
-        Gold, S\&P500       & 30  & 6,7\,\%  \\
-        Inflation, S\&P500  & 14  & 3,1\,\%  \\
-        Gold, Öl            & 2   & 0,4\,\%  \\
+        Staatsanleihe, S\&P500 & 179           & 39,8\,\% \\
+        Dollar, S\&P500        & 139           & 30,9\,\% \\
+        Öl, S\&P500            & 86            & 19,1\,\% \\
+        Gold, S\&P500          & 30            & 6,7\,\%  \\
+        Inflation, S\&P500     & 14            & 3,1\,\%  \\
+        Gold, Öl               & 2             & 0,4\,\%  \\
         \hline
     \end{tabular}
     \caption{Verteilung der dominanten Faktorpaare}\label{tab:faktorpaar_verteilung}
@@ -65,18 +65,18 @@ Für jede Aktie wurde über alle Simulationen der durchschnittliche \ac{ROI} ber
 \begin{table}[h!]
     \centering
     \begin{tabular}{c l c c}
-        Rang & Ticker & Faktorpaar & Avg. sim. ROI \\
+        Rang & Ticker & Faktorpaar             & Avg. sim. ROI \\
         \hline
-        1  & RSG  & Inflation, S\&P500 & 24,50\,\% \\
-        2  & AJG  & Dollar, S\&P500   & 25,39\,\% \\
-        3  & CTAS & Dollar, S\&P500   & 24,48\,\% \\
-        4  & TT   & Dollar, S\&P500   & 23,39\,\% \\
-        5  & GOOG & Inflation, S\&P500 & 23,21\,\% \\
-        6  & ABBV & Staatsanleihe, S\&P500 & 22,92\,\% \\
-        7  & PEP  & Staatsanleihe, S\&P500 & 22,92\,\% \\
-        8  & GWW  & Öl, S\&P500       & 22,74\,\% \\
-        9  & CARR & Öl, Gold          & 22,68\,\% \\
-        10 & ORLY & Gold, S\&P500     & 21,65\,\% \\
+        1    & RSG    & Inflation, S\&P500     & 24,50\,\%     \\
+        2    & AJG    & Dollar, S\&P500        & 25,39\,\%     \\
+        3    & CTAS   & Dollar, S\&P500        & 24,48\,\%     \\
+        4    & TT     & Dollar, S\&P500        & 23,39\,\%     \\
+        5    & GOOG   & Inflation, S\&P500     & 23,21\,\%     \\
+        6    & ABBV   & Staatsanleihe, S\&P500 & 22,92\,\%     \\
+        7    & PEP    & Staatsanleihe, S\&P500 & 22,92\,\%     \\
+        8    & GWW    & Öl, S\&P500            & 22,74\,\%     \\
+        9    & CARR   & Öl, Gold               & 22,68\,\%     \\
+        10   & ORLY   & Gold, S\&P500          & 21,65\,\%     \\
         \hline
     \end{tabular}
     \caption{Top 10 Aktien nach durchschnittlichem simuliertem ROI}\label{tab:top_roi}
@@ -91,18 +91,18 @@ Die durch das SDE-Verfahren ausgewählten zehn Aktien werden in \cref{tab:select
 \begin{table}[h!]
     \centering
     \begin{tabular}{c l l l}
-        Rang & Ticker & Unternehmen & Branche \\
+        Rang & Ticker & Unternehmen                & Branche                \\
         \hline
-        1  & CARR & Carrier Global Corp.      & Industrie \\
-        2  & OTIS & Otis Worldwide Corp.      & Industrie \\
-        3  & RSG  & Republic Services Inc.    & Abfallentsorgung \\
-        4  & CTAS & Cintas Corp.              & Dienstleistungen \\
-        5  & AJG  & Arthur J. Gallagher \& Co. & Versicherungen \\
-        6  & PEP  & PepsiCo Inc.              & Konsumgüter \\
-        7  & TT   & Trane Technologies        & Industrie \\
-        8  & GWW  & W.W. Grainger Inc.        & Handel \\
-        9  & RMD  & ResMed Inc.               & Medizintechnik \\
-        10 & BLK  & BlackRock Inc.            & Finanzdienstleistungen \\
+        1    & CARR   & Carrier Global Corp.       & Industrie              \\
+        2    & OTIS   & Otis Worldwide Corp.       & Industrie              \\
+        3    & RSG    & Republic Services Inc.     & Abfallentsorgung       \\
+        4    & CTAS   & Cintas Corp.               & Dienstleistungen       \\
+        5    & AJG    & Arthur J. Gallagher \& Co. & Versicherungen         \\
+        6    & PEP    & PepsiCo Inc.               & Konsumgüter            \\
+        7    & TT     & Trane Technologies         & Industrie              \\
+        8    & GWW    & W.W. Grainger Inc.         & Handel                 \\
+        9    & RMD    & ResMed Inc.                & Medizintechnik         \\
+        10   & BLK    & BlackRock Inc.             & Finanzdienstleistungen \\
         \hline
     \end{tabular}
     \caption{Die zehn ausgewählten Aktien}\label{tab:selected_stocks}
@@ -125,18 +125,18 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
         \toprule
         Ticker & $\varepsilon$ \\
         \midrule
-        CARR & 0,58\% \\
-        OTIS & 1,37\% \\
-        RSG  & 0,28\% \\
-        CTAS & 0,34\% \\
-        AJG  & 0,38\% \\
-        PEP  & 0,32\% \\
-        TT   & 0,45\% \\
-        GWW  & 0,44\% \\
-        RMD  & 0,76\% \\
-        BLK  & 0,46\% \\
+        CARR   & 0,58\%        \\
+        OTIS   & 1,37\%        \\
+        RSG    & 0,28\%        \\
+        CTAS   & 0,34\%        \\
+        AJG    & 0,38\%        \\
+        PEP    & 0,32\%        \\
+        TT     & 0,45\%        \\
+        GWW    & 0,44\%        \\
+        RMD    & 0,76\%        \\
+        BLK    & 0,46\%        \\
         \midrule
-        \O   & 0,54\% \\
+        \O     & 0,54\%        \\
         \bottomrule
     \end{tabular}
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie}\label{tab:ls_epsilon}
@@ -152,18 +152,18 @@ Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{su
         \toprule
         Ticker & {MAPE (\%)} & {OOS-$R^2$} & {DA} \\
         \midrule
-        CARR & 1,53 & -0,08 & 0,47 \\
-        OTIS & 1,02 & -0,14 & 0,48 \\
-        RSG  & 0,83 & -0,06 & 0,56 \\
-        CTAS & 1,01 & -0,07 & 0,55 \\
-        AJG  & 1,13 & -0,15 & 0,53 \\
-        PEP  & 0,97 & -0,07 & 0,48 \\
-        TT   & 1,26 & -0,10 & 0,50 \\
-        GWW  & 1,09 & -0,10 & 0,48 \\
-        RMD  & 1,30 & -0,13 & 0,53 \\
-        BLK  & 1,15 & -0,09 & 0,55 \\
+        CARR   & 1,53        & -0,08       & 0,47 \\
+        OTIS   & 1,02        & -0,14       & 0,48 \\
+        RSG    & 0,83        & -0,06       & 0,56 \\
+        CTAS   & 1,01        & -0,07       & 0,55 \\
+        AJG    & 1,13        & -0,15       & 0,53 \\
+        PEP    & 0,97        & -0,07       & 0,48 \\
+        TT     & 1,26        & -0,10       & 0,50 \\
+        GWW    & 1,09        & -0,10       & 0,48 \\
+        RMD    & 1,30        & -0,13       & 0,53 \\
+        BLK    & 1,15        & -0,09       & 0,55 \\
         \midrule
-        \O   & 1,13 & -0,10 & 0,51 \\
+        \O     & 1,13        & -0,10       & 0,51 \\
         \bottomrule
     \end{tabular}
     \caption{Fehlermaße des LinearSeparation-Modells im Testzeitraum}\label{tab:ls_fehler}
@@ -181,18 +181,18 @@ Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzken
         \toprule
         Ticker & {Return (\%)} & {B\&H (\%)} & {Excess (\%)} & {Sharpe} & {MDD (\%)} \\
         \midrule
-        CARR & -7,00 & -12,29 & 5,29 & -0,36 & 26,46 \\
-        OTIS & -21,02 & -4,88 & -16,14 & -27,93 & 24,44 \\
-        RSG  & 19,93 & 13,11 & 6,82 & 1,08 & 8,55 \\
-        CTAS & -3,46 & 11,02 & -14,48 & -0,76 & 23,58 \\
-        AJG  & 19,00 & 2,30 & 16,70 & 2,49 & 9,95 \\
-        PEP  & -13,00 & -6,47 & -6,52 & -5,06 & 18,21 \\
-        TT   & 4,49 & 23,33 & -18,83 & 0,07 & 18,33 \\
-        GWW  & 0,50 & 15,40 & -14,90 & -0,08 & 25,05 \\
-        RMD  & 8,87 & 31,79 & -22,92 & 0,52 & 9,42 \\
-        BLK  & 32,28 & 42,86 & -10,58 & 1,70 & 11,79 \\
+        CARR   & -7,00         & -12,29      & 5,29          & -0,36    & 26,46      \\
+        OTIS   & -21,02        & -4,88       & -16,14        & -27,93   & 24,44      \\
+        RSG    & 19,93         & 13,11       & 6,82          & 1,08     & 8,55       \\
+        CTAS   & -3,46         & 11,02       & -14,48        & -0,76    & 23,58      \\
+        AJG    & 19,00         & 2,30        & 16,70         & 2,49     & 9,95       \\
+        PEP    & -13,00        & -6,47       & -6,52         & -5,06    & 18,21      \\
+        TT     & 4,49          & 23,33       & -18,83        & 0,07     & 18,33      \\
+        GWW    & 0,50          & 15,40       & -14,90        & -0,08    & 25,05      \\
+        RMD    & 8,87          & 31,79       & -22,92        & 0,52     & 9,42       \\
+        BLK    & 32,28         & 42,86       & -10,58        & 1,70     & 11,79      \\
         \midrule
-        \O   & 4,06 & 11,62 & -7,56 & -2,83 & 17,58 \\
+        \O     & 4,06          & 11,62       & -7,56         & -2,83    & 17,58      \\
         \bottomrule
     \end{tabular}
     \caption{Trading-Performance des LinearSeparation-Modells}\label{tab:ls_trading}
@@ -217,18 +217,18 @@ Die Handelsaktivität der Strategie wird in \cref{tab:ls_trades} dargestellt. De
         \toprule
         Ticker & {Buy} & {Sell} & {Close} & {Total} \\
         \midrule
-        CARR & 5 & 4 & 0 & 9 \\
-        OTIS & 7 & 3 & 4 & 14 \\
-        RSG  & 9 & 5 & 1 & 15 \\
-        CTAS & 7 & 6 & 0 & 13 \\
-        AJG  & 9 & 4 & 3 & 16 \\
-        PEP  & 5 & 0 & 3 & 8 \\
-        TT   & 8 & 5 & 1 & 14 \\
-        GWW  & 5 & 4 & 0 & 9 \\
-        RMD  & 6 & 3 & 2 & 11 \\
-        BLK  & 7 & 5 & 1 & 13 \\
+        CARR   & 5     & 4      & 0       & 9       \\
+        OTIS   & 7     & 3      & 4       & 14      \\
+        RSG    & 9     & 5      & 1       & 15      \\
+        CTAS   & 7     & 6      & 0       & 13      \\
+        AJG    & 9     & 4      & 3       & 16      \\
+        PEP    & 5     & 0      & 3       & 8       \\
+        TT     & 8     & 5      & 1       & 14      \\
+        GWW    & 5     & 4      & 0       & 9       \\
+        RMD    & 6     & 3      & 2       & 11      \\
+        BLK    & 7     & 5      & 1       & 13      \\
         \midrule
-        \O   & 6,8 & 3,9 & 1,5 & 12,2 \\
+        \O     & 6,8   & 3,9    & 1,5     & 12,2    \\
         \bottomrule
     \end{tabular}
     \caption{Trade-Verteilung des LinearSeparation-Modells über den Testzeitraum}\label{tab:ls_trades}
@@ -255,9 +255,9 @@ In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:preprocessed_svr} 
 
 Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale Kombination der SVR-Hyperparameter bestimmt. Der Suchraum umfasste:
 \begin{itemize}
-    \item $C \in \{0{,}1, 1, 10, 100, 1000\}$ (Regularisierung)
-    \item $\varepsilon \in \{0{,}001, 0{,}01, 0{,}05, 0{,}1, 0{,}5\}$ (Epsilon-Tube)
-    \item $\gamma \in \{0{,}001, 0{,}01, 0{,}1, 1, 10, \text{scale}, \text{auto}\}$ (RBF-Kernel)
+    \item $C \in \{{,}1, 1, 10, 100, 1000\}$ (Regularisierung)
+    \item $\varepsilon \in \{{,}001, 0{,}01, 0{,}05, 0{,}1, 0{,}5\}$ (Epsilon-Tube)
+    \item $\gamma \in \{{,}001, 0{,}01, 0{,}1, 1, 10, \text{scale}, \text{auto}\}$ (RBF-Kernel)
 \end{itemize}
 
 \cref{tab:svr_hyperparams} zeigt die durch Grid-Search ermittelten optimalen Parameter für jede Aktie.
@@ -266,18 +266,18 @@ Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale
     \centering
     \begin{tabular}{l c c c}
         \toprule
-        Ticker & $C$ & $\varepsilon_{\text{SVR}}$ & $\gamma$ \\
+        Ticker & $C$  & $\varepsilon_{\text{SVR}}$ & $\gamma$ \\
         \midrule
-        CARR & 0,1  & 0,100 & 0,001 \\
-        OTIS & 1    & 0,010 & 10,0 \\
-        RSG  & 0,1  & 0,001 & 0,001 \\
-        CTAS & 0,1  & 0,001 & 0,001 \\
-        AJG  & 0,1  & 0,010 & 0,010 \\
-        PEP  & 1000 & 0,010 & 0,001 \\
-        TT   & 0,1  & 0,001 & 10,0 \\
-        GWW  & 0,1  & 0,010 & 1,0 \\
-        RMD  & 0,1  & 0,050 & 0,010 \\
-        BLK  & 10   & 0,050 & 0,010 \\
+        CARR   & 0,1  & 0,100                      & 0,001    \\
+        OTIS   & 1    & 0,010                      & 10,0     \\
+        RSG    & 0,1  & 0,001                      & 0,001    \\
+        CTAS   & 0,1  & 0,001                      & 0,001    \\
+        AJG    & 0,1  & 0,010                      & 0,010    \\
+        PEP    & 1000 & 0,010                      & 0,001    \\
+        TT     & 0,1  & 0,001                      & 10,0     \\
+        GWW    & 0,1  & 0,010                      & 1,0      \\
+        RMD    & 0,1  & 0,050                      & 0,010    \\
+        BLK    & 10   & 0,050                      & 0,010    \\
         \bottomrule
     \end{tabular}
     \caption{Optimale SVR-Hyperparameter pro Aktie (Grid-Search auf Validierungsdaten)}\label{tab:svr_hyperparams}
@@ -293,18 +293,18 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
         \toprule
         Ticker & $\varepsilon$ \\
         \midrule
-        CARR & 0,45\% \\
-        OTIS & 0,25\% \\
-        RSG  & 0,20\% \\
-        CTAS & 0,24\% \\
-        AJG  & 0,28\% \\
-        PEP  & 0,26\% \\
-        TT   & 0,32\% \\
-        GWW  & 0,40\% \\
-        RMD  & 0,47\% \\
-        BLK  & 0,36\% \\
+        CARR   & 0,45\%        \\
+        OTIS   & 0,25\%        \\
+        RSG    & 0,20\%        \\
+        CTAS   & 0,24\%        \\
+        AJG    & 0,28\%        \\
+        PEP    & 0,26\%        \\
+        TT     & 0,32\%        \\
+        GWW    & 0,40\%        \\
+        RMD    & 0,47\%        \\
+        BLK    & 0,36\%        \\
         \midrule
-        \O   & 0,32\% \\
+        \O     & 0,32\%        \\
         \bottomrule
     \end{tabular}
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (SVR)}\label{tab:svr_epsilon}
@@ -318,18 +318,18 @@ Die Vorhersagequalität des SVR-Modells wird anhand der in \cref{subsec:fehlerma
         \toprule
         Ticker & {MAPE (\%)} & {OOS-$R^2$} & {DA} \\
         \midrule
-        CARR & 1,70 & -0,28 & 0,48 \\
-        OTIS & 0,97 & -0,08 & 0,55 \\
-        RSG  & 0,92 & -0,24 & 0,56 \\
-        CTAS & 1,14 & -0,25 & 0,53 \\
-        AJG  & 1,37 & -0,52 & 0,54 \\
-        PEP  & 1,16 & -0,48 & 0,49 \\
-        TT   & 1,24 & -0,09 & 0,53 \\
-        GWW  & 1,58 & -1,13 & 0,48 \\
-        RMD  & 1,32 & -0,14 & 0,52 \\
-        BLK  & 1,62 & -1,07 & 0,49 \\
+        CARR   & 1,70        & -0,28       & 0,48 \\
+        OTIS   & 0,97        & -0,08       & 0,55 \\
+        RSG    & 0,92        & -0,24       & 0,56 \\
+        CTAS   & 1,14        & -0,25       & 0,53 \\
+        AJG    & 1,37        & -0,52       & 0,54 \\
+        PEP    & 1,16        & -0,48       & 0,49 \\
+        TT     & 1,24        & -0,09       & 0,53 \\
+        GWW    & 1,58        & -1,13       & 0,48 \\
+        RMD    & 1,32        & -0,14       & 0,52 \\
+        BLK    & 1,62        & -1,07       & 0,49 \\
         \midrule
-        \O   & 1,30 & -0,43 & 0,52 \\
+        \O     & 1,30        & -0,43       & 0,52 \\
         \bottomrule
     \end{tabular}
     \caption{Fehlermaße des SVR-Modells im Testzeitraum}\label{tab:svr_fehler}
@@ -352,18 +352,18 @@ Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzken
         \toprule
         Ticker & {Return (\%)} & {B\&H (\%)} & {Excess (\%)} & {Sharpe} & {MDD (\%)} \\
         \midrule
-        CARR & 7,15 & -12,29 & 19,44 & 0,20 & 15,77 \\
-        OTIS & -31,80 & -4,88 & -26,92 & -3,59 & 33,76 \\
-        RSG  & 14,50 & 13,11 & 1,39 & 2,45 & 10,62 \\
-        CTAS & 25,73 & 11,02 & 14,71 & 5,25 & 15,96 \\
-        AJG  & 14,40 & 2,30 & 12,10 & 1,08 & 10,68 \\
-        PEP  & -1,57 & -6,47 & 4,91 & -4,58 & 12,21 \\
-        TT   & 9,37 & 23,33 & -13,96 & 0,34 & 15,03 \\
-        GWW  & 16,82 & 15,40 & 1,42 & 1,39 & 11,81 \\
-        RMD  & -2,42 & 31,79 & -34,20 & -1,73 & 8,13 \\
-        BLK  & 13,47 & 42,86 & -29,39 & 1,24 & 5,50 \\
+        CARR   & 7,15          & -12,29      & 19,44         & 0,20     & 15,77      \\
+        OTIS   & -31,80        & -4,88       & -26,92        & -3,59    & 33,76      \\
+        RSG    & 14,50         & 13,11       & 1,39          & 2,45     & 10,62      \\
+        CTAS   & 25,73         & 11,02       & 14,71         & 5,25     & 15,96      \\
+        AJG    & 14,40         & 2,30        & 12,10         & 1,08     & 10,68      \\
+        PEP    & -1,57         & -6,47       & 4,91          & -4,58    & 12,21      \\
+        TT     & 9,37          & 23,33       & -13,96        & 0,34     & 15,03      \\
+        GWW    & 16,82         & 15,40       & 1,42          & 1,39     & 11,81      \\
+        RMD    & -2,42         & 31,79       & -34,20        & -1,73    & 8,13       \\
+        BLK    & 13,47         & 42,86       & -29,39        & 1,24     & 5,50       \\
         \midrule
-        \O   & 6,56 & 11,62 & -5,05 & 0,20 & 13,95 \\
+        \O     & 6,56          & 11,62       & -5,05         & 0,20     & 13,95      \\
         \bottomrule
     \end{tabular}
     \caption{Trading-Performance des SVR-Modells}\label{tab:svr_trading}
@@ -379,18 +379,18 @@ Die Handelsaktivität der Strategie wird in \cref{tab:svr_trades} dargestellt.
         \toprule
         Ticker & {Buy} & {Sell} & {Close} & {Total} \\
         \midrule
-        CARR & 10 & 6 & 0 & 16 \\
-        OTIS & 16 & 12 & 0 & 28 \\
-        RSG  & 16 & 8 & 3 & 27 \\
-        CTAS & 10 & 8 & 1 & 19 \\
-        AJG  & 15 & 8 & 5 & 28 \\
-        PEP  & 14 & 3 & 6 & 23 \\
-        TT   & 9 & 7 & 0 & 16 \\
-        GWW  & 13 & 2 & 7 & 22 \\
-        RMD  & 6 & 1 & 4 & 11 \\
-        BLK  & 9 & 0 & 8 & 17 \\
+        CARR   & 10    & 6      & 0       & 16      \\
+        OTIS   & 16    & 12     & 0       & 28      \\
+        RSG    & 16    & 8      & 3       & 27      \\
+        CTAS   & 10    & 8      & 1       & 19      \\
+        AJG    & 15    & 8      & 5       & 28      \\
+        PEP    & 14    & 3      & 6       & 23      \\
+        TT     & 9     & 7      & 0       & 16      \\
+        GWW    & 13    & 2      & 7       & 22      \\
+        RMD    & 6     & 1      & 4       & 11      \\
+        BLK    & 9     & 0      & 8       & 17      \\
         \midrule
-        \O   & 11,8 & 5,5 & 3,4 & 20,7 \\
+        \O     & 11,8  & 5,5    & 3,4     & 20,7    \\
         \bottomrule
     \end{tabular}
     \caption{Trade-Verteilung des SVR-Modells über den Testzeitraum}\label{tab:svr_trades}
@@ -429,18 +429,18 @@ Da keine aktienspezifische Anpassung stattfindet, erfolgt die Schwellenwert-Best
         \toprule
         Ticker & $\varepsilon$ \\
         \midrule
-        CARR & 0,41\% \\
-        OTIS & 0,26\% \\
-        RSG  & 0,16\% \\
-        CTAS & 0,23\% \\
-        AJG  & 0,24\% \\
-        PEP  & 0,22\% \\
-        TT   & 0,32\% \\
-        GWW  & 0,25\% \\
-        RMD  & 0,51\% \\
-        BLK  & 0,29\% \\
+        CARR   & 0,41\%        \\
+        OTIS   & 0,26\%        \\
+        RSG    & 0,16\%        \\
+        CTAS   & 0,23\%        \\
+        AJG    & 0,24\%        \\
+        PEP    & 0,22\%        \\
+        TT     & 0,32\%        \\
+        GWW    & 0,25\%        \\
+        RMD    & 0,51\%        \\
+        BLK    & 0,29\%        \\
         \midrule
-        \O   & 0,29\% \\
+        \O     & 0,29\%        \\
         \bottomrule
     \end{tabular}
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (TimesFM)}\label{tab:timesfm_epsilon}
@@ -454,18 +454,18 @@ Die Vorhersagequalität wird anhand der etablierten Fehlermaße bewertet. \cref{
         \toprule
         Ticker & {MAPE (\%)} & {OOS-$R^2$} & {DA} \\
         \midrule
-        CARR & 1,46 & -0,02 & 0,49 \\
-        OTIS & 0,97 & -0,05 & 0,47 \\
-        RSG  & 0,82 & -0,05 & 0,52 \\
-        CTAS & 1,01 & -0,04 & 0,49 \\
-        AJG  & 1,05 & -0,01 & 0,55 \\
-        PEP  & 0,95 & -0,02 & 0,49 \\
-        TT   & 1,19 & -0,01 & 0,51 \\
-        GWW  & 1,04 & -0,03 & 0,48 \\
-        RMD  & 1,24 & -0,04 & 0,45 \\
-        BLK  & 1,08 & -0,03 & 0,54 \\
+        CARR   & 1,46        & -0,02       & 0,49 \\
+        OTIS   & 0,97        & -0,05       & 0,47 \\
+        RSG    & 0,82        & -0,05       & 0,52 \\
+        CTAS   & 1,01        & -0,04       & 0,49 \\
+        AJG    & 1,05        & -0,01       & 0,55 \\
+        PEP    & 0,95        & -0,02       & 0,49 \\
+        TT     & 1,19        & -0,01       & 0,51 \\
+        GWW    & 1,04        & -0,03       & 0,48 \\
+        RMD    & 1,24        & -0,04       & 0,45 \\
+        BLK    & 1,08        & -0,03       & 0,54 \\
         \midrule
-        \O   & 1,08 & -0,03 & 0,50 \\
+        \O     & 1,08        & -0,03       & 0,50 \\
         \bottomrule
     \end{tabular}
     \caption{Fehlermaße des TimesFM-Modells im Testzeitraum}\label{tab:timesfm_fehler}
@@ -483,18 +483,18 @@ Die Directional Accuracy liegt mit 50,0\% exakt am Zufallsniveau.
         \toprule
         Ticker & {Return (\%)} & {B\&H (\%)} & {Excess (\%)} & {Sharpe} & {MDD (\%)} \\
         \midrule
-        CARR & -7,93 & -12,29 & 4,36 & -11,39 & 25,01 \\
-        OTIS & -23,80 & -4,88 & -18,92 & -1,42 & 29,23 \\
-        RSG  & 14,21 & 13,11 & 1,10 & 1,49 & 8,80 \\
-        CTAS & 1,96 & 11,02 & -9,06 & -0,17 & 16,92 \\
-        AJG  & 4,12 & 2,30 & 1,82 & 0,05 & 14,74 \\
-        PEP  & -4,88 & -6,47 & 1,60 & -65,80 & 10,40 \\
-        TT   & 22,54 & 23,33 & -0,79 & 6,59 & 15,53 \\
-        GWW  & 10,40 & 15,40 & -5,00 & 0,40 & 13,96 \\
-        RMD  & 13,78 & 31,79 & -18,00 & 1,14 & 9,29 \\
-        BLK  & 9,61 & 42,86 & -33,25 & 0,31 & 14,38 \\
+        CARR   & -7,93         & -12,29      & 4,36          & -11,39   & 25,01      \\
+        OTIS   & -23,80        & -4,88       & -18,92        & -1,42    & 29,23      \\
+        RSG    & 14,21         & 13,11       & 1,10          & 1,49     & 8,80       \\
+        CTAS   & 1,96          & 11,02       & -9,06         & -0,17    & 16,92      \\
+        AJG    & 4,12          & 2,30        & 1,82          & 0,05     & 14,74      \\
+        PEP    & -4,88         & -6,47       & 1,60          & -65,80   & 10,40      \\
+        TT     & 22,54         & 23,33       & -0,79         & 6,59     & 15,53      \\
+        GWW    & 10,40         & 15,40       & -5,00         & 0,40     & 13,96      \\
+        RMD    & 13,78         & 31,79       & -18,00        & 1,14     & 9,29       \\
+        BLK    & 9,61          & 42,86       & -33,25        & 0,31     & 14,38      \\
         \midrule
-        \O   & 4,00 & 11,62 & -7,62 & -6,88 & 15,83 \\
+        \O     & 4,00          & 11,62       & -7,62         & -6,88    & 15,83      \\
         \bottomrule
     \end{tabular}
     \caption{Trading-Performance des TimesFM-Modells}\label{tab:timesfm_trading}
@@ -514,18 +514,18 @@ Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien Performen
         \toprule
         Ticker & {Buy} & {Sell} & {Close} & {Total} \\
         \midrule
-        CARR & 7 & 0 & 4 & 11 \\
-        OTIS & 8 & 0 & 5 & 13 \\
-        RSG  & 11 & 5 & 3 & 19 \\
-        CTAS & 10 & 1 & 5 & 16 \\
-        AJG  & 8 & 6 & 3 & 17 \\
-        PEP  & 4 & 0 & 2 & 6 \\
-        TT   & 8 & 2 & 2 & 12 \\
-        GWW  & 6 & 1 & 2 & 9 \\
-        RMD  & 6 & 2 & 4 & 12 \\
-        BLK  & 7 & 3 & 5 & 15 \\
+        CARR   & 7     & 0      & 4       & 11      \\
+        OTIS   & 8     & 0      & 5       & 13      \\
+        RSG    & 11    & 5      & 3       & 19      \\
+        CTAS   & 10    & 1      & 5       & 16      \\
+        AJG    & 8     & 6      & 3       & 17      \\
+        PEP    & 4     & 0      & 2       & 6       \\
+        TT     & 8     & 2      & 2       & 12      \\
+        GWW    & 6     & 1      & 2       & 9       \\
+        RMD    & 6     & 2      & 4       & 12      \\
+        BLK    & 7     & 3      & 5       & 15      \\
         \midrule
-        \O   & 7,5 & 2,0 & 3,5 & 13,0 \\
+        \O     & 7,5   & 2,0    & 3,5     & 13,0    \\
         \bottomrule
     \end{tabular}
     \caption{Trade-Verteilung des TimesFM-Modells über den Testzeitraum}\label{tab:timesfm_trades}
@@ -561,22 +561,22 @@ In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch v
     \centering
     \begin{tabular}{l c c c}
         \toprule
-        Metrik & LinearSep. & SVR & TimesFM \\
+        Metrik             & LinearSep. & SVR       & TimesFM   \\
         \midrule
-        \textbf{Trading-Performance} \\
-        Avg. Return & 4,06\,\% & 6,56\,\% & 4,00\,\% \\
-        Avg. Excess Return & -7,56\,\% & -5,05\,\% & -7,62\,\% \\
-        Avg. Sharpe Ratio & -2,83 & 0,20 & -6,88 \\
-        Avg. Max Drawdown & 17,58\,\% & 13,95\,\% & 15,83\,\% \\
+        \textbf{Trading-Performance}                            \\
+        Avg. Return        & 4,06\,\%   & 6,56\,\%  & 4,00\,\%  \\
+        Avg. Excess Return & -7,56\,\%  & -5,05\,\% & -7,62\,\% \\
+        Avg. Sharpe Ratio  & -2,83      & 0,20      & -6,88     \\
+        Avg. Max Drawdown  & 17,58\,\%  & 13,95\,\% & 15,83\,\% \\
         \midrule
-        \textbf{Vorhersagequalität} \\
-        Avg. MAPE & 1,13\,\% & 1,30\,\% & 1,08\,\% \\
-        Avg. OOS-$R^2$ & -0,10 & -0,43 & -0,03 \\
-        Avg. DA & 51,3\,\% & 51,8\,\% & 50,0\,\% \\
+        \textbf{Vorhersagequalität}                             \\
+        Avg. MAPE          & 1,13\,\%   & 1,30\,\%  & 1,08\,\%  \\
+        Avg. OOS-$R^2$     & -0,10      & -0,43     & -0,03     \\
+        Avg. DA            & 51,3\,\%   & 51,8\,\%  & 50,0\,\%  \\
         \midrule
-        \textbf{Handelsaktivität} \\
-        Avg. Trades/Aktie & 12,2 & 20,7 & 13,0 \\
-        Avg. $\varepsilon$ & 0,54\,\% & 0,32\,\% & 0,29\,\% \\
+        \textbf{Handelsaktivität}                               \\
+        Avg. Trades/Aktie  & 12,2       & 20,7      & 13,0      \\
+        Avg. $\varepsilon$ & 0,54\,\%   & 0,32\,\%  & 0,29\,\%  \\
         \bottomrule
     \end{tabular}
     \caption{Vergleich der durchschnittlichen Performance-Metriken über alle Aktien}\label{tab:model_comparison}
@@ -602,7 +602,7 @@ Die niedrigeren Signal-Schwellenwerte bei TimesFM ($\varepsilon = 0,29\%$) und S
 
 \subsection{Interpretation und Schlussfolgerungen}
 
-Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern ($C \in [0{,}1, 1000]$, $\gamma \in [0{,}001, 10]$) sichtbar wird.
+Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern \( C \in [\num{0.1},\, \num{1000}], \; \gamma \in [\num{0.001},\, \num{10}] \) sichtbar wird.
 
 Die höhere Handelsfrequenz von durchschnittlich 20,7 Trades pro Aktie ermöglicht es der SVR, mehr Marktgelegenheiten zu nutzen. Der niedrigere Signal-Schwellenwert von $\varepsilon = 0{,}32\%$ führt zu häufigeren Handelssignalen, die durch die bessere Richtungsvorhersage öfter profitabel sind. Dies zeigt sich besonders bei Aktien mit starken Aufwärtstrends wie CTAS (+25,73\%) und GWW (+16,82\%), wo das Modell Momentum effektiv ausnutzt. Auch der niedrigste durchschnittliche Maximum Drawdown von 13,95\% deutet auf ein überlegenes Risikomanagement hin. Die höhere Trade-Frequenz ermöglicht schnellere Reaktionen auf negative Marktentwicklungen und damit Eindämmung der Verluste.
 
