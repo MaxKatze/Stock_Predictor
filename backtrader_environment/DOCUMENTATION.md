@@ -137,7 +137,7 @@ Hyperparameter-Tuning via Grid-Search auf Validierungsdaten:
 - ε ∈ {0.001, 0.01, 0.1, 0.5, 1}
 - γ ∈ {0.01, 0.1, 1, 10, 50, 100}
 
-### StockTimesFM
+### TimesFM
 
 Googles TimesFM Foundation Model im Zero-Shot-Modus (kein Training auf Aktiendaten). Arbeitet auf Log-Renditen mit variablem Kontextfenster (bis 512 Tage).
 
