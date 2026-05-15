@@ -20,3 +20,5 @@ lambda als Parameter von HP Filter in der Implementierung disktuieren.
 Stil, nennt man Formeln im Text (siehe 3.2.2 oder so) oder baut man sie in den Satz ein. (Markus fragen)
 Daten und Aktienwahl Reihenfolge tauschen: Erst Gesamtdaten, Bereinigung, dann Akteinauswahl
 Formel 3.15 nochmal schreiben, wenn sie mit lambdaKlein verwendet wird.
+
+Wie nennen wir drittes Modell? TimesFm oder StockTimesFM?
