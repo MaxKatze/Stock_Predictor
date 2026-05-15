@@ -12,5 +12,6 @@ Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kom
 TODO:
 
 Fig. 3.1 und 3.2 gefallen mir, aber ich würde sie mit Bildern unterfüttern. Niemand versteht, was Ihr in Fig. 3.2 macht, ohne das Problem anhand von Daten zu sehen.
+6 statt 7 makrofaktoren
 Kapitelzahlen der Reihenfolgen sind halt bisschen unintuitiv. Weil erst 3.6 dann 3.4 usw
 Abstract schreiben
