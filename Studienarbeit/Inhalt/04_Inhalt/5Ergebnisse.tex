@@ -210,6 +210,35 @@ Einzelne Aktien zeigen positive Excess-Renditen:
 
 Der durchschnittliche Maximum Drawdown von 17,58\% zeigt das Risiko der Strategie. Die niedrigsten Drawdowns treten bei RSG (8,55\%) und RMD (9,42\%) auf, während CARR (26,46\%) und GWW (25,05\%) die höchsten Verlustphasen aufweisen.
 
+Die Handelsaktivität der Strategie wird in \cref{tab:ls_trades} dargestellt. Der Signal-Threshold $\varepsilon$ und das Signal-Cooldown von 5 Tagen begrenzen die Häufigkeit der Trades. Im Durchschnitt werden 12,2 Trades pro Aktie über den gesamten Testzeitraum von 377 Tagen ausgeführt, was einer Frequenz von etwa einem Trade alle 31 Tage entspricht.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
+        \toprule
+        Ticker & {Buy} & {Sell} & {Close} & {Total} \\
+        \midrule
+        CARR & 5 & 4 & 0 & 9 \\
+        OTIS & 7 & 3 & 4 & 14 \\
+        RSG  & 9 & 5 & 1 & 15 \\
+        CTAS & 7 & 6 & 0 & 13 \\
+        AJG  & 9 & 4 & 3 & 16 \\
+        PEP  & 5 & 0 & 3 & 8 \\
+        TT   & 8 & 5 & 1 & 14 \\
+        GWW  & 5 & 4 & 0 & 9 \\
+        RMD  & 6 & 3 & 2 & 11 \\
+        BLK  & 7 & 5 & 1 & 13 \\
+        \midrule
+        \O   & 6,8 & 3,9 & 1,5 & 12,2 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Trade-Verteilung des LinearSeparation-Modells über den Testzeitraum}\label{tab:ls_trades}
+\end{table}
+
+Die Strategie zeigt eine Long-Bias mit 68 Buy-Orders gegenüber 39 Sell-Orders. Close-Positionen (15 insgesamt) werden bei stark negativen Signalen verwendet, um vollständig aus dem Markt zu gehen. Die Handelsaktivität variiert zwischen 8 Trades (PEP) und 16 Trades (AJG), was auf unterschiedliche Marktbedingungen und Volatilitätsniveaus der einzelnen Aktien hinweist.
+
+Eine moderate Korrelation ($r = 0,46$) zwischen der Anzahl der Trades und der Gesamtrendite deutet darauf hin, dass Aktien mit mehr Trades tendenziell bessere Ergebnisse erzielen.
+
 \cref{fig:walkforward_rmd} zeigt exemplarisch den Walk-Forward-Backtest für die Aktie RMD. Im oberen Teil ist der Portfoliowert über den Testzeitraum dargestellt, im unteren Teil der Aktienkurs zusammen mit den Vorhersagen und Handelssignalen. Die Visualisierung zeigt wiederholt, wie nah die Vorhersagen an den jeweiligen Kursen des Vortages orientiert sind.
 
 \begin{figure}[htbp]

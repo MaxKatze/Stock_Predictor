@@ -82,6 +82,11 @@ class PredictionStrategy(GeneralStrategy):
         self._bar_count = {}
         self.signals = {}
 
+        # Track actual buy/sell orders
+        self.buy_count = {}
+        self.sell_count = {}
+        self.close_count = {}
+
         self.kelly_manager = HalfKellyPositionManager(
             kelly_window=self.p.kelly_window,
             min_observations=30,
@@ -100,6 +105,9 @@ class PredictionStrategy(GeneralStrategy):
             self._last_signal_bar[d] = -999
             self._bar_count[d] = 0
             self.signals[d] = []
+            self.buy_count[d] = 0
+            self.sell_count[d] = 0
+            self.close_count[d] = 0
 
     def _get_ohlcv_dataframe(self, d):
         """Extract OHLCV data from backtrader data feed."""
@@ -231,13 +239,16 @@ class PredictionStrategy(GeneralStrategy):
 
         if order_size > 0:
             self.buy(data=d, size=order_size)
+            self.buy_count[d] += 1
         elif order_size < 0:
             self.sell(data=d, size=abs(order_size))
+            self.sell_count[d] += 1
 
     def _handle_cash_signal(self, d):
         """Handle Cash signal: close ALL positions."""
         if self.getposition(d).size:
             self.close(data=d)
+            self.close_count[d] += 1
 
     def stop(self):
         total_predictions = sum(
@@ -246,3 +257,12 @@ class PredictionStrategy(GeneralStrategy):
         )
         if total_predictions > 0:
             print(f"PredictionStrategy: {total_predictions} predictions made across {len(self.datas)} feeds.")
+
+        # Print trade statistics
+        for d in self.datas:
+            ticker = d._name if hasattr(d, '_name') else 'Unknown'
+            print(f"\n{ticker} Trade Statistics:")
+            print(f"  Buy orders: {self.buy_count[d]}")
+            print(f"  Sell orders: {self.sell_count[d]}")
+            print(f"  Close positions: {self.close_count[d]}")
+            print(f"  Total trades: {self.buy_count[d] + self.sell_count[d] + self.close_count[d]}")

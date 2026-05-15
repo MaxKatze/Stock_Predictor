@@ -211,6 +211,15 @@ def run_backtest(model, test_df, model_config, generate_plot=False, plot_path=No
     if generate_plot and plot_path:
         generate_walkforward_plot(strat, test_df, ticker, model_name, plot_path)
 
+    # Extract trade statistics from strategy
+    d = strat.datas[0]
+    trade_stats = {
+        "buy_orders": strat.buy_count.get(d, 0),
+        "sell_orders": strat.sell_count.get(d, 0),
+        "close_positions": strat.close_count.get(d, 0),
+        "total_trades": strat.buy_count.get(d, 0) + strat.sell_count.get(d, 0) + strat.close_count.get(d, 0)
+    }
+
     return {
         "total_return": total_return,
         "bh_return": bh_return,
@@ -222,6 +231,7 @@ def run_backtest(model, test_df, model_config, generate_plot=False, plot_path=No
         "mape": mape_analysis.get("mape", {}).get(data_name, -1) if data_name else -1,
         "oos_r2": oos_r2_analysis.get("oos_r_squared", {}).get(data_name, -1) if data_name else -1,
         "directional_accuracy": da_analysis.get("directional_accuracy", {}).get(data_name, -1) if data_name else -1,
+        "trade_statistics": trade_stats,
     }
 
 
@@ -431,9 +441,12 @@ def main():
                 metrics["epsilon"] = signal_threshold
                 all_results.append(metrics)
 
+                trade_stats = metrics.get("trade_statistics", {})
                 print(f"Return: {metrics['total_return']:.2%}, "
                       f"DA: {metrics['directional_accuracy']:.3f}, "
-                      f"OOS-R²: {metrics['oos_r2']:.4f}")
+                      f"OOS-R²: {metrics['oos_r2']:.4f}, "
+                      f"Trades: {trade_stats.get('total_trades', 0)} "
+                      f"(B:{trade_stats.get('buy_orders', 0)} S:{trade_stats.get('sell_orders', 0)} C:{trade_stats.get('close_positions', 0)})")
 
             except Exception as e:
                 print(f"ERROR: {e}")
