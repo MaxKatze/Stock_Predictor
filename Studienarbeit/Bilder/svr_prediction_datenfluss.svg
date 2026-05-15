@@ -1,0 +1,115 @@
+<svg width="100%" viewBox="0 0 720 940" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>SVR Prediction Modell: Datenfluss</title>
+  <desc>Ablauf des SVR-Modells von OHLCV-Daten über Feature-Berechnung und Hyperparameter-Tuning bis zur Preisprognose</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- INPUT -->
+  <g>
+    <rect x="200" y="20" width="320" height="60" rx="8" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+    <text x="360" y="38" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#444441">Historische OHLCV-Daten</text>
+    <text x="360" y="56" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#5f5e5a">Open, High, Low, Close, Volume (data_buffer)</text>
+    <text x="360" y="72" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#5f5e5a">Wird täglich im Walk-Forward aktualisiert</text>
+  </g>
+
+  <line x1="360" y1="80" x2="360" y2="112" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SCHRITT 1: Feature-Berechnung -->
+  <g>
+    <rect x="160" y="112" width="400" height="105" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="360" y="130" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#085041">Feature-Berechnung (9 Dimensionen)</text>
+    <text x="360" y="152" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">Log-Returns: r(t−1), r(t−2), r(t−3)</text>
+    <text x="360" y="170" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">Sentiment: exp. gewichteter Durchschnitt (λ=0.2)</text>
+    <text x="360" y="188" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">Techn. Indikatoren: RSI, MACD, Bollinger, σ₁₀, Pause</text>
+    <text x="360" y="206" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#0f6e56">Out: x(t) ∈ ℝ⁹</text>
+  </g>
+
+  <line x1="360" y1="217" x2="360" y2="244" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SCHRITT 2: Target-Berechnung -->
+  <g>
+    <rect x="200" y="244" width="320" height="68" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="360" y="262" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#085041">Target-Berechnung</text>
+    <text x="360" y="282" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">y(t) = log(p(t) / p(t−1))</text>
+    <text x="360" y="300" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">Clipping auf [−0.2, 0.2] gegen Ausreißer</text>
+  </g>
+
+  <line x1="360" y1="312" x2="360" y2="344" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SCHRITT 3: StandardScaler -->
+  <g>
+    <rect x="200" y="344" width="320" height="68" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+    <text x="360" y="362" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#3c3489">StandardScaler Normalisierung</text>
+    <text x="360" y="382" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#534ab7">In: x(t) ∈ ℝ⁹ (Rohfeatures)</text>
+    <text x="360" y="400" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#534ab7">Out: x̃(t) = (x − μ) / σ (z-standardisiert)</text>
+  </g>
+
+  <!-- Verzweigung: Training → SVR, Validierung → Grid Search -->
+  <line x1="360" y1="412" x2="360" y2="432" stroke="#737268" stroke-width="1"/>
+  <line x1="360" y1="432" x2="200" y2="432" stroke="#737268" stroke-width="1"/>
+  <line x1="200" y1="432" x2="200" y2="450" stroke="#737268" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="360" y1="432" x2="560" y2="432" stroke="#737268" stroke-width="1"/>
+  <line x1="560" y1="432" x2="560" y2="450" stroke="#737268" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- Links: SVR Training -->
+  <g>
+    <rect x="80" y="450" width="240" height="82" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="200" y="468" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#0c447c">SVR Training (RBF-Kernel)</text>
+    <text x="200" y="488" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">In: x̃(t), y(t) (Trainingsdaten)</text>
+    <text x="200" y="504" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">K(x, x') = exp(−γ‖x−x'‖²)</text>
+    <text x="200" y="522" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">Out: Trainiertes SVR-Modell</text>
+  </g>
+
+  <!-- Rechts: Grid Search (optional) -->
+  <g>
+    <rect x="420" y="450" width="280" height="100" rx="8" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+    <text x="560" y="468" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#0c447c">Grid Search (optional)</text>
+    <text x="560" y="488" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">In: Validierungsdaten</text>
+    <text x="560" y="504" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">C ∈ {0.1, 1, 10, 100, 1000}</text>
+    <text x="560" y="520" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">ε ∈ {0.001, 0.01, 0.1, 0.5, 1}</text>
+    <text x="560" y="536" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5">γ ∈ {0.01, 0.1, 1, 10, 50, 100}</text>
+    <text x="560" y="545" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="10" fill="#185fa5"></text>
+  </g>
+
+  <!-- Annotation: Metrik -->
+  <text x="560" y="562" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="11" fill="#185fa5" font-style="italic">Auswahl: min. RMSE auf Validierung</text>
+
+  <!-- Pfeil von Grid Search zurück zu SVR Training -->
+  <line x1="420" y1="510" x2="320" y2="510" stroke="#737268" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <text x="370" y="500" text-anchor="middle" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="10" fill="#737268" font-style="italic">optimale C, ε, γ</text>
+
+  <!-- Zusammenführung -->
+  <line x1="200" y1="532" x2="200" y2="610" stroke="#737268" stroke-width="1.5"/>
+  <line x1="200" y1="610" x2="360" y2="610" stroke="#737268" stroke-width="1.5"/>
+  <line x1="360" y1="610" x2="360" y2="628" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SCHRITT 5: Prediction -->
+  <g>
+    <rect x="200" y="628" width="320" height="82" rx="8" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+    <text x="360" y="646" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#3c3489">Log-Return Prognose</text>
+    <text x="360" y="666" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#534ab7">In: x̃(t) (aktuelle skalierte Features)</text>
+    <text x="360" y="686" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#534ab7">Modell: r̂(t+1) = SVR.predict(x̃(t))</text>
+    <text x="360" y="704" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#534ab7">Out: Prognostizierter Log-Return r̂(t+1)</text>
+  </g>
+
+  <line x1="360" y1="710" x2="360" y2="742" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- SCHRITT 6: Preisrekonstruktion -->
+  <g>
+    <rect x="200" y="742" width="320" height="68" rx="8" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+    <text x="360" y="760" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#085041">Preisrekonstruktion</text>
+    <text x="360" y="780" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">In: r̂(t+1) + aktueller Preis p(t)</text>
+    <text x="360" y="798" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#0f6e56">Out: p̂(t+1) = p(t) × exp(r̂(t+1))</text>
+  </g>
+
+  <line x1="360" y1="810" x2="360" y2="842" stroke="#737268" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- OUTPUT -->
+  <g>
+    <rect x="200" y="842" width="320" height="45" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
+    <text x="360" y="862" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#633806">Preisprognose p̂(t+1)</text>
+  </g>
+</svg>
