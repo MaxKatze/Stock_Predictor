@@ -1,1 +1,26 @@
-\chapter{Zusammenfassung und Ausblick}\label{chap:zusammenfassung_und_ausblick}
+\chapter{Zusammenfassung}\label{chap:zusammenfassung_und_ausblick}
+Ziel der Arbeit war es eine Strategie zu entwickeln, die rentable Aktien auswählt, auf Basis dieser Aktien Modelle trainiert und dann mit einer selbst entwickelten Marktstrategie und den prognostizierten Renditen der Aktien profitabel handelt. Um die Modelle testen zu können sollte außerdem eine Testumgebung entwickelt werden, mit der realistische Backtests durchgeführt werden können.
+
+Zur Auswahl der Aktien wurde deshalb ein Verfahren entwickelt, das mit einer SDE die langfristige Entwicklung der Aktienkurse modelliert und dann die Renditen der Aktien prognostiziert. Die prognostizierten Renditen weicht dabei von der tatsächlichen Rendite ab. Um einen Lookahead-Bias zu vermeiden, wurden für die Modelle trotzdem die 10 Aktien mit den höchsten prognostizierten Renditen ausgewählt.
+
+Um die eigentlichen Renditen der Aktien zu prognostizieren wurden drei Modelle entwickelt. Ein rein lineares Modell, das mit HP-Filter Trends erkennt und diese dann mit OLS extrapoliert. Neben dem langfristen und kurzfristigen Trend wurden auch zyklische Schwankungen mithilfe eines ARMA Modells berücksichtigt. Das zweite Modell ist eine Preprocessed SVR. Dieses Modell nutzt neben den Aktienkursen auch andere relevante Informationen, um die Vorhersagegenauigkeit zu verbessern. Das dritte Modell nutzt das Foundation Model TimesFM in einem Zero-Shot Ansatz.
+
+Alle drei Modelle wurde auf den vorher ausgewählten Aktien trainiert und evaluiert. Die Ergebisse zeigen, dass die SVR die beste Rendite erzielt hat, gefolgt von dem linearen Modell und dem TimesFM. Bei der reinen Vorhersagepräsision ist die Reihenfolge genau andersrum. Hier ist TimesFM am besten, gefolgt vom linearen Modell und der SVR. Hier sieht man gut, dass die Vorhersagepräzision nicht unbedingt mit der erzielten Rendite korreliert. Die Rendite korreliert eher mit der Anzahl der Trades. Die SVR hat mit 20 Trades im Vergleich zu 12 bzw. 13 Trades deutlich mehr Trades getätigt als die anderen Modelle.
+
+Auch die Handelsstrategie hat Eifluss auf die Anzahl der Trades. Es wurde allerdings nur eine Handelsstrategie entwickelt, die mit einem Schwellwert arbeitet, der dem MAE des Modells auf dem Validierungszeitraum entspricht. Durch diesen festen Schwellwert werden somit Trades mit sehr kleiner prognostizierter Rendite vermieden, was die Anzahl der Trades reduziert.
+
+Im Vergleich zu einem Buy-and-Hold Ansatz haben alle Modelle im Durchschnitt eine deutlich niedrigere Rendite erzielt. Das lineare Modell hat nur in drei Fallen die Buy-and-Hold Strategie übertroffen, die SVR in sechs Fällen und das TimesFM in vier Fällen. Die Modelle sind deshalb nicht in der Lage mit aktivem Handel passive Anleger zu übertreffen.
+
+Um zu überprüfen, wie unserer gesamter Prozess von der Aktienauswahl über die Modellierung bis hin zur Handelsstrategie funktioniert, wurde eine Testumgebung entwickelt. In dieser Testumgebung können realistische Backtests durchgeführt werden, um die Performance der Modelle und der Handelsstrategie zu evaluieren. Die Testumgebung basiert auf dem Framework Backtrader und evaluiert die Modelle nach verschiedenen Fehlermaßen und finanzwirtschaftlichen Kennzahlen.
+
+Die Ergebnisse der Arbeit müssen unter Berücksichtigung der folgenden Einschränkungen interpretiert werden. Alle Modelle wurden nur auf einer Aktie trainiert und evaluiert. Mit dieser Arbeit lässt sich deshalb keine Aussage darüber treffen, wie die Performance der Modelle und Strategien auf anderen Aktien oder in anderen Zeiträumen ist.
+
+Zudem behandelt die Arbeit keine notwendigen Anpassungen der Renditenberechnung und der Handelsstrategie, um Transaktionskosten, Kommissionen, Steuern oder andere Kosten zu berücksichtigen, die bei realen Handelsaktivitäten anfallen. Deshalb lassen sich die Ergebnisse nicht auf den tatsächlichen Handel übertragen und sind nur als theoretische Performance der Modelle und Strategien zu verstehen.
+
+
+\chapter{Ausblick}
+Diese Arbeit liefert verschiedene Modelle und Ergebnisse, die als Grundlage für weitere Untersuchungen dienen können. Da diese Arbeit nur eine Strategie entwickelt hat, die die rentablesten Aktien auszuwählen, könnten zukünftige Arbeiten weitere Strategien entwickeln und diese dann mit der Strategie aus dieser Arbeit vergleichen. Außerdem könnte untersucht werden, wie groß der Einfluss der Aktienauswahl auf die Gesamtrendite ist.
+
+Ein weiterer interessanter Ansatz wäre es, tiefergehend den Einfluss zusätzlicher Datenquellen zu untersuchen. Diese Arbeit integriert nur bei einem Modell zusätzlichen Datenquellen. Aus diesem Grund lässt sich nur vermuten, welchen Einfluss zusätzliche Datenquellen auf die Performance von Modellen haben.
+
+Ein weiterer interessanter Ansatz, den diese Arbeit nicht abgedeckt hat, ist die Anwendbarkeit der Modelle auf eine breite Palette von Aktien. Es könnte auch ein Ansatz untersucht werden, der die Modelle auf mehreren Aktien trainiert, um Korrelationen in den Kursbewegungen verschiedener Aktien zu nutzen. Außerdem könnte untersucht werden, wie gut Modelle Aktien vorhersagen können, wenn sie vorher nur auf anderen Aktien trainiert wurden.
