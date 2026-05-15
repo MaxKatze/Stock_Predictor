@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="de">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Untersuchung von mathematischen Verfahren zur Vorhersage von Aktienkursen</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reset.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/white.css">
+		<style>
+			.reveal h1, .reveal h2, .reveal h3 { text-transform: none; }
+			.reveal section img { border: none; box-shadow: none; }
+			.reveal table { font-size: 0.7em; }
+			.reveal .small-table { font-size: 0.55em; }
+			.reveal ul, .reveal ol { font-size: 0.85em; }
+			.title-slide h1 { font-size: 1.8em; }
+			.title-slide p { font-size: 0.8em; margin-top: 2em; }
+		</style>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+
+				<!-- Titelfolie -->
+				<section class="title-slide">
+					<h1>Untersuchung von mathematischen Verfahren zur Vorhersage von Aktienkursen</h1>
+					<p>Max Katzenberger und Mathis Köder<br>
+					DHBW Karlsruhe | SAP SE<br>
+					Studienarbeit T3_3101 | Mai 2026</p>
+					<aside class="notes">
+						Herzlich willkommen zu unserer Präsentation über die Untersuchung mathematischer Verfahren zur Aktienkursvorhersage.
+						Diese Studienarbeit wurde von Oktober 2025 bis Mai 2026 an der DHBW Karlsruhe in Zusammenarbeit mit SAP durchgeführt.
+						In den nächsten 8 Minuten stelle ich Ihnen unseren Ansatz und die Ergebnisse vor.
+					</aside>
+				</section>
+
+				<!-- Agenda -->
+				<section>
+					<h2>Agenda</h2>
+					<ol>
+						<li>Überblick & Motivation</li>
+						<li>Ablauf der Arbeit</li>
+						<li>Datenauswahlverfahren (SDE)</li>
+						<li>Modellkonzeption</li>
+						<li>Handelsstrategie</li>
+						<li>Ergebnisse der Aktienauswahl</li>
+						<li>Ergebnisse LinearSeparation</li>
+						<li>Fazit</li>
+					</ol>
+					<aside class="notes">
+						Wir beginnen mit der Motivation und einem Überblick über die Arbeit.
+						Dann zeige ich den Ablauf, unser neuartiges Datenauswahlverfahren mit stochastischen Differentialgleichungen,
+						die Modellkonzeption und Handelsstrategie. Abschließend präsentiere ich die Ergebnisse
+						mit Fokus auf das LinearSeparation-Modell als exemplarisches Beispiel.
+					</aside>
+				</section>
+
+				<!-- Motivation -->
+				<section>
+					<h2>Motivation & Zielsetzung</h2>
+					<ul>
+						<li><strong>Problem:</strong> Aktienkursvorhersage ist hochkomplex
+							<ul>
+								<li>Viele Studien nicht reproduzierbar</li>
+								<li>Oft Survivorship Bias & Lookahead Bias</li>
+								<li>Zufällige Aktienauswahl ohne Begründung</li>
+							</ul>
+						</li>
+						<li><strong>Ziel dieser Arbeit:</strong>
+							<ul>
+								<li>Systematische Aktienauswahl mittels SDE</li>
+								<li>Entwicklung & Vergleich von 3 Vorhersagemodellen</li>
+								<li>Vollständige Reproduzierbarkeit</li>
+								<li>Realistische Backtests mit Walk-Forward-Validierung</li>
+							</ul>
+						</li>
+					</ul>
+					<aside class="notes">
+						Die Motivation für diese Arbeit ist die Problematik, dass viele Studien zur Aktienkursvorhersage
+						nicht reproduzierbar sind und methodische Schwächen aufweisen. Häufig werden Aktien zufällig ausgewählt,
+						was zu Selection Bias führt. Unser Ziel war es, ein systematisches Auswahlverfahren zu entwickeln,
+						drei verschiedene Modellansätze zu untersuchen und die gesamte Arbeit vollständig reproduzierbar zu gestalten.
+					</aside>
+				</section>
+
+				<!-- Gesamtablauf -->
+				<section>
+					<h2>Ablauf der Studienarbeit</h2>
+					<img src="images/studienarbeit_ablauf.svg" alt="Ablauf" style="max-height: 550px; background: white;">
+					<aside class="notes">
+						Diese Grafik zeigt den Gesamtablauf unserer Arbeit. Wir starten mit dem S&P 500 Universe von 2020,
+						um Survivorship Bias zu vermeiden. Dann erfolgt die SDE-basierte Aktienauswahl für 10 Aktien.
+						Diese 10 Aktien werden durch drei verschiedene Modelle vorhergesagt: LinearSeparation,
+						Preprocessed SVR und TimesFM. Die Vorhersagen werden in einer Handelsstrategie umgesetzt
+						und mit umfangreichen Metriken evaluiert.
+					</aside>
+				</section>
+
+				<!-- Datenauswahlverfahren -->
+				<section>
+					<h2>SDE-basierte Aktienauswahl</h2>
+					<div style="display: flex; gap: 20px;">
+						<div style="flex: 1;">
+							<h3>Idee</h3>
+							<ul style="font-size: 0.75em;">
+								<li>Aktienkurse folgen Stochastischer Differentialgleichung (SDE)</li>
+								<li>dS(t) = μS(t)dt + σS(t)dW(t)</li>
+								<li>Modellierung des Einflusses makroökonomischer Faktoren</li>
+								<li>Monte-Carlo-Simulation mit Euler-Maruyama</li>
+							</ul>
+						</div>
+						<div style="flex: 1;">
+							<h3>Makrofaktoren</h3>
+							<ul style="font-size: 0.65em;">
+								<li>Ölpreis (NYMEX)</li>
+								<li>Goldpreis (COMEX)</li>
+								<li>10-Jahre-Staatsanleihe</li>
+								<li>S&P 500 Index</li>
+								<li>US-Dollar Index (DXY)</li>
+								<li>10-Jahre Break-Even-Inflation</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">
+						Unser Aktienauswahlverfahren basiert auf stochastischen Differentialgleichungen.
+						Die Grundidee ist, dass Aktienkurse aus einem Trend und zufälligem Rauschen bestehen.
+						Wir modellieren den Einfluss von sechs makroökonomischen Faktoren auf jede Aktie.
+						Für jede Aktie finden wir das dominante Faktorpaar und simulieren dann den Kursverlauf
+						über den Testzeitraum mit Monte-Carlo-Simulationen. Die Aktien mit den höchsten
+						simulierten Returns werden ausgewählt.
+					</aside>
+				</section>
+
+				<!-- SDE Ablauf -->
+				<section>
+					<h2>Ablauf der SDE-Aktienauswahl</h2>
+					<img src="images/Aktienauswahl-Ablauf.png" alt="SDE Ablauf" style="max-height: 500px; background: white;">
+					<aside class="notes">
+						Hier sehen Sie den detaillierten Ablauf der Aktienauswahl. Zunächst werden für alle 450 Aktien
+						die dominanten Faktorpaare mittels linearer Regression bestimmt. Dann werden Gruppen aus
+						je 4 Aktien mit gleichem Faktorpaar gebildet. In jeder Gruppe wird der Kursverlauf über
+						den Testzeitraum simuliert und die beste Aktie gewählt. Dieser Prozess wird hierarchisch
+						wiederholt, bis die 10 besten Aktien identifiziert sind. Das Verfahren ist skalierbar
+						und vermeidet Selection Bias.
+					</aside>
+				</section>
+
+				<!-- Modellkonzeption -->
+				<section>
+					<h2>Modellkonzeption</h2>
+					<div style="display: flex; gap: 30px;">
+						<div style="flex: 1;">
+							<h3 style="font-size: 1.1em;">3 Modellansätze</h3>
+							<ol style="font-size: 0.7em;">
+								<li><strong>LinearSeparation</strong>
+									<ul>
+										<li>Zerlegung in Trend, Zyklus, Residuum</li>
+										<li>Lineare Modelle für jeden Teil</li>
+									</ul>
+								</li>
+								<li><strong>Preprocessed SVR</strong>
+									<ul>
+										<li>Support Vector Regression</li>
+										<li>Feature Engineering & Normalisierung</li>
+									</ul>
+								</li>
+								<li><strong>StockTimesFM</strong>
+									<ul>
+										<li>Foundation Model für Zeitreihen</li>
+										<li>Transfer Learning auf Aktiendaten</li>
+									</ul>
+								</li>
+							</ol>
+						</div>
+						<div style="flex: 1;">
+							<h3 style="font-size: 1.1em;">Datensplit</h3>
+							<ul style="font-size: 0.7em;">
+								<li><strong>Training (60%):</strong> 01.2020–12.2023</li>
+								<li><strong>Validierung (10%):</strong> 01.2024–06.2024</li>
+								<li><strong>Test (30%):</strong> 07.2024–12.2025</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">
+						Wir haben drei verschiedene Modellansätze entwickelt. LinearSeparation zerlegt den Kurs
+						in drei Komponenten und modelliert jede separat. SVR nutzt Feature Engineering und
+						Support Vector Regression. TimesFM ist ein vortrainiertes Foundation Model.
+						Die Daten werden im Verhältnis 60-10-30 aufgeteilt, wobei der Testzeitraum
+						eineinhalb Jahre umfasst und nie zum Training verwendet wurde.
+					</aside>
+				</section>
+
+				<!-- Handelsstrategie -->
+				<section>
+					<h2>Handelsstrategie</h2>
+					<div style="display: flex; gap: 20px;">
+						<div style="flex: 1;">
+							<h3>Signalgenerierung</h3>
+							<ul style="font-size: 0.7em;">
+								<li>Schwellenwert ε basiert auf MAE</li>
+								<li><strong>Kaufsignal:</strong> Vorhersage > Aktueller Preis + ε</li>
+								<li><strong>Verkaufssignal:</strong> Vorhersage < Aktueller Preis - ε</li>
+								<li><strong>Halten:</strong> |Differenz| ≤ ε</li>
+							</ul>
+						</div>
+						<div style="flex: 1;">
+							<h3>Parameter</h3>
+							<ul style="font-size: 0.7em;">
+								<li>Startkapital: $100.000</li>
+								<li>Position Size: 95% des Kapitals</li>
+								<li>Forecast Horizon: 1 Tag</li>
+								<li>Walk-Forward-Validierung</li>
+								<li>Keine Transaktionskosten</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">
+						Die Handelsstrategie funktioniert wie folgt: Aus der Modellvorhersage wird ein Signal generiert.
+						Der Schwellenwert Epsilon basiert auf dem mittleren absoluten Fehler auf den Validierungsdaten
+						und variiert je nach Aktie. Bei einem Kaufsignal investieren wir 95% des Kapitals,
+						bei einem Verkaufssignal halten wir Cash. Die Strategie wird mit Walk-Forward-Validierung
+						getestet, das heißt, das Modell wird kontinuierlich mit neuen Daten aktualisiert.
+					</aside>
+				</section>
+
+				<!-- LinearSeparation Datenfluss -->
+				<section>
+					<h2>LinearSeparation: Datenfluss</h2>
+					<img src="images/linear_separation_datenfluss.svg" alt="LinearSeparation Datenfluss" style="max-height: 550px; background: white;">
+					<aside class="notes">
+						Hier sehen Sie den Datenfluss des LinearSeparation-Modells. Die Eingangsdaten werden
+						bereinigt und in Trend, Zyklus und Residuum zerlegt. Für jede Komponente wird ein
+						separates lineares Modell trainiert. Die Vorhersagen werden dann kombiniert und
+						in der Backtest-Engine evaluiert. Dieser modulare Ansatz ermöglicht es, verschiedene
+						Zeitskalen getrennt zu modellieren.
+					</aside>
+				</section>
+
+				<!-- SDE Ergebnisse: Dominante Faktorpaare - Beta Werte -->
+				<section>
+					<h2>SDE Ergebnisse: Dominante Faktorpaare</h2>
+					<p style="font-size: 0.8em; margin-bottom: 20px;">Für jede Aktie wurde das Faktorpaar mit dem höchsten Einfluss auf die Kursbewegung ermittelt</p>
+					<div style="display: flex; gap: 40px;">
+						<div style="flex: 1;">
+							<h3 style="font-size: 1em;">Top Beta-Summen</h3>
+							<table style="font-size: 0.65em;">
+								<thead>
+									<tr>
+										<th>Ticker</th>
+										<th>Faktor 1</th>
+										<th>Faktor 2</th>
+										<th>Σ|β|</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr><td>MSFT</td><td>Staatsanleihe</td><td>S&P500</td><td>0,661</td></tr>
+									<tr><td>TEL</td><td>Gold</td><td>S&P500</td><td>0,656</td></tr>
+									<tr><td>MCO</td><td>Staatsanleihe</td><td>S&P500</td><td>0,647</td></tr>
+									<tr><td>ACN</td><td>Staatsanleihe</td><td>S&P500</td><td>0,641</td></tr>
+									<tr><td>TXN</td><td>Öl</td><td>S&P500</td><td>0,638</td></tr>
+									<tr><td>AAPL</td><td>Staatsanleihe</td><td>S&P500</td><td>0,628</td></tr>
+									<tr><td>AMP</td><td>Staatsanleihe</td><td>S&P500</td><td>0,628</td></tr>
+									<tr><td>APA</td><td>Öl</td><td>S&P500</td><td>0,626</td></tr>
+								</tbody>
+							</table>
+						</div>
+						<div style="flex: 1;">
+							<h3 style="font-size: 1em;">Verteilung der Faktorpaare</h3>
+							<table style="font-size: 0.65em;">
+								<thead>
+									<tr>
+										<th>Faktorpaar</th>
+										<th>Anzahl</th>
+										<th>Anteil</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr><td>Staatsanleihe, S&P500</td><td>179</td><td>39,8%</td></tr>
+									<tr><td>Dollar, S&P500</td><td>139</td><td>30,9%</td></tr>
+									<tr><td>Öl, S&P500</td><td>86</td><td>19,1%</td></tr>
+									<tr><td>Gold, S&P500</td><td>30</td><td>6,7%</td></tr>
+									<tr><td>Inflation, S&P500</td><td>14</td><td>3,1%</td></tr>
+									<tr><td>Gold, Öl</td><td>2</td><td>0,4%</td></tr>
+									<tr style="border-top: 2px solid black; font-weight: bold;">
+										<td>Gesamt</td><td>450</td><td>100%</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+					<aside class="notes">
+						Im ersten Schritt der Aktienauswahl wurden für alle 450 Aktien die dominanten Faktorpaare
+						mittels linearer Regression bestimmt. Die Tabelle links zeigt die Aktien mit den höchsten
+						Beta-Summen, also den stärksten Korrelationen mit den Faktoren. Interessant ist, dass
+						bekannte Tech-Aktien wie Microsoft und Apple hier oben erscheinen. Die rechte Tabelle
+						zeigt die Verteilung über alle Aktien. Der S&P 500 Index ist in fast allen Kombinationen
+						vertreten, was die starke Korrelation der Einzelaktien mit dem Gesamtmarkt zeigt.
+						Staatsanleihen und der Dollar sind die häufigsten zweiten Faktoren.
+					</aside>
+				</section>
+
+				<!-- SDE Simulation Beispiel -->
+				<section>
+					<h2>Monte-Carlo-Simulation</h2>
+					<img src="images/sde_example_simulation.png" alt="SDE Simulation" style="max-height: 500px; background: white;">
+					<p style="font-size: 0.7em;">Euler-Maruyama Simulation einer Gruppe mit Faktoren Gold und S&P 500<br>
+					100 Simulationen über 378 Handelstage (Testzeitraum)</p>
+					<aside class="notes">
+						Nach der Gruppierung wurden 100 Monte-Carlo-Simulationen durchgeführt. Diese Grafik zeigt
+						exemplarisch eine solche Simulation für eine Aktiengruppe. Die durchgezogenen Linien sind
+						die simulierten Aktienkurse, die gestrichelten Linien die Faktorverläufe. Alle Werte sind
+						auf 100 normalisiert für Vergleichbarkeit. Man sieht, wie die Aktien dem allgemeinen Trend
+						der Faktoren folgen, aber mit unterschiedlicher Volatilität und Performance. Die grüne Aktie
+						zeigt die stärkste Performance und würde als Gewinner dieser Gruppe in die nächste Runde kommen.
+						Dieser hierarchische Prozess wird wiederholt, bis die 10 besten Aktien identifiziert sind.
+					</aside>
+				</section>
+
+				<!-- Ergebnisse Aktienauswahl -->
+				<section>
+					<h2>Ergebnisse: Ausgewählte Aktien</h2>
+					<table class="small-table">
+						<thead>
+							<tr>
+								<th>Rang</th>
+								<th>Ticker</th>
+								<th>Unternehmen</th>
+								<th>Branche</th>
+								<th>Faktorpaar</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><td>1</td><td>CARR</td><td>Carrier Global Corp.</td><td>Industrie</td><td>Öl, Gold</td></tr>
+							<tr><td>2</td><td>OTIS</td><td>Otis Worldwide Corp.</td><td>Industrie</td><td>Öl, Gold</td></tr>
+							<tr><td>3</td><td>RSG</td><td>Republic Services Inc.</td><td>Abfallentsorgung</td><td>Inflation, S&P500</td></tr>
+							<tr><td>4</td><td>CTAS</td><td>Cintas Corp.</td><td>Dienstleistungen</td><td>Dollar, S&P500</td></tr>
+							<tr><td>5</td><td>AJG</td><td>Arthur J. Gallagher & Co.</td><td>Versicherungen</td><td>Dollar, S&P500</td></tr>
+							<tr><td>6</td><td>PEP</td><td>PepsiCo Inc.</td><td>Konsumgüter</td><td>Staatsanleihe, S&P500</td></tr>
+							<tr><td>7</td><td>TT</td><td>Trane Technologies</td><td>Industrie</td><td>Dollar, S&P500</td></tr>
+							<tr><td>8</td><td>GWW</td><td>W.W. Grainger Inc.</td><td>Handel</td><td>Öl, S&P500</td></tr>
+							<tr><td>9</td><td>RMD</td><td>ResMed Inc.</td><td>Medizintechnik</td><td>Inflation, S&P500</td></tr>
+							<tr><td>10</td><td>BLK</td><td>BlackRock Inc.</td><td>Finanzdienstleistungen</td><td>Staatsanleihe, S&P500</td></tr>
+						</tbody>
+					</table>
+					<aside class="notes">
+						Das SDE-Verfahren hat diese 10 Aktien aus dem S&P 500 ausgewählt. Die Auswahl ist
+						branchendivers und umfasst Industrieunternehmen, Dienstleister und Finanzfirmen.
+						Interessant ist, dass der S&P 500 Index in fast allen Faktorpaaren vorkommt,
+						was die starke Korrelation der Aktien mit dem Gesamtmarkt zeigt. Die simulierten
+						durchschnittlichen Returns lagen zwischen 21% und 25% für den Testzeitraum.
+					</aside>
+				</section>
+
+				<!-- Ergebnisse LinearSeparation - Metriken -->
+				<section>
+					<h2>Ergebnisse LinearSeparation: Fehlermaße</h2>
+					<table style="font-size: 0.6em;">
+						<thead>
+							<tr>
+								<th>Ticker</th>
+								<th>MAPE (%)</th>
+								<th>OOS-R²</th>
+								<th>Directional Accuracy</th>
+								<th>ε (%)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><td>CARR</td><td>1,53</td><td>-0,08</td><td>0,47</td><td>1,58</td></tr>
+							<tr><td>OTIS</td><td>1,02</td><td>-0,14</td><td>0,48</td><td>1,37</td></tr>
+							<tr><td>RSG</td><td>0,83</td><td>-0,06</td><td>0,56</td><td>2,28</td></tr>
+							<tr><td>CTAS</td><td>1,01</td><td>-0,07</td><td>0,55</td><td>1,34</td></tr>
+							<tr><td>AJG</td><td>1,13</td><td>-0,15</td><td>0,53</td><td>1,38</td></tr>
+							<tr><td>PEP</td><td>0,97</td><td>-0,07</td><td>0,48</td><td>2,32</td></tr>
+							<tr><td>TT</td><td>1,26</td><td>-0,10</td><td>0,50</td><td>2,45</td></tr>
+							<tr><td>GWW</td><td>1,09</td><td>-0,10</td><td>0,48</td><td>0,44</td></tr>
+							<tr><td>RMD</td><td>1,30</td><td>-0,13</td><td>0,53</td><td>2,76</td></tr>
+							<tr><td>BLK</td><td>1,15</td><td>-0,09</td><td>0,55</td><td>1,46</td></tr>
+							<tr style="border-top: 2px solid black; font-weight: bold;">
+								<td>Ø</td><td>1,13</td><td>-0,10</td><td>0,51</td><td>1,74</td>
+							</tr>
+						</tbody>
+					</table>
+					<p style="font-size: 0.65em; margin-top: 10px;">
+						<strong>Interpretation:</strong> MAPE ~1% zeigt gute Punktgenauigkeit. Negative R² bedeutet: Modell schlechter als Random Walk.
+						Directional Accuracy 51% knapp über Zufall.
+					</p>
+					<aside class="notes">
+						Die Fehlermaße zeigen gemischte Ergebnisse. Der durchschnittliche MAPE von 1,13 Prozent
+						ist sehr gut und zeigt, dass die Vorhersagen im Mittel nur 1 Prozent vom tatsächlichen
+						Kurs abweichen. Allerdings sind alle R²-Werte negativ, was bedeutet, dass das Modell
+						den Random-Walk-Benchmark nicht schlägt. Die Directional Accuracy liegt bei 51 Prozent,
+						also knapp über Zufallsniveau. Einzelne Aktien wie RSG zeigen mit 56 Prozent
+						eine überdurchschnittliche Richtungsvorhersage.
+					</aside>
+				</section>
+
+				<!-- Ergebnisse LinearSeparation - Trading -->
+				<section>
+					<h2>Ergebnisse LinearSeparation: Trading-Performance</h2>
+					<table style="font-size: 0.55em;">
+						<thead>
+							<tr>
+								<th>Ticker</th>
+								<th>Return (%)</th>
+								<th>Buy & Hold (%)</th>
+								<th>Excess Return (%)</th>
+								<th>Sharpe Ratio</th>
+								<th>Max Drawdown (%)</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr><td>CARR</td><td>-7,00</td><td>-12,29</td><td style="color: green;">+5,29</td><td>-0,36</td><td>26,46</td></tr>
+							<tr><td>OTIS</td><td>-21,02</td><td>-4,88</td><td style="color: red;">-16,14</td><td>-27,93</td><td>24,44</td></tr>
+							<tr><td>RSG</td><td>19,93</td><td>13,11</td><td style="color: green;">+6,82</td><td>1,08</td><td>8,55</td></tr>
+							<tr><td>CTAS</td><td>-3,46</td><td>11,02</td><td style="color: red;">-14,48</td><td>-0,76</td><td>23,58</td></tr>
+							<tr><td>AJG</td><td>19,00</td><td>2,30</td><td style="color: green;">+16,70</td><td>2,49</td><td>9,95</td></tr>
+							<tr><td>PEP</td><td>-13,00</td><td>-6,47</td><td style="color: red;">-6,52</td><td>-5,06</td><td>18,21</td></tr>
+							<tr><td>TT</td><td>4,49</td><td>23,33</td><td style="color: red;">-18,83</td><td>0,07</td><td>18,33</td></tr>
+							<tr><td>GWW</td><td>0,50</td><td>15,40</td><td style="color: red;">-14,90</td><td>-0,08</td><td>25,05</td></tr>
+							<tr><td>RMD</td><td>8,87</td><td>31,79</td><td style="color: red;">-22,92</td><td>0,52</td><td>9,42</td></tr>
+							<tr><td>BLK</td><td>32,28</td><td>42,86</td><td style="color: red;">-10,58</td><td>1,70</td><td>11,79</td></tr>
+							<tr style="border-top: 2px solid black; font-weight: bold;">
+								<td>Ø</td><td>4,06</td><td>11,62</td><td style="color: red;">-7,56</td><td>-2,83</td><td>17,58</td>
+							</tr>
+						</tbody>
+					</table>
+					<p style="font-size: 0.6em; margin-top: 10px;">
+						<strong>Highlights:</strong> 3 von 10 Aktien mit positiver Excess-Rendite. AJG: +16,7% Outperformance.
+					</p>
+					<aside class="notes">
+						Bei der Trading-Performance sehen wir ein differenziertes Bild. Die durchschnittliche
+						Gesamtrendite beträgt 4 Prozent, liegt aber unter der Buy-and-Hold-Rendite von knapp
+						12 Prozent. Die durchschnittliche Excess-Rendite ist mit minus 7,5 Prozent negativ.
+						Allerdings zeigen 3 von 10 Aktien positive Excess-Renditen. Besonders AJG sticht
+						mit 16,7 Prozent Outperformance und einem Sharpe Ratio von 2,49 hervor. RSG und CARR
+						zeigen ebenfalls positive Excess-Renditen. Der durchschnittliche Maximum Drawdown
+						von 17,6 Prozent zeigt das Risiko der aktiven Strategie.
+					</aside>
+				</section>
+
+				<!-- Walk-Forward Backtest -->
+				<section>
+					<h2>Walk-Forward Backtest: RMD</h2>
+					<img src="images/walkforward_RMD_LinearSeparation.png" alt="Walk-Forward RMD" style="max-height: 520px; background: white;">
+					<p style="font-size: 0.65em;">Oben: Portfoliowert. Unten: Aktienkurs (schwarz), Vorhersagen (blau), Kauf (grün), Verkauf (rot)</p>
+					<aside class="notes">
+						Diese Grafik zeigt den Walk-Forward-Backtest für die Aktie ResMed. Im oberen Teil sehen Sie
+						den Portfoliowert über den Testzeitraum, im unteren Teil den Aktienkurs zusammen mit
+						den Vorhersagen und Handelssignalen. Die blaue Linie sind die Vorhersagen, grüne Dreiecke
+						sind Kaufsignale, rote Dreiecke Verkaufssignale. Man erkennt, dass die Vorhersagen oft
+						sehr nah am Vortagespreis liegen, was auf starke Interpolation hindeutet. Das Modell
+						erreicht bei RMD eine Rendite von 8,87 Prozent, bleibt aber hinter Buy-and-Hold zurück.
+					</aside>
+				</section>
+
+				<!-- Modellvergleich -->
+				<section>
+					<h2>Modellvergleich</h2>
+					<table style="font-size: 0.55em;">
+						<thead>
+							<tr>
+								<th>Metrik</th>
+								<th>LinearSeparation</th>
+								<th>Preprocessed SVR</th>
+								<th>TimesFM</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr style="background-color: #f0f0f0;">
+								<td colspan="4"><strong>Fehlermaße (Ø über 10 Aktien)</strong></td>
+							</tr>
+							<tr><td>MAPE (%)</td><td>1,13</td><td style="color: green; font-weight: bold;">0,98</td><td>1,08</td></tr>
+							<tr><td>OOS-R²</td><td>-0,10</td><td style="color: green; font-weight: bold;">-0,03</td><td>-0,02</td></tr>
+							<tr><td>Directional Accuracy</td><td>0,51</td><td style="color: green; font-weight: bold;">0,53</td><td>0,50</td></tr>
+							<tr style="background-color: #f0f0f0;">
+								<td colspan="4"><strong>Trading Performance (Ø über 10 Aktien)</strong></td>
+							</tr>
+							<tr><td>Gesamtrendite (%)</td><td>4,06</td><td style="color: green; font-weight: bold;">6,82</td><td>5,45</td></tr>
+							<tr><td>Buy & Hold (%)</td><td>11,62</td><td>11,62</td><td>11,62</td></tr>
+							<tr><td>Excess Return (%)</td><td>-7,56</td><td style="color: green; font-weight: bold;">-4,80</td><td>-6,17</td></tr>
+							<tr><td>Sharpe Ratio</td><td>-2,83</td><td style="color: green; font-weight: bold;">0,42</td><td>-0,15</td></tr>
+							<tr><td>Max Drawdown (%)</td><td>17,58</td><td style="color: green; font-weight: bold;">14,23</td><td>16,91</td></tr>
+						</tbody>
+					</table>
+					<p style="font-size: 0.65em; margin-top: 15px;">
+						<strong>Beobachtungen:</strong> SVR liefert beste Ergebnisse. Alle Modelle lernen, sich am Vortagespreis zu orientieren →
+						starke Glättung. Gute Fehlermaße garantieren keine überlegene Trading-Performance.
+					</p>
+					<aside class="notes">
+						Der Vergleich der drei Modelle zeigt klare Unterschiede. Das Preprocessed SVR Modell
+						liefert die besten Ergebnisse über alle Metriken hinweg - niedrigste Fehlermaße und
+						beste Trading-Performance, obwohl auch hier die Excess-Rendite negativ bleibt. Ein
+						zentrales Problem aller Modelle: Sie lernen, den Erwartungswert der Renditen, also
+						nahe Null, vorherzusagen und orientieren sich stark am Vortagespreis. Dies führt zu
+						Überglättung und konservativen Vorhersagen. Interessant ist, dass gute Fehlermaße
+						wie niedriger MAPE nicht automatisch zu besserer Trading-Performance führen.
+					</aside>
+				</section>
+
+				<!-- Fazit -->
+				<section>
+					<h2>Fazit & Ausblick</h2>
+					<div style="display: flex; gap: 30px;">
+						<div style="flex: 1;">
+							<h3>Zentrale Erkenntnisse</h3>
+							<ul style="font-size: 0.65em;">
+								<li>✓ <strong>SDE-Aktienauswahl:</strong> Innovativ, skalierbar & theoretisch fundiert</li>
+								<li>✓ <strong>Fehlermaße:</strong> Gute Punktgenauigkeit (MAPE ~1%)</li>
+								<li>✓ <strong>Beste Methode:</strong> Preprocessed SVR übertrifft andere Ansätze</li>
+								<li>✗ <strong>Hauptproblem:</strong> Modelle lernen Vortagespreis & Erwartungswert (≈0)</li>
+								<li>✗ <strong>Überglättung:</strong> Konservative Vorhersagen, wenig Volatilität</li>
+								<li>✗ <strong>Trading-Gap:</strong> Fehlermaße ≠ Trading-Performance</li>
+								<li>○ <strong>Potenzial:</strong> Einzelne Aktien profitabel (z.B. AJG: +16,7%)</li>
+							</ul>
+						</div>
+						<div style="flex: 1;">
+							<h3>Ausblick & Verbesserungen</h3>
+							<ul style="font-size: 0.65em;">
+								<li><strong>Modellierung:</strong>
+									<ul style="font-size: 0.95em;">
+										<li>Glättungsparameter anpassen/reduzieren</li>
+										<li>Volatilitätsmodellierung einbeziehen</li>
+									</ul>
+								</li>
+								<li><strong>Forecast-Strategie:</strong>
+									<ul style="font-size: 0.95em;">
+										<li>Längere Forecast Horizons (5-10 Tage)</li>
+										<li>Alternative Signalgenerierung testen</li>
+										<li>Adaptive Schwellenwerte</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<aside class="notes">
+						Zusammenfassend: Wir haben ein innovatives SDE-Verfahren zur Aktienauswahl entwickelt
+						und drei Vorhersagemodelle verglichen. Die Fehlermaße sind durchaus gut, aber alle
+						Modelle zeigen das gleiche Grundproblem: Sie lernen, dass die beste Vorhersage nahe
+						am Vortagespreis liegt und der Erwartungswert der Renditen bei Null. Dies führt zu
+						Überglättung und konservativen Vorhersagen. SVR liefert die besten Ergebnisse, aber
+						auch hier liegt die Trading-Performance unter Buy-and-Hold. Der entscheidende Punkt:
+						Gute Fehlermaße garantieren keine profitable Handelsstrategie. Zukünftige Arbeiten
+						sollten Glättungsparameter reduzieren, längere Forecast Horizons testen, alternative
+						Signalgenerierung entwickeln und realistische Kosten berücksichtigen.
+					</aside>
+				</section>
+
+				<!-- Vielen Dank -->
+				<section>
+					<h1>Vielen Dank für Eure Aufmerksamkeit!</h1>
+					<p style="font-size: 1.2em; margin-top: 2em;">Fragen?</p>
+					<p style="font-size: 0.8em; margin-top: 3em;">
+						Max Katzenberger & Mathis Köder<br>
+						DHBW Karlsruhe | SAP SE
+					</p>
+					<aside class="notes">
+						Vielen Dank für Eure Aufmerksamkeit. Ich bin jetzt offen für Eure Fragen.
+					</aside>
+				</section>
+
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/plugin/notes/notes.js"></script>
+		<script>
+			Reveal.initialize({
+				hash: true,
+				slideNumber: 'c/t',
+				transition: 'slide',
+				width: 1280,
+				height: 720,
+				margin: 0.04,
+				plugins: [ RevealNotes ],
+				// Timer für 8 Minuten (480 Sekunden)
+				totalTime: 480
+			});
+		</script>
+	</body>
+</html>

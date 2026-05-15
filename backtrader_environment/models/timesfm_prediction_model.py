@@ -7,11 +7,40 @@ import warnings
 from .prediction_models import PredictionModel
 
 _TIMESFM_AVAILABLE = False
+_TIMESFM_SHARED_MODEL = None  # Shared model instance across all instances
+
 try:
     import timesfm
     _TIMESFM_AVAILABLE = True
 except ImportError:
     pass
+
+
+def _get_shared_timesfm_model(backend="cpu", horizon=1):
+    """Get or create shared TimesFM model instance.
+
+    This ensures the model is only downloaded and loaded once,
+    regardless of how many TimesFMPredictionModel instances are created.
+    """
+    global _TIMESFM_SHARED_MODEL
+
+    if _TIMESFM_SHARED_MODEL is None and _TIMESFM_AVAILABLE:
+        try:
+            _TIMESFM_SHARED_MODEL = timesfm.TimesFm(
+                hparams=timesfm.TimesFmHparams(
+                    backend=backend,
+                    per_core_batch_size=32,
+                    horizon_len=horizon,
+                ),
+                checkpoint=timesfm.TimesFmCheckpoint(
+                    huggingface_repo_id="google/timesfm-1.0-200m-pytorch"
+                ),
+            )
+        except Exception as e:
+            warnings.warn(f"Failed to initialize TimesFM: {e}")
+            _TIMESFM_SHARED_MODEL = None
+
+    return _TIMESFM_SHARED_MODEL
 
 
 class TimesFMPredictionModel(PredictionModel):
@@ -34,24 +63,7 @@ class TimesFMPredictionModel(PredictionModel):
         self.is_fitted = False
 
         if _TIMESFM_AVAILABLE:
-            self._init_model()
-
-    def _init_model(self):
-        """Initialize the TimesFM model."""
-        try:
-            self.tfm = timesfm.TimesFm(
-                hparams=timesfm.TimesFmHparams(
-                    backend=self.backend,
-                    per_core_batch_size=32,
-                    horizon_len=self.horizon,
-                ),
-                checkpoint=timesfm.TimesFmCheckpoint(
-                    huggingface_repo_id="google/timesfm-1.0-200m-pytorch"
-                ),
-            )
-        except Exception as e:
-            warnings.warn(f"Failed to initialize TimesFM: {e}")
-            self.tfm = None
+            self.tfm = _get_shared_timesfm_model(backend=backend, horizon=horizon)
 
     def fit(self, data, window=None):
         """Store data buffer (no training for zero-shot model).
@@ -124,6 +136,13 @@ class TimesFMPredictionModel(PredictionModel):
             return point_forecast[0][0]
         except Exception:
             return float("nan")
+
+    def update(self, new_price):
+        """Update model with new price observation."""
+        if self.data_buffer is not None:
+            new_df = pd.DataFrame({"close": [float(new_price)]})
+            self.data_buffer = pd.concat([self.data_buffer, new_df], ignore_index=True)
+            self.last_close = float(new_price)
 
     def append(self, new_data):
         """Append new data to buffer for walk-forward."""

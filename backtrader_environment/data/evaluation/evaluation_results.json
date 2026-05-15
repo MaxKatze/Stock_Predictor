@@ -14,182 +14,182 @@
       "BLK"
     ],
     "models": [
-      "LinearSeparation"
+      "TimesFM"
     ]
   },
   "results": [
     {
-      "total_return": -0.07001687549917988,
+      "total_return": -0.010913656855287699,
       "bh_return": -0.1229151214472998,
-      "excess_return": 0.05289824594811991,
-      "sharpe_ratio": -0.3604022065235827,
-      "max_drawdown": 0.26461542896216683,
-      "mae": 1.0030936713381047,
-      "rmse": 1.3972429469531584,
-      "mape": 0.01532593979029806,
-      "oos_r2": -0.08359651802393375,
-      "directional_accuracy": 0.46808510638297873,
+      "excess_return": 0.1120014645920121,
+      "sharpe_ratio": -0.6076215320574703,
+      "max_drawdown": 0.19151452079428016,
+      "mae": "0.95266",
+      "rmse": 1.3466361787778722,
+      "mape": "0.014550675",
+      "oos_r2": "-0.0065243244",
+      "directional_accuracy": 0.5132978723404256,
       "ticker": "CARR",
-      "model": "LinearSeparation",
-      "epsilon": 0.00577542059079659
+      "model": "TimesFM",
+      "epsilon": 0.005815331218778567
     },
     {
-      "total_return": -0.21021263744256619,
+      "total_return": -0.14793217363743955,
       "bh_return": -0.048812664361243284,
-      "excess_return": -0.1613999730813229,
-      "sharpe_ratio": -27.928019082211247,
-      "max_drawdown": 0.24438369209020108,
-      "mae": 0.9421804780145989,
-      "rmse": 1.4616248783817078,
-      "mape": 0.01017146423299086,
-      "oos_r2": -0.1403055849346353,
-      "directional_accuracy": 0.4787234042553192,
+      "excess_return": -0.09911950927619625,
+      "sharpe_ratio": -0.8438854492469597,
+      "max_drawdown": 0.22691992845322553,
+      "mae": "0.89434797",
+      "rmse": 1.3925417431202547,
+      "mape": "0.009610557",
+      "oos_r2": "-0.035060763",
+      "directional_accuracy": 0.5132978723404256,
       "ticker": "OTIS",
-      "model": "LinearSeparation",
-      "epsilon": 0.0037189377185078533
+      "model": "TimesFM",
+      "epsilon": 0.003519954756247939
     },
     {
-      "total_return": 0.19933735290895305,
+      "total_return": 0.16432173655593055,
       "bh_return": 0.1310959046220051,
-      "excess_return": 0.06824144828694795,
-      "sharpe_ratio": 1.0778944974221607,
-      "max_drawdown": 0.08545031498722772,
-      "mae": 1.811617997579423,
-      "rmse": 2.59582821748489,
-      "mape": 0.008283164616719702,
-      "oos_r2": -0.059671472802680814,
-      "directional_accuracy": 0.5611702127659575,
+      "excess_return": 0.03322583193392545,
+      "sharpe_ratio": 0.5360921723105304,
+      "max_drawdown": 0.08543564468591114,
+      "mae": "1.7784466",
+      "rmse": 2.546807691936761,
+      "mape": "0.008134696",
+      "oos_r2": "-0.020027041",
+      "directional_accuracy": 0.5292553191489362,
       "ticker": "RSG",
-      "model": "LinearSeparation",
-      "epsilon": 0.002846080207793675
+      "model": "TimesFM",
+      "epsilon": 0.0025174353295826365
     },
     {
-      "total_return": -0.034601793056376916,
+      "total_return": 0.0019767065485710917,
       "bh_return": 0.1101971873801932,
-      "excess_return": -0.1447989804365701,
-      "sharpe_ratio": -0.7581867911667307,
-      "max_drawdown": 0.23579313920166636,
-      "mae": 2.016663924880723,
-      "rmse": 3.037544739237663,
-      "mape": 0.010067306684701925,
-      "oos_r2": -0.07346361512861344,
-      "directional_accuracy": 0.550531914893617,
+      "excess_return": -0.10822048083162211,
+      "sharpe_ratio": -0.1577694755528425,
+      "max_drawdown": 0.16905314475825697,
+      "mae": "2.0299425",
+      "rmse": 2.9820908997955704,
+      "mape": "0.010134701",
+      "oos_r2": "-0.03462684",
+      "directional_accuracy": 0.47074468085106386,
       "ticker": "CTAS",
-      "model": "LinearSeparation",
-      "epsilon": 0.003421153230863667
+      "model": "TimesFM",
+      "epsilon": 0.003348336706126369
     },
     {
-      "total_return": 0.1899927174249428,
+      "total_return": 0.11666428751419328,
       "bh_return": 0.02300663492734207,
-      "excess_return": 0.16698608249760075,
-      "sharpe_ratio": 2.4948844484954007,
-      "max_drawdown": 0.09947209212115898,
-      "mae": 3.3149065995287685,
-      "rmse": 4.65784890033323,
-      "mape": 0.011312562374835857,
-      "oos_r2": -0.14976988433755878,
-      "directional_accuracy": 0.5345744680851063,
+      "excess_return": 0.09365765258685121,
+      "sharpe_ratio": 8.096226733499712,
+      "max_drawdown": 0.1534567887066042,
+      "mae": "3.1267056",
+      "rmse": 4.377002366830327,
+      "mape": "0.010604176",
+      "oos_r2": "-0.015298367",
+      "directional_accuracy": 0.5159574468085106,
       "ticker": "AJG",
-      "model": "LinearSeparation",
-      "epsilon": 0.003804389923212306
+      "model": "TimesFM",
+      "epsilon": 0.003801106290696302
     },
     {
-      "total_return": -0.12995375914863747,
+      "total_return": -0.07305562890343717,
       "bh_return": -0.06471422828277279,
-      "excess_return": -0.06523953086586468,
-      "sharpe_ratio": -5.056755304112864,
-      "max_drawdown": 0.18211849993697882,
-      "mae": 1.4042562234693439,
-      "rmse": 1.9133463312783887,
-      "mape": 0.009741034984590379,
-      "oos_r2": -0.06921064531579102,
-      "directional_accuracy": 0.4787234042553192,
+      "excess_return": -0.00834140062066438,
+      "sharpe_ratio": -4.353168143672666,
+      "max_drawdown": 0.10396946680831717,
+      "mae": "1.374294",
+      "rmse": 1.8651445776609392,
+      "mape": "0.009538187",
+      "oos_r2": "-0.016017318",
+      "directional_accuracy": 0.45478723404255317,
       "ticker": "PEP",
-      "model": "LinearSeparation",
-      "epsilon": 0.0032134000496621073
+      "model": "TimesFM",
+      "epsilon": 0.003217188279358166
     },
     {
-      "total_return": 0.04494032519783854,
+      "total_return": 0.1319360482958809,
       "bh_return": 0.23325225407872313,
-      "excess_return": -0.1883119288808846,
-      "sharpe_ratio": 0.07053579324020615,
-      "max_drawdown": 0.18334601229552416,
-      "mae": 4.815106015890207,
-      "rmse": 6.749638320637309,
-      "mape": 0.012643433845558603,
-      "oos_r2": -0.10024741866441889,
-      "directional_accuracy": 0.4973404255319149,
+      "excess_return": -0.10131620578284223,
+      "sharpe_ratio": 2.050523658194536,
+      "max_drawdown": 0.15383992443472194,
+      "mae": "4.518826",
+      "rmse": 6.474462373425483,
+      "mape": "0.011892602",
+      "oos_r2": "-0.012364268",
+      "directional_accuracy": 0.4946808510638298,
       "ticker": "TT",
-      "model": "LinearSeparation",
-      "epsilon": 0.004455589538779426
+      "model": "TimesFM",
+      "epsilon": 0.004539500241964432
     },
     {
-      "total_return": 0.004979022912315704,
+      "total_return": 0.19790096684616962,
       "bh_return": 0.1539701293846732,
-      "excess_return": -0.1489911064723575,
-      "sharpe_ratio": -0.07671641834785194,
-      "max_drawdown": 0.2504551171187237,
-      "mae": 11.039234047533844,
-      "rmse": 15.52957858858647,
-      "mape": 0.010923537412565064,
-      "oos_r2": -0.10262934111133681,
+      "excess_return": 0.043930837461496425,
+      "sharpe_ratio": 0.650528826894205,
+      "max_drawdown": 0.07510066643663395,
+      "mae": "10.452327",
+      "rmse": 14.983829683279874,
+      "mape": "0.010377579",
+      "oos_r2": "-0.026492596",
       "directional_accuracy": 0.48138297872340424,
       "ticker": "GWW",
-      "model": "LinearSeparation",
-      "epsilon": 0.004354547232870674
+      "model": "TimesFM",
+      "epsilon": 0.004374804779549252
     },
     {
-      "total_return": 0.08867585823358284,
+      "total_return": 0.0345370917622374,
       "bh_return": 0.3178753034288759,
-      "excess_return": -0.22919944519529303,
-      "sharpe_ratio": 0.5204085728744376,
-      "max_drawdown": 0.09416947433904645,
-      "mae": 3.113800493023588,
-      "rmse": 4.383968231566844,
-      "mape": 0.013035096008386664,
-      "oos_r2": -0.12612548272449797,
-      "directional_accuracy": 0.5345744680851063,
+      "excess_return": -0.2833382116666385,
+      "sharpe_ratio": 0.003606754852073879,
+      "max_drawdown": 0.16481693021248986,
+      "mae": "2.9375143",
+      "rmse": 4.225603202782789,
+      "mape": "0.012331746",
+      "oos_r2": "-0.046235442",
+      "directional_accuracy": 0.449468085106383,
       "ticker": "RMD",
-      "model": "LinearSeparation",
-      "epsilon": 0.007558386759126918
+      "model": "TimesFM",
+      "epsilon": 0.007484472837350284
     },
     {
-      "total_return": 0.32280532923054156,
+      "total_return": 0.12919464006847586,
       "bh_return": 0.4286190666164525,
-      "excess_return": -0.10581373738591093,
-      "sharpe_ratio": 1.697194332764319,
-      "max_drawdown": 0.11786659329041196,
-      "mae": 11.187625619180187,
-      "rmse": 15.683206599973122,
-      "mape": 0.011509368756245465,
-      "oos_r2": -0.08875657299139905,
-      "directional_accuracy": 0.5478723404255319,
+      "excess_return": -0.29942442654797663,
+      "sharpe_ratio": 1.0030249382010146,
+      "max_drawdown": 0.11779073957256733,
+      "mae": "10.513811",
+      "rmse": 15.294750654489526,
+      "mape": "0.010812075",
+      "oos_r2": "-0.035489798",
+      "directional_accuracy": 0.5292553191489362,
       "ticker": "BLK",
-      "model": "LinearSeparation",
-      "epsilon": 0.00458306918588151
+      "model": "TimesFM",
+      "epsilon": 0.004244447287181176
     }
   ],
   "summary_by_model": {
     "total_return": {
-      "LinearSeparation": 0.040594554076141404
+      "TimesFM": 0.054463001819529434
     },
     "excess_return": {
-      "LinearSeparation": -0.07556289255855352
+      "TimesFM": -0.061694444815165485
     },
     "sharpe_ratio": {
-      "LinearSeparation": -2.831916215756575
+      "TimesFM": 0.6377558483422133
     },
     "max_drawdown": {
-      "LinearSeparation": 0.1757670364343106
+      "TimesFM": 0.14418977548630083
     },
     "mape": {
-      "LinearSeparation": 0.011301290870689259
+      "TimesFM": 0.010798699222505093
     },
     "oos_r2": {
-      "LinearSeparation": -0.09937765360348658
+      "TimesFM": -0.02481367625296116
     },
     "directional_accuracy": {
-      "LinearSeparation": 0.5132978723404256
+      "TimesFM": 0.4952127659574468
     }
   }
 }
