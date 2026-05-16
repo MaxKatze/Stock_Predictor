@@ -1,6 +1,38 @@
 \chapter{Implementierung}\label{chap:implementierung}
 % Viele Arbeiten die sich bereits mit Aktienkursvohersagen beschäftigt haben, wurden häufig kritisiert, da sie selten reproduzierbar sind. Oft fehlen theoretische Details und meist die gesamte Implementierung, sowie Datensätze.~\cite{Olorunnimbe2023} Um eine gute Reproduzierbarkeit zu gewährleisten, wird in diesem Kapitel die Implementierung jeglicher Modelle vorgestellt.
 
+\section{Technische Grundlagen}\label{sec:tech_grundlagen}
+
+\subsection{Backtrader Framework}\label{subsec:backtrader}
+Für die Evaluation der Handelsstrategien wird das Python-Framework \texttt{Backtrader}~\cite{backtrader} verwendet. \texttt{Backtrader} ist eine etablierte Open-Source-Lösung für Backtesting und Live-Trading, die eine ereignisgesteuerte Architektur bietet. Die Wahl fiel auf \texttt{Backtrader} aus folgenden Gründen:
+
+\begin{itemize}
+    \item \textbf{Walk-Forward-Unterstützung:} Das Framework ermöglicht die sequentielle Verarbeitung historischer Daten Bar-für-Bar, wodurch ein realistischer Handelsverlauf simuliert wird, bei dem zu jedem Zeitpunkt nur vergangene Informationen verfügbar sind.
+    \item \textbf{Integrierte Metriken:} Analyzer-Klassen für Sharpe Ratio, Maximum Drawdown und weitere Finanzkennzahlen sind bereits implementiert und können erweitert werden.
+    \item \textbf{Modularität:} Strategien, Datenfeeds und Analyzer sind unabhängige Komponenten, die flexibel kombiniert werden können.
+    \item \textbf{Reproduzierbarkeit:} Deterministisches Verhalten bei festen Seeds ermöglicht wiederholbare Experimente.
+\end{itemize}
+
+Die zentrale Steuerungsklasse \texttt{Cerebro} orchestriert den Backtest-Prozess. Sie verwaltet Datenfeeds, führt die Handelsstrategie aus, protokolliert Transaktionen und aggregiert Metriken über die eingebundenen Analyzer.
+
+\subsection{Walk-Forward Testing}\label{subsec:walkforward}
+Der Backtest erfolgt im Walk-Forward-Verfahren, um Lookahead Bias zu vermeiden. Bei jedem simulierten Handelstag $t$ führt das System folgende Schritte aus:
+
+\begin{enumerate}
+    \item Laden des aktuellen Schlusskurses $p_t$ und aller historischen Kurse bis einschließlich $t$
+    \item Aktualisierung des Modells mit $p_t$ (z.\,B. Hinzufügen zum Zeitfenster)
+    \item Generierung einer Vorhersage $\hat{p}_{t+1}$ ausschließlich auf Basis von Daten bis $t$
+    \item Berechnung des Handelssignals und Ausführung von Transaktionen zum Schlusskurs von Tag $t$
+    \item Fortschreiten zum nächsten Tag $t+1$
+\end{enumerate}
+
+Dieses Vorgehen stellt sicher, dass das Modell zu keinem Zeitpunkt Zugriff auf zukünftige Informationen hat. Die Vorhersage für Tag $t+1$ basiert ausschließlich auf der Historie bis einschließlich Tag $t$.
+
+\subsection{Datenhaltung}\label{subsec:datenhaltung}
+Die historischen Kursdaten werden als CSV-Dateien von der Yahoo Finance API bezogen. CSV wurde als Austauschformat gewählt, da es menschenlesbar ist und von den meisten Finanzmarkt-APIs unterstützt wird. Für die Verarbeitung werden die Daten in das Parquet-Format konvertiert, da der Speicherbedarf etwa 80\% geringer ist als bei CSV und Spaltenweise Speicherung effiziente Zugriffe ermöglicht. Außerdem erfolgt so weniger String-Konvertierung, die zu Fehlern führen kann. Die Konvertierung erfolgt einmalig nach dem Download. Alle nachfolgenden Verarbeitungsschritte arbeiten mit den Parquet-Dateien.
+
+\section{Systemarchitektur}\label{sec:systemarchitektur}
+
 Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für die Aktienauswahl zuständig, während das zweite Skript die drei Modelle trainiert und evaluiert. \cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung über beide Skripte hinweg. Diese Aufteilung ermöglicht es, die Aktienauswahl unabhängig von der Modellevaluation durchzuführen.
 \begin{figure}[htbp]
     \centering
@@ -40,7 +72,7 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
     \label{tab:config_params}
 \end{table}
 
-Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren können über ein Hilfsskript heruntergeladen werden. Dieses Skript nutzt die Yahoo-Finance-API, um die Daten herunterzuladen. Die Daten werden als CSV-Dateien gespeichert und in parquet-Dateien komprimiert.
+Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren können über ein Hilfsskript heruntergeladen werden. Dieses Skript nutzt die Yahoo-Finance-API, um die Daten herunterzuladen. Die Datenhaltung erfolgt wie in \cref{subsec:datenhaltung} beschrieben über CSV- und Parquet-Dateien.
 
 Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werden. Das Skript ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
 \begin{algorithm}
@@ -117,7 +149,7 @@ Im nächsten Schritt nutzt das Skript die Trainings- und Validierungsdaten, um d
 Die trainierten Modelle werden dann mit den Testdaten in der Backtest-Engine evaluiert. Eine genaue Beschreibung der Backtest-Engine findet sich in \cref{subsubsec:backtest}. Die Ergebnisse der Evaluation werden mit dem Namen der Aktie und dem Namen des Modells in der Datenstruktur gespeichert. Nachdem alle Aktien und Modelle durchlaufen wurden, werden die Ergebnisse ausgegeben, sowie die aggregierten Durchschnittswerte pro Modell.
 
 \subsubsection{Backtest}\label{subsubsec:backtest}
-Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken. Vorraussetzung für die Ausführung der Methode ist ein trainiertes Modell, die Testdaten und die Modellkonfiguration.
+Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken im Walk-Forward-Verfahren gemäß \cref{subsec:walkforward}.
 \begin{algorithm}
     \caption{RunBacktest Methode}\label{alg:RunBacktest}
     \small
@@ -136,11 +168,11 @@ Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie 
         \State \Return Metriken: $totalReturn$, $bhReturn$, $excessReturn$, Sharpe, Drawdown, MAPE, $R^2_{OOS}$, DA
     \end{algorithmic}
 \end{algorithm}
-Als ersten Schritt erstellt die Methode eine neue Instanz der Backtest-Engine. Für die Backtest-Engine wird \texttt{Cerebro} verwendet. \texttt{Cerebro} ist die zentrale Steuerungsklasse des \texttt{Backtrader} Frameworks\cite{backtrader}.
+Als ersten Schritt erstellt die Methode eine neue Instanz der Backtest-Engine. Für die Backtest-Engine wird \texttt{Cerebro} verwendet. \texttt{Cerebro} ist die zentrale Steuerungsklasse des \texttt{Backtrader} Frameworks (siehe \cref{subsec:backtrader}).
 
-Die Methode fügt der Steuerungsklasse in den nächsten Schritten die Testdaten, die Handelsstrategie mit dem Modell und Konfigurationsparametern und das Startkapital hinzu. Anschließend werden die Analyzers hinzugefügt, die die Evaluationsmetriken berechnen.
+Die Konfiguration umfasst die Testdaten im Yahoo-Finance-Format, die Handelsstrategie \texttt{PredictionStrategy} mit modellspezifischen Parametern, ein Startkapital von \$100.000 sowie Analyzer zur Berechnung von Sharpe Ratio, Maximum Drawdown und Vorhersagemetriken (MAPE, OOS-$R^2$, DA).
 
-Die Methode führt dann die Backtest-Engine aus und berechnet den Total Return, den Buy-and-Hold Return und den Excess Return. Außerdem werden die Sharpe-Ratio, der maximale Drawdown und die Vorhersagemetriken aus den Analyzern extrahiert. Am Ende gibt die Methode alle Metriken zurück.
+Nach Ausführung der Simulation werden die Finanzkennzahlen (Total Return, Buy-and-Hold Return, Excess Return) berechnet und zusammen mit den Analyzer-Ergebnissen zurückgegeben.
 
 \subsubsection{Marktstrategie}\label{subsubsec:marktstrategie}
 Die Marktstrategie ist die zentrale Handelslogik, die auf Basis der Modellvorhersagen Kauf- und Verkaufsentscheidungen trifft. Sie ist in \cref{alg:marktstrategie} dargestellt. Die Strategie nutzt den prognostizierten Log-Return $\hat{r}_{t+1}$ und vergleicht ihn mit der Signal-Schwelle $\varepsilon$, die aus dem \ac{MAE} auf den Validierungsdaten berechnet wird. Die Positionsgröße wird über das Half-Kelly-Kriterium bestimmt. Die Berechnung des Half-Kelly-Kriteriums wurde in \cref{subsec:kelly} beschrieben.
@@ -199,7 +231,7 @@ Am Ende werden die drei Vorhersagen für den langfristigen Trend, den kurzfristi
 \end{figure}
 Zur Vorhersage des nächsten Tageskurses, bildet das Modell die Differenz zwischen dem ersten Trainingsdatum und dem Datum für die Vorhersage. Dies ist der Tag der dann in die beiden linearen Funktionen eingesetzt wird, die die Vorhersage für den langfristigen und kurzfristigen Trend liefern. In die ARMA-Komponente wird die Differenz zwischen dem letzten Trainingsdatum und dem Datum für die Vorhersage eingesetzt, um die Vorhersage für die zyklische Komponente zu liefern. Die drei Vorhersagen werden dann addiert und exponentiert, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
 \section{Preprocessed SVR}\label{sec:preprocessed_svr}
-Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor, dessen Komponenten in \cref{subsec:preprocessed_svr} detailliert beschrieben sind.
+Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren gemäß \cref{subsec:walkforward} täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor, dessen Komponenten in \cref{subsec:preprocessed_svr} detailliert beschrieben sind.
 
 Im zweiten Schritt berechnet das Modell den Target-Wert als Log-Return des Schlusskurses. Um den Einfluss von Ausreißern zu reduzieren, werden die Target-Werte auf ein festes Intervall geclippt. Im dritten Schritt werden die Features mit einem StandardScaler z-standardisiert, sodass jede Dimension einen Mittelwert von null und eine Standardabweichung von eins aufweist.
 
