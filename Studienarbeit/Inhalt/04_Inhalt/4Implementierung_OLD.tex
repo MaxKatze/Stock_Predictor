@@ -24,7 +24,6 @@ Der Backtest erfolgt im Walk-Forward-Verfahren, um Lookahead Bias zu vermeiden. 
     \item Generierung einer Vorhersage $\hat{p}_{t+1}$ ausschließlich auf Basis von Daten bis $t$
     \item Berechnung des Handelssignals und Ausführung von Transaktionen zum Schlusskurs von Tag $t$
     \item Fortschreiten zum nächsten Tag $t+1$
-    \item Nach Ablauf des Zeitraums T werden die Analzyer automatisch ausgeführt und die definierten Metriken zurückgegeben.
 \end{enumerate}
 
 Dieses Vorgehen stellt sicher, dass das Modell zu keinem Zeitpunkt Zugriff auf zukünftige Informationen hat. Die Vorhersage für Tag $t+1$ basiert ausschließlich auf der Historie bis einschließlich Tag $t$.
@@ -42,9 +41,7 @@ Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für di
     \label{fig:gesamtueberblick_datenfluss}
 \end{figure}
 
-\section{Aktienauswahl}\label{sec:impl_aktienauswahl}
-
-\subsection{Skript zur Aktienauswahl}\label{subsec:skript_aktienauswahl}
+\subsubsection{Aktienauswahl}\label{subsubsec:aktienauswahl}
 Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei enthält folgende Parameter:
 
 \begin{table}[h!]
@@ -112,26 +109,10 @@ Das Skript lädt als Erstes die Konfigurationsdatei und dann die Liste aller Akt
 
 Dann werden für alle Aktien in der Liste die historischen Kursdaten für den Trainingszeitraum geladen. Diese Kursdaten werden direkt aus der CSV-Datei gelesen, sollten die Daten nicht vorhanden sein, bricht das Skript mit einem Fehler ab. Wenn die Anzahl der Datenpunkte größer oder gleich 500 ist, werden die Schlusskurse der Aktie zu der Datenstruktur hinzugefügt. Analog wird mit den Makrofaktoren verfahren, dadurch entstehen die Datenstrukturen mit den Aktienkursen und den Makrofaktoren.
 
-Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Die genaue Beschreibung des Auswahlprozesses ist in \cref{subsec:sde_datenfluss} zu finden. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
+Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Die genaue Beschreibung des Auswahlprozesses ist in \cref{sec:sdes_zur_aktienauswahl} zu finden. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
 
-\subsection{SDE-basierter Auswahlprozess}\label{subsec:sde_datenfluss}
-Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsec:skript_aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretisiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt.
 
-Im zweiten Schritt berechnet der Selector dann mithilfe einer multiple linear Regression die Koeffizienten, die die Stärke der Beziehung zwischen den Aktienkursen und den Makrofaktoren angeben und sucht dann im dritten Schritt die zwei Faktoren aus, die die stärkste Beziehung zu den Aktienkursen haben. Der vierte Schritt bildet basierend auf den zwei Faktoren jeder Aktie Pools von Aktien. Alle Aktien in einem Pool haben die gleichen zwei Makrofaktoren.
-
-Jetzt beginnt die Schleife des Selectors. Die Schleife wird standardmäßig 100 Mal durchlaufen, kann aber über die Konfigurationsdatei angepasst werden. Im Durchlauf der Schleife werden erste die Aktienpools in Gruppen von je standardmäßig 4 Aktien aufgeteilt. Im zweiten Schritt stellt die Schleife für jede Gruppe die SDE auf und löst diese mit dem Euler-Maruyama-Schema. Nach dem Lösen der SDE wird der \ac{ROI} für jede Aktie berechnet. Der letzte Schritt der Schleife gibt die Aktie mit ihrem Rang innerhalb der Gruppe zurück.
-
-Nachdem die Schleife alle Durchläufe gemacht hat, berechnet der Selector den durchschnittlichen Rang jeder Aktie über alle Durchläufe und gibt die 10 Aktien mit dem besten durchschnittlichen Rang zurück. Diese 10 Aktien werden dann für das Training der Modelle verwendet.
-\begin{figure}[htbp]
-    \centering
-    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
-    \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}
-    \label{fig:sde_aktienauswahl}
-\end{figure}
-
-\section{Modellevaluation}\label{sec:impl_modelevaluation}
-
-\subsection{Evaluationsskript}\label{subsec:evaluationsskript}
+\subsubsection{Modelevaluation}
 Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die Modellkonfiguration, die historischen Kursdaten der ausgewählten Aktien und die Liste mit den ausgewählten Aktien. Sind diese Voraussetzungen nicht erfüllt, werden die betroffenen Aktien und Modelle übersprungen. Das Skript ist in \cref{alg:Skript_Modelevaluation} dargestellt.
 \begin{algorithm}
     \caption{Skript Modelevaluation}\label{alg:Skript_Modelevaluation}
@@ -163,11 +144,11 @@ Im nächsten Schritt lädt das Skript die Modellkonfiguration, für die drei Mod
 
 Anschließend geht das Skript alle Aktien der Liste durch und lädt die historischen Kursdaten für die Aktien. Die Kursdaten liest das Skript direkt aus der CSV-Datei und teilt die Daten in Trainings-, Validierungs- und Testdaten auf, basierend auf den Start- und Enddaten aus der Konfigurationsdatei.
 
-Im nächsten Schritt nutzt das Skript die Trainings- und Validierungsdaten, um die Modelle zu trainieren. Dafür wird die modellspezifische Methode aus der Modellkonfiguration aufgerufen. Die Methode erzeugt das spezifische Modell, trainiert es auf den Daten und gibt es zurück. Das genaue Training der Modelle wird in \cref{subsec:impl_linear_separation}, \cref{subsec:impl_preprocessed_svr} und \cref{subsec:impl_timesfm} beschrieben.
+Im nächsten Schritt nutzt das Skript die Trainings- und Validierungsdaten, um die Modelle zu trainieren. Dafür wird die modellspezifische Methode aus der Modellkonfiguration aufgerufen. Die Methode erzeugt das spezifische Modell, trainiert es auf den Daten und gibt es zurück. Das genaue Training der Modelle wird in \cref{sec:linear_separation}, \cref{sec:preprocessed_svr} und \cref{sec:timesfm_impl} beschrieben.
 
-Die trainierten Modelle werden dann mit den Testdaten in der Backtest-Engine evaluiert. Eine genaue Beschreibung der Backtest-Engine findet sich in \cref{subsec:impl_backtest}. Die Ergebnisse der Evaluation werden mit dem Namen der Aktie und dem Namen des Modells in der Datenstruktur gespeichert. Nachdem alle Aktien und Modelle durchlaufen wurden, werden die Ergebnisse ausgegeben, sowie die aggregierten Durchschnittswerte pro Modell.
+Die trainierten Modelle werden dann mit den Testdaten in der Backtest-Engine evaluiert. Eine genaue Beschreibung der Backtest-Engine findet sich in \cref{subsubsec:backtest}. Die Ergebnisse der Evaluation werden mit dem Namen der Aktie und dem Namen des Modells in der Datenstruktur gespeichert. Nachdem alle Aktien und Modelle durchlaufen wurden, werden die Ergebnisse ausgegeben, sowie die aggregierten Durchschnittswerte pro Modell.
 
-\subsection{Backtest-Engine}\label{subsec:impl_backtest}
+\subsubsection{Backtest}\label{subsubsec:backtest}
 Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie simuliert eine Handelsstrategie auf den Testdaten und berechnet die Evaluationsmetriken im Walk-Forward-Verfahren gemäß \cref{subsec:walkforward}.
 \begin{algorithm}
     \caption{RunBacktest Methode}\label{alg:RunBacktest}
@@ -193,53 +174,7 @@ Die Konfiguration umfasst die Testdaten im Yahoo-Finance-Format, die Handelsstra
 
 Nach Ausführung der Simulation werden die Finanzkennzahlen (Total Return, Buy-and-Hold Return, Excess Return) berechnet und zusammen mit den Analyzer-Ergebnissen zurückgegeben.
 
-\subsection{LinearSeparation}\label{subsec:impl_linear_separation}
-Der Datenfluss von der Erstellung des Modells bis zum trainierten Modell ist in \cref{fig:linear_separation_datenfluss} dargestellt. Das Modell besteht aus drei Pfaden, die parallel zueinander verlaufen. Alle drei Pfade beginnen mit den logarithmierten historischen Schlusskursen der Aktie, die als Input für das Modell dienen. Auf diese Kurse wird dann ein HP-Filter mit einem $\lambda$ von $1600 \cdot 252^2$ angewendet, der den langfristigen Trend der Daten ermittelt. Die Wahl von $\lambda_{\text{lang}} = 1600 \cdot 252^2 \approx 1{,}01 \times 10^8$ basiert auf der Empfehlung von Hodrick und Prescott~\cite{hodrick1997postwar}, die $\lambda = 1600$ für Quartalsdaten vorschlagen. Da bei Tagesdaten etwa $252/4 = 63$ Beobachtungen pro Quartal vorliegen, muss $\lambda$ entsprechend hochskaliert werden. Um bei höherer Datenfrequenz die gleiche relative Glättungswirkung zu erzielen, wird $\lambda$ mit dem Quadrat der Frequenzerhöhung multipliziert, woraus sich $\lambda_{\text{lang}} = 1600 \cdot 252^2$ für einen mehrjährigen strukturellen Trend ergibt.
-
-Der erste Pfad bestimmt den langfristigen Trend der Aktie. Dafür wird der vom HP-Filter bestimmte Trend verwendet, um eine lineare Regression durchzuführen. Die Steigung und der Achsenabschnitt der Regressionsgeraden bilden die Vorhersage für den langfristigen Trend der Aktie.
-
-Um den kurzfristigen Trend der Aktie zu bestimmen, zieht das Modell den langfristigen Trend von den logarithmierten Schlusskursen ab, um die zyklische Komponente der Daten zu erhalten. Auf diese zyklische Komponente wird dann nochmal ein HP-Filter mit $\lambda_{\text{kurz}} = 1600$ angewendet, um den kurzfristigen Trend zu bestimmen. Der Wert $\lambda_{\text{kurz}} = 1600$ entspricht der ursprünglichen Empfehlung für Quartalsdaten und erfasst damit Bewegungen im Wochenbereich, da ein Quartal etwa 13 Wochen bzw.\ 63 Handelstage umfasst. Der zweite Pfad nutzt dann den kurzfristigen Trend und modeliert eine lineare Regression, um die Vorhersage für den kurzfristigen Trend zu erhalten.
-
-Der dritte Pfad nutzt die zyklische Komponente des zweiten HP-Filters, um ein ARMA-Modell zu trainieren. Die Vorhersage der ARMA-Komponente wird dann als Vorhersage für die zyklische Komponente der Daten verwendet.
-
-Am Ende werden die drei Vorhersagen für den langfristigen Trend, den kurzfristigen Trend und die zyklische Komponente zusammengeführt, um die endgültige Vorhersage für die Aktie zu erhalten. Da die drei Pfade auf logarithmierten Kursen arbeiten, muss die Vorhersage am Ende exponentiert werden, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
-\begin{figure}[htbp]
-    \centering
-    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/linear_separation_datenfluss}
-    \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}
-    \label{fig:linear_separation_datenfluss}
-\end{figure}
-Zur Vorhersage des nächsten Tageskurses, bildet das Modell die Differenz zwischen dem ersten Trainingsdatum und dem Datum für die Vorhersage. Dies ist der Tag der dann in die beiden linearen Funktionen eingesetzt wird, die die Vorhersage für den langfristigen und kurzfristigen Trend liefern. In die ARMA-Komponente wird die Differenz zwischen dem letzten Trainingsdatum und dem Datum für die Vorhersage eingesetzt, um die Vorhersage für die zyklische Komponente zu liefern. Die drei Vorhersagen werden dann addiert und exponentiert, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
-
-\subsection{Preprocessed SVR}\label{subsec:impl_preprocessed_svr}
-Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren gemäß \cref{subsec:walkforward} täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor, dessen Komponenten in \cref{subsec:preprocessed_svr} detailliert beschrieben sind.
-
-Im zweiten Schritt berechnet das Modell den Target-Wert als Log-Return des Schlusskurses. Um den Einfluss von Ausreißern zu reduzieren, werden die Target-Werte auf ein festes Intervall geclippt. Im dritten Schritt werden die Features mit einem StandardScaler z-standardisiert, sodass jede Dimension einen Mittelwert von null und eine Standardabweichung von eins aufweist.
-
-Nach der Normalisierung verzweigt sich der Datenfluss. Auf der linken Seite wird das SVR-Modell mit einem RBF-Kernel auf den skalierten Trainingsdaten trainiert. Auf der rechten Seite findet optional ein Grid Search auf den Validierungsdaten statt. Dabei werden die Hyperparameter $C$, $\varepsilon$ und $\gamma$ über vordefinierte Wertebereiche durchsucht. Die Kombination mit dem niedrigsten \ac{MAPE} auf den Validierungsdaten wird ausgewählt und für das finale Training des SVR-Modells verwendet.
-
-Zur Vorhersage wird der aktuelle Feature-Vektor skaliert und in das trainierte Modell eingespeist. Das Modell liefert den prognostizierten Log-Return für den nächsten Tag. Im letzten Schritt wird der prognostizierte Kurs durch Preisrekonstruktion berechnet, indem der letzte Schlusskurs mit dem exponentierten Log-Return multipliziert wird.
-\begin{figure}[htbp]
-    \centering
-    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/svr_prediction_datenfluss}
-    \caption{Preprocessed SVR: Datenfluss von den Trainingsdaten bis zur Preisprognose}
-    \label{fig:svr_prediction_datenfluss}
-\end{figure}
-
-\subsection{TimesFM}\label{subsec:impl_timesfm}
-Da mit dem TimesFM Modell ein Zero-Shot Ansatz verfolgt wird, muss das Modell nicht trainiert werden. Dem Modell werden ausschließlich die Trainingsdaten übergeben, die später als Basis für den Kontext der Vorhersage dienen. Deshalb zeigt \cref{fig:timesfm_datenfluss} auch den Datenfluss bei der Vorhersage von neuen Kursen, da dies der einzige Schritt ist, der mit diesem Modell durchgeführt wird. Für die bessere Vergleichbarkeit arbeitet auch dieses Modell auf logarithmierten Kursen.
-
-Aus diesem Grund werden im ersten Schritt alle historischen Schlusskurse der Aktie logarithmiert. Die letzten 512 logarithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das TimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen.
-
-Im letzten Schritt wandelt das Modell die prognostizierten Log-Returns in prognostizierte Kurse um, indem es die Log-Returns exponentiert und mit dem letzten Schlusskurs multipliziert. Der nächste Preis baut somit auf dem letzten prognostizierten Preis auf.
-\begin{figure}[htbp]
-    \centering
-    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/timesfm_datenfluss}
-    \caption{TimesFM: Datenfluss der Vorhersage von neuen Kursen}
-    \label{fig:timesfm_datenfluss}
-\end{figure}
-
-\subsection{Handelsstrategie}\label{subsec:impl_marktstrategie}
+\subsubsection{Handelsstrategie}\label{subsubsec:marktstrategie}
 Die Handelsstrategie ist die zentrale Handelslogik, die auf Basis der Modellvorhersagen Kauf- und Verkaufsentscheidungen trifft. Sie ist in \cref{alg:marktstrategie} dargestellt. Die Strategie nutzt den prognostizierten Log-Return $\hat{r}_{t+1}$ und vergleicht ihn mit der Signal-Schwelle $\varepsilon$, die aus dem \ac{MAE} auf den Validierungsdaten berechnet wird. Die Positionsgröße wird über das Half-Kelly-Kriterium bestimmt. Die Berechnung des Half-Kelly-Kriteriums wurde in \cref{subsec:kelly} beschrieben.
 
 Für jeden Handelstag wird dem Modell zunächst der aktuelle Kurs übergeben und eine Prognose für den nächsten Tag erstellt. Der daraus berechnete prognostizierte Log-Return wird mit der Schwelle $\varepsilon$ verglichen. Liegt er über $\varepsilon$, wird die Position mittels Half-Kelly-Kriterium auf den optimalen Anteil des Portfoliowerts angepasst. Liegt er unter $-\varepsilon$, werden alle Positionen geschlossen. Dazwischen wird die aktuelle Position gehalten.
@@ -263,3 +198,62 @@ Für jeden Handelstag wird dem Modell zunächst der aktuelle Kurs übergeben und
         \EndFor
     \end{algorithmic}
 \end{algorithm}
+\section{SDEs zur Aktienauswahl}\label{sec:sdes_zur_aktienauswahl}
+Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsubsec:aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretisiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt.
+
+Im zweiten Schritt berechnet der Selector dann mithilfe einer multiple linear Regression die Koeffizienten, die die Stärke der Beziehung zwischen den Aktienkursen und den Makrofaktoren angeben und sucht dann im dritten Schritt die zwei Faktoren aus, die die stärkste Beziehung zu den Aktienkursen haben. Der vierte Schritt bildet basierend auf den zwei Faktoren jeder Aktie Pools von Aktien. Alle Aktien in einem Pool haben die gleichen zwei Makrofaktoren.
+
+Jetzt beginnt die Schleife des Selectors. Die Schleife wird standardmäßig 100 Mal durchlaufen, kann aber über die Konfigurationsdatei angepasst werden. Im Durchlauf der Schleife werden erste die Aktienpools in Gruppen von je standardmäßig 4 Aktien aufgeteilt. Im zweiten Schritt stellt die Schleife für jede Gruppe die SDE auf und löst diese mit dem Euler-Maruyama-Schema. Nach dem Lösen der SDE wird der \ac{ROI} für jede Aktie berechnet. Der letzte Schritt der Schleife gibt die Aktie mit ihrem Rang innerhalb der Gruppe zurück.
+
+Nachdem die Schleife alle Durchläufe gemacht hat, berechnet der Selector den durchschnittlichen Rang jeder Aktie über alle Durchläufe und gibt die 10 Aktien mit dem besten durchschnittlichen Rang zurück. Diese 10 Aktien werden dann für das Training der Modelle verwendet.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
+    \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}
+    \label{fig:sde_aktienauswahl}
+\end{figure}
+
+\section{LinearSeparation}\label{sec:linear_separation}
+Der Datenfluss von der Erstellung des Modells bis zum trainierten Modell ist in \cref{fig:linear_separation_datenfluss} dargestellt. Das Modell besteht aus drei Pfaden, die parallel zueinander verlaufen. Alle drei Pfade beginnen mit den logarithmierten historischen Schlusskursen der Aktie, die als Input für das Modell dienen. Auf diese Kurse wird dann ein HP-Filter mit einem $\lambda$ von $1600 \cdot 252^2$ angewendet, der den langfristigen Trend der Daten ermittelt. Die Wahl von $\lambda_{\text{lang}} = 1600 \cdot 252^2 \approx 1{,}01 \times 10^8$ basiert auf der Empfehlung von Hodrick und Prescott~\cite{hodrick1997postwar}, die $\lambda = 1600$ für Quartalsdaten vorschlagen. Da bei Tagesdaten etwa $252/4 = 63$ Beobachtungen pro Quartal vorliegen, muss $\lambda$ entsprechend hochskaliert werden. Um bei höherer Datenfrequenz die gleiche relative Glättungswirkung zu erzielen, wird $\lambda$ mit dem Quadrat der Frequenzerhöhung multipliziert, woraus sich $\lambda_{\text{lang}} = 1600 \cdot 252^2$ für einen mehrjährigen strukturellen Trend ergibt.
+
+Der erste Pfad bestimmt den langfristigen Trend der Aktie. Dafür wird der vom HP-Filter bestimmte Trend verwendet, um eine lineare Regression durchzuführen. Die Steigung und der Achsenabschnitt der Regressionsgeraden bilden die Vorhersage für den langfristigen Trend der Aktie.
+
+Um den kurzfristigen Trend der Aktie zu bestimmen, zieht das Modell den langfristigen Trend von den logarithmierten Schlusskursen ab, um die zyklische Komponente der Daten zu erhalten. Auf diese zyklische Komponente wird dann nochmal ein HP-Filter mit $\lambda_{\text{kurz}} = 1600$ angewendet, um den kurzfristigen Trend zu bestimmen. Der Wert $\lambda_{\text{kurz}} = 1600$ entspricht der ursprünglichen Empfehlung für Quartalsdaten und erfasst damit Bewegungen im Wochenbereich, da ein Quartal etwa 13 Wochen bzw.\ 63 Handelstage umfasst. Der zweite Pfad nutzt dann den kurzfristigen Trend und modeliert eine lineare Regression, um die Vorhersage für den kurzfristigen Trend zu erhalten.
+
+Der dritte Pfad nutzt die zyklische Komponente des zweiten HP-Filters, um ein ARMA-Modell zu trainieren. Die Vorhersage der ARMA-Komponente wird dann als Vorhersage für die zyklische Komponente der Daten verwendet.
+
+Am Ende werden die drei Vorhersagen für den langfristigen Trend, den kurzfristigen Trend und die zyklische Komponente zusammengeführt, um die endgültige Vorhersage für die Aktie zu erhalten. Da die drei Pfade auf logarithmierten Kursen arbeiten, muss die Vorhersage am Ende exponentiert werden, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/linear_separation_datenfluss}
+    \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}
+    \label{fig:linear_separation_datenfluss}
+\end{figure}
+Zur Vorhersage des nächsten Tageskurses, bildet das Modell die Differenz zwischen dem ersten Trainingsdatum und dem Datum für die Vorhersage. Dies ist der Tag der dann in die beiden linearen Funktionen eingesetzt wird, die die Vorhersage für den langfristigen und kurzfristigen Trend liefern. In die ARMA-Komponente wird die Differenz zwischen dem letzten Trainingsdatum und dem Datum für die Vorhersage eingesetzt, um die Vorhersage für die zyklische Komponente zu liefern. Die drei Vorhersagen werden dann addiert und exponentiert, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
+\section{Preprocessed SVR}\label{sec:preprocessed_svr}
+Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren gemäß \cref{subsec:walkforward} täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor, dessen Komponenten in \cref{subsec:preprocessed_svr} detailliert beschrieben sind.
+
+Im zweiten Schritt berechnet das Modell den Target-Wert als Log-Return des Schlusskurses. Um den Einfluss von Ausreißern zu reduzieren, werden die Target-Werte auf ein festes Intervall geclippt. Im dritten Schritt werden die Features mit einem StandardScaler z-standardisiert, sodass jede Dimension einen Mittelwert von null und eine Standardabweichung von eins aufweist.
+
+Nach der Normalisierung verzweigt sich der Datenfluss. Auf der linken Seite wird das SVR-Modell mit einem RBF-Kernel auf den skalierten Trainingsdaten trainiert. Auf der rechten Seite findet optional ein Grid Search auf den Validierungsdaten statt. Dabei werden die Hyperparameter $C$, $\varepsilon$ und $\gamma$ über vordefinierte Wertebereiche durchsucht. Die Kombination mit dem niedrigsten \ac{MAPE} auf den Validierungsdaten wird ausgewählt und für das finale Training des SVR-Modells verwendet.
+
+Zur Vorhersage wird der aktuelle Feature-Vektor skaliert und in das trainierte Modell eingespeist. Das Modell liefert den prognostizierten Log-Return für den nächsten Tag. Im letzten Schritt wird der prognostizierte Kurs durch Preisrekonstruktion berechnet, indem der letzte Schlusskurs mit dem exponentierten Log-Return multipliziert wird.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/svr_prediction_datenfluss}
+    \caption{Preprocessed SVR: Datenfluss von den Trainingsdaten bis zur Preisprognose}
+    \label{fig:svr_prediction_datenfluss}
+\end{figure}
+
+\section{TimesFM}\label{sec:timesfm_impl}
+Da mit dem TimesFM Modell ein Zero-Shot Ansatz verfolgt wird, muss das Modell nicht trainiert werden. Dem Modell werden ausschließlich die Trainingsdaten übergeben, die später als Basis für den Kontext der Vorhersage dienen. Deshalb zeigt \cref{fig:timesfm_datenfluss} auch den Datenfluss bei der Vorhersage von neuen Kursen, da dies der einzige Schritt ist, der mit diesem Modell durchgeführt wird. Für die bessere Vergleichbarkeit arbeitet auch dieses Modell auf logarithmierten Kursen.
+
+Aus diesem Grund werden im ersten Schritt alle historischen Schlusskurse der Aktie logarithmiert. Die letzten 512 logarithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das TimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen.
+
+Im letzten Schritt wandelt das Modell die prognostizierten Log-Returns in prognostizierte Kurse um, indem es die Log-Returns exponentiert und mit dem letzten Schlusskurs multipliziert. Der nächste Preis baut somit auf dem letzten prognostizierten Preis auf.
+\begin{figure}[htbp]
+    \centering
+    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/timesfm_datenfluss}
+    \caption{TimesFM: Datenfluss der Vorhersage von neuen Kursen}
+    \label{fig:timesfm_datenfluss}
+\end{figure}
