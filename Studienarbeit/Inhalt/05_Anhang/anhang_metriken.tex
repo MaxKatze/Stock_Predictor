@@ -1,0 +1,88 @@
+\chapter{Mathematische Definitionen der Metriken}\label{app:metriken}
+
+Dieses Kapitel enthält die formalen Definitionen aller in dieser Arbeit verwendeten Evaluationsmetriken. Die Metriken sind in Fehlermaße (\cref{sec:app_fehlermasse}) und finanzwirtschaftliche Kennzahlen (\cref{sec:app_finanzkennzahlen}) unterteilt.
+
+\section{Fehlermaße}\label{sec:app_fehlermasse}
+
+Für die folgenden Definitionen sei ein Signal \( [x_1, x_2, \dots, x_n] \) und eine zugehörige Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) gegeben.
+
+\subsection*{Mean Absolute Percentage Error (MAPE)}
+
+Der \ac{MAPE} misst die durchschnittliche prozentuale Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
+
+\[
+    \mathrm{MAPE} = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \hat{x}_i}{x_i}\right|.
+\]
+
+Da der MAPE relativ zum tatsächlichen Wert $x_i$ normiert ist, ermöglicht er einen skaleninvarianten Vergleich über verschiedene Zeitreihen hinweg. Theoretisch neigt er dazu negative Fehler asymmetrisch zu bestrafen. Dies ist praktisch im Falle von Aktienkursen aber vernachlässigbar.
+
+\subsection*{Out-of-Sample $R^2$ (OOS-$R^2$)}
+
+Der \ac{OOS-$R^2$} nach~\cite{campbell2008predicting} misst, ob ein Modell bessere Vorhersagen liefert als ein naiver Benchmark. Sei $\hat{x}_i$ die Modellvorhersage und $\hat{x}^{\text{RW}}_i = x_{i-1}$ die Vorhersage eines Random-Walk-Modells, welches den letzten bekannten Wert als Schätzung verwendet. Der \ac{OOS-$R^2$} ist definiert als
+
+\[
+    R^2_{\mathrm{OOS}} = 1 - \frac{\sum_{i=1}^{n}{(x_i - \hat{x}_i)}^2}
+    {\sum_{i=1}^{n}{(x_i - \hat{x}^{\text{RW}}_i)}^2}.
+\]
+
+Ein Wert $R^2_{\mathrm{OOS}} > 0$ zeigt an, dass das Modell den Random Walk übertrifft, während $R^2_{\mathrm{OOS}} \leq 0$ bedeutet, dass die naive Baseline mindestens gleichwertig ist.
+
+\subsection*{Directional Accuracy (DA)}
+
+Die \ac{DA} misst, wie gut ein Modell die Richtung der Kursbewegung vorhersagt, unabhängig von der genauen Höhe des Preises. Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird \ac{DA} definiert nach
+
+\[
+    DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}) = \operatorname{sign}(\hat{x}_i - x_{i-1})\Big),
+\]
+
+wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst.
+
+Ein Wert von \(\text{DA} = 1\) entspricht einer perfekten Klassifikation, während \(\text{DA} = 0{,}5\) einem zufälligen Raten entspricht.
+
+\section{Finanzwirtschaftliche Kennzahlen}\label{sec:app_finanzkennzahlen}
+
+\subsection*{Gesamtrendite (Return)}
+
+Die Gesamtrendite gibt die insgesamt erzielte Rendite über den gesamten Zeitraum an:
+
+\[
+    R_{\mathrm{cum}} = \frac{V_T - V_0}{V_0},
+\]
+
+wobei \(V_0\) der Anfangswert und \(V_T\) der Endwert des Portfolios ist. Sie zeigt die absolute Profitabilität der Strategie.
+
+\subsection*{Excess Return}
+
+Der Excess Return misst die Überrendite einer Strategie gegenüber einer passiven Buy-and-Hold-Strategie:
+
+\[
+    R_{\mathrm{excess}} = R_{\mathrm{cum}} - R_{\mathrm{B\&H}},
+\]
+
+wobei $R_{\mathrm{B\&H}} = \frac{P_T - P_0}{P_0}$ die Buy-and-Hold-Rendite ist, mit $P_0$ als Anfangspreis und $P_T$ als Endpreis der Aktie im Testzeitraum.
+
+\subsection*{Sharpe Ratio}
+
+Das Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios, indem es die Portfolio Rendite ohne die risikofreie Rendite ins Verhältnis zur Volatilität setzt. Es wird berechnet nach
+
+\[
+    S = \frac{R_p - R_f}{\sigma(R_p)},
+\]
+
+wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Volatilität der Portfoliorendite ist. Die Volatilität $\sigma(R_p)$ wird über die empirische Standardabweichung ermittelt:
+
+\[
+    \sigma(R_p) = \sqrt{ \frac{1}{T - 1} \sum_{t=1}^{T}{( R_{P,t} - \bar{R_P})}^2}
+\]
+
+Ein hohes Sharpe Ratio bedeutet eine hohe Rendite im Vergleich zum Risiko.
+
+\subsection*{Maximum Drawdown (MDD)}
+
+Der \ac{MDD} beschreibt den größten Verlust eines Portfolios vom höchsten Punkt (Peak) bis zum Tiefpunkt (Trough) innerhalb des betrachteten Zeitraums:
+
+\[
+    \text{MDD} = \max_{t} \frac{\text{Peak}_t - \text{Value}_t}{\text{Peak}_t}.
+\]
+
+Ein niedriger Maximum Drawdown zeigt, dass das untersuchte Investment nur geringe zwischenzeitliche Verluste erlitt.

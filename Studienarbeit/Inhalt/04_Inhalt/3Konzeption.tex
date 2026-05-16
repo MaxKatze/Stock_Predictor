@@ -659,96 +659,18 @@ Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle unt
 \subsection{Fehlermaße}\label{subsec:fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die beiden meistverwendeten, MAPE und Directional Accuracy, verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-R2} herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~(\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}). Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score aber auch sinnlos, da der Informationsgehalt nach \cref{eq:R2eqRMSE} dem RMSE-Maß entspricht.
-\begin{equation}
-    R^2 = 1 - \frac{\text{RMSE}^2 \cdot n}{\text{SS}_{tot}}, \text{SS}_{tot} = const, n = const.\label{eq:R2eqRMSE} %eventuell Beweis führen hätte Aura
-\end{equation}
-Sinnvoll wäre nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$} Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden MAPE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-R2} herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt.
 
+Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~(\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}). Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Sinnvoll ist nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$} Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
 
-\subsubsection*{Mean Absolute Percentage Error}\label{subsubsec:mean_absolute_percentage_error}
-Der \ac{MAPE} misst die durchschnittliche prozentuale Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
-\[
-    \mathrm{MAPE} = \frac{1}{n}\sum_{i=1}^{n}\left|\frac{x_i - \hat{x}_i}{x_i}\right|.
-\]
-Da der MAPE relativ zum tatsächlichen Wert $x_i$ normiert ist, ermöglicht er einen skaleninvarianten Vergleich über verschiedene Zeitreihen hinweg. Theoretisch neigt er dazu negative Fehler assymetrisch zu bestrafen. Dies ist praktisch im Falle von Aktienkursen aber vernachlässigbar.
-
-\subsubsection*{Out-of-Sample $R^2$}\label{subsubsec:oos_r2}
-Der \ac{OOS-$R^2$} nach~\cite{campbell2008predicting} misst, ob ein Modell bessere Vorhersagen liefert als ein naiver Benchmark. Sei $\hat{x}_i$ die Modellvorhersage und $\hat{x}^{\text{RW}}_i = x_{i-1}$ die Vorhersage eines Random-Walk-Modells, welches den letzten bekannten Wert als Schätzung verwendet. Der \ac{OOS-$R^2$} ist definiert als
-\[
-    R^2_{\mathrm{OOS}} = 1 - \frac{\sum_{i=1}^{n}{(x_i - \hat{x}_i)}^2}
-    {\sum_{i=1}^{n}{(x_i - \hat{x}^{\text{RW}}_i)}^2}.
-\]
-Ein Wert $R^2_{\mathrm{OOS}} > 0$ zeigt an, dass das Modell den Random Walk
-übertrifft, während $R^2_{\mathrm{OOS}} \leq 0$ bedeutet, dass die naive
-Baseline mindestens gleichwertig ist.
-
-
-\subsubsection*{Directional Accuracy}\label{subsubsec:directional_accuracy}
-
-Alle bisher vorgestellten Fehlermaße unterscheiden nicht zwischen überschätzem oder unterschätztem Wert. Bei der Vorhersage von Aktienkursen ist dieser Unterschied aber von Relevanz, da eine Unterschätzung, die zu einem Kauf führt, weit weniger problematisch ist als eine Überschätzung. Hierfür wird die Directional Accuracy eingeführt.
-
-Die \ac{DA} misst, wie gut ein Modell die Richtung der Kursbewegung vorhersagt, unabhängig von der genauen Höhe des Preises.
-Für ein Signal \( [x_1, x_2, \dots, x_n] \) und eine Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \) wird \ac{DA} definiert nach
-
-\[
-    DA = \frac{1}{n} \sum_{i=2}^{n} \mathbf{1}\Big(\operatorname{sign}(x_i - x_{i-1}) = \operatorname{sign}(\hat{x}_i - x_{i-1})\Big),
-\]
-
-wobei \(\mathbf{1}(\cdot)\) die Indikatorfunktion ist, die den Wert 1 annimmt, wenn die Vorhersage die gleiche Richtung wie die tatsächliche Kursbewegung hat, und 0 sonst.
-
-Ein Wert von \(\text{DA} = 1\) entspricht einer perfekten Klassifikation, während \(\text{DA} = 0.5\) einem zufälligen Raten entspricht.
+Die formalen mathematischen Definitionen aller verwendeten Fehlermaße sind in \cref{app:metriken} zu finden.
 
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{subsec:finanzkennzahlen}
 
 %Was machen andere, was machen wir und warum?
 Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}.
 
-Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~(\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}). Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatitilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden, werden in dieser Arbeit die Gesamtrendite und der Maximium Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhänigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe-Ratio evaluiert.
+Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~(\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}). Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden, werden in dieser Arbeit die Gesamtrendite, der Excess Return und der Maximum Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhängigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe-Ratio evaluiert.
 
-\subsubsection*{Gesamtrendite}\label{subsubsec:gesamtrendite}
-
-Die Gesamtrendite gibt die insgesamt erzielte Rendite über den gesamten Zeitraum an:
-
-\[
-    R_{cum} = \frac{V_T - V_0}{V_0},
-\]
-
-wobei \(V_0\) der Anfangswert und \(V_T\) der Endwert des Portfolios ist. Sie zeigt die absolute Profitabilität der Strategie.
-
-% Der Vergleichswert hierfür ist die Gesamtrendite einer Buy-and-hold Strategie.
-
-% \[
-% R_{\mathrm{BH}} = \frac{P_T - P_0}{P_0},
-% \]
-
-% wobei $P_0$ der Anfangspreis und $P_T$ der Endpreis der Aktie im Testzeitraum ist.
-%nicht sure ob ich das schreiben würde, weil wir es dann vergleichen müssen, und es wird vermutlich besser sein. Außerdem ist die Frage des unterschieds nach Portfolio-Wert neq Aktienwert.
-
-\subsubsection*{Sharpe Ratio}\label{subsubsec:sharpe_ratio}
-
-Das Sharpe Ratio misst das Rendite-Risiko-Verhältnis eines Portfolios, indem es die Portfolio Rendite ohne die risikofreie Rendite ins Verhältnis zur Volatilität setzt. Es wird berechnet nach
-
-\[
-    S = \frac{R_p - R_f}{\sigma(R_p)},
-\]
-
-wobei \(R_p\) die Rendite des Portfolios, \(R_f\) der risikofreie Zinssatz und \(\sigma(R_p)\) die Volatilität der Portfoliorendite ist. Die Volatilität $\sigma(R_p)$ wird über die empirische Standardabweichung ermittelt:
-
-
-\[
-    \sigma(R_p) = \sqrt{ \frac{1}{T - 1} \sum_{t=1}^{T}{( R_{P,t} - \bar{R_P})}^2}
-\]
-
-Ein hohes Sharpe Ratio bedeutet eine hohe Rendite im Vergleich zum Risiko.
-
-\subsubsection*{Maximum Drawdown}\label{subsubsec:maximum_drawdown}
-
-Der \ac{MDD} beschreibt den größten Verlust eines Portfolios vom höchsten Punkt (Peak) bis zum Tiefpunkt (Trough) innerhalb des betrachteten Zeitraums:
-
-\[
-    \text{MDD} = \max_{t} \frac{\text{Peak}_t - \text{Value}_t}{\text{Peak}_t}.
-\]
-
-Ein niedriger Maximum Drawdown zeigt, dass das untersuchte Investment nur geringe zwischenzeitliche Verluste erlitt.
+Die formalen mathematischen Definitionen aller verwendeten finanzwirtschaftlichen Kennzahlen sind in \cref{app:metriken} zu finden.
 
