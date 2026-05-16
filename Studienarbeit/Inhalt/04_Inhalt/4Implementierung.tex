@@ -45,7 +45,7 @@ Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für di
 \section{Aktienauswahl}\label{sec:impl_aktienauswahl}
 
 \subsection{Skript zur Aktienauswahl}\label{subsec:skript_aktienauswahl}
-Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei enthält folgende Parameter:
+Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei (YAML-Format) enthält folgende Parameter:
 
 \begin{table}[h!]
     \centering
@@ -75,9 +75,12 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
     \label{tab:config_params}
 \end{table}
 
-Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren können über ein Hilfsskript heruntergeladen werden. Dieses Skript nutzt die Yahoo-Finance-API, um die Daten herunterzuladen. Die Datenhaltung erfolgt wie in \cref{subsec:datenhaltung} beschrieben über CSV- und Parquet-Dateien.
+\vspace{0.5em}
+\noindent Die in dieser Arbeit verwendeten Werte lauten: Trainingszeitraum 2020-01-02 bis 2023-12-29, Validierungszeitraum 2024-01-02 bis 2024-06-28, Testzeitraum 2024-07-01 bis 2025-12-31, 100 Simulationen, Gruppengröße 4, Auswahl der 10 bestplatzierten Aktien. Als Makrofaktoren werden die 6 in \cref{tab:makrofaktoren} genannten Zeitreihen verwendet.
 
-Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werden. Das Skript ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
+Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren werden über ein separates Download-Skript bereitgestellt, das die \texttt{yfinance}-Bibliothek nutzt. Die Implementierung verwendet \texttt{pandas} für das Laden und Filtern der Zeitreihendaten, \texttt{PyYAML} für das Parsen der Konfiguration und \texttt{numpy} für numerische Berechnungen im SDE-Selector.
+
+Das Skript verwendet eine statische Liste der S\&P-500-Konstituenten vom Januar 2020, um Survivorship Bias zu vermeiden. Die Aktienauswahl ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
 \begin{algorithm}
     \caption{Skript Aktienauswahl}\label{alg:Skript_Aktienauswahl}
     \small
@@ -108,14 +111,12 @@ Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werd
         \State Die JSON Datei mit den ausgewählten Aktien wird gespeichert.
     \end{algorithmic}
 \end{algorithm}
-Das Skript lädt als Erstes die Konfigurationsdatei und dann die Liste aller Aktien, die im S\&P 500 gelistet sind. Es wird eine leere Datenstruktur erstellt, die die Schlusskurse der Aktien speichert.
+Die 500-Datenpunkte-Schwelle entspricht etwa 2 Jahren Handelshistorie (bei 252 Handelstagen pro Jahr) und schließt Aktien mit IPO, Delisting oder unvollständiger Historie während des Trainingszeitraums automatisch aus. Falls weniger als 20 Aktien oder weniger als 2 Makrofaktoren die Kriterien erfüllen, bricht das Skript mit einem Fehler ab.
 
-Dann werden für alle Aktien in der Liste die historischen Kursdaten für den Trainingszeitraum geladen. Diese Kursdaten werden direkt aus der CSV-Datei gelesen, sollten die Daten nicht vorhanden sein, bricht das Skript mit einem Fehler ab. Wenn die Anzahl der Datenpunkte größer oder gleich 500 ist, werden die Schlusskurse der Aktie zu der Datenstruktur hinzugefügt. Analog wird mit den Makrofaktoren verfahren, dadurch entstehen die Datenstrukturen mit den Aktienkursen und den Makrofaktoren.
-
-Anschließend lädt das Skript die Konfigurationsparameter für die Aktienauswahl und erstellt eine Instanz des SDE-Selectors. Der Selector wird mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Die genaue Beschreibung des Auswahlprozesses ist in \cref{subsec:sde_datenfluss} zu finden. Das Ergebnis ist eine Liste der ausgewählten Aktien, die als JSON-Datei gespeichert wird.
+Die Ausgabe erfolgt als JSON-Datei. Diese enthält die Liste der 10 ausgewählten Ticker, für jeden Ticker das dominante Faktorpaar, die Summe der Regressions-Koeffizienten $|\beta_{f_1}| + |\beta_{f_2}|$, den durchschnittlichen \ac{ROI} über alle Simulationen sowie eine Beispiel-Simulationsgruppe zur Nachvollziehbarkeit.
 
 \subsection{SDE-basierter Auswahlprozess}\label{subsec:sde_datenfluss}
-Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsec:skript_aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretisiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt.
+Es wird nun die tatsächliche Selektions-Logik des Selektors beschrieben. Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsec:skript_aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretisiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt.
 
 Im zweiten Schritt berechnet der Selector dann mithilfe einer multiple linear Regression die Koeffizienten, die die Stärke der Beziehung zwischen den Aktienkursen und den Makrofaktoren angeben und sucht dann im dritten Schritt die zwei Faktoren aus, die die stärkste Beziehung zu den Aktienkursen haben. Der vierte Schritt bildet basierend auf den zwei Faktoren jeder Aktie Pools von Aktien. Alle Aktien in einem Pool haben die gleichen zwei Makrofaktoren.
 
