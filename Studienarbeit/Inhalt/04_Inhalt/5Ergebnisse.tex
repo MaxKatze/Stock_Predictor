@@ -1,6 +1,6 @@
 \chapter{Ergebnisse und Bewertung}\label{chap:ergebnisse_und_bewertung}
 
-In diesem Kapitel werden die Ergebnisse der in \cref{chap:konzeption} vorgestellten Verfahren präsentiert. Zunächst wird die SDE-basierte Aktienauswahl durchgeführt, um aus dem S\&P500-Universum zehn Aktien für die weitere Analyse zu selektieren. Anschließend werden die Vorhersagemodelle auf diesen Aktien evaluiert.
+In diesem Kapitel werden die Ergebnisse der in \cref{chap:konzeption} vorgestellten Verfahren präsentiert. Zunächst wird in~\cref{sec:sde} die SDE-basierte Aktienauswahl durchgeführt, um aus dem S\&P500-Universum zehn Aktien für die weitere Analyse zu selektieren und die Zwischenergebnisse so wie Endergebnisse der SDE-Simulation vorgestellt. In~\cref{sec:rois} werden die final gewählten Aktien aufgelistet und die Qualität des SDE Ansatzes evaluiert, sowie Stärken und Schwächen benannt und Gründe für die Performance diskutiert. Anschließend folgt die Evaluation der Vorhersagemodelle und danach die Bewertung. In~\cref{sec:linearseparation}, ~\cref{sec:svr} und~\cref{sec:timesfm} werden jeweils die gemessenen Metriken der jeweiligen Modelle vorgestellt. Für jedes Modell werden die Ergebnisse für $\varepsilon$-Threshold, Fehlermaße, Finanzkennzahlen und Trading Performance vorgestellt. Außerdem wird je ein beispielhafter Walk-Foward Durchlauf präsentiert. In~\cref{sec:modellvergleich} werden dann die Vorhersagemodelle verglichen. Explizit wird in~\cref{sec:vgl_performance} die Performance der Vorhersagemodelle in allen Metriken einander gegenüber gestellt. In~\cref{sec:vgl_handelsverhalten} wird das Handelsverhalten der Modelle verglichen. In~\cref{sec:interpretation} erfolgt abschließend die Bewertung und Interpretation aller Ergebnisse. Es werden Gründe für die Performance der Modelle diskutiert, es werden Schlüsse aus den Vergleichen gezogen und eine Bewertung der Modelle präsentiert.
 
 \section{SDE Aktienauswahl}\label{sec:sde}
 
@@ -58,7 +58,7 @@ Nach der Gruppierung wurden 100 Monte-Carlo-Simulationen durchgeführt. In jeder
     \caption{Beispielhafte Euler-Maruyama Simulation einer Gruppe}\label{fig:sde_simulation}
 \end{figure}
 
-\subsection{Vorhergesagte ROI und Ranking}
+\subsection{Vorhergesagte ROI und Ranking}\label{sec:rois}
 
 Das hierarchische SDE-Verfahren wurde mit 100 Monte-Carlo-Simulationen durchgeführt. Für jede Aktie wurde über alle Simulationsrunden die durchschnittliche Platzierung berechnet. Eine Aktie, die häufig als Gewinner ihrer Simulationsgruppe hervorgeht, erhält eine bessere Durchschnittsplatzierung. Die qualitative Platzierung ist das entscheidende Auswahlkriterium, da der absolute simulierte ROI durch die zufällige Gruppierung stark schwanken kann.
 
@@ -558,9 +558,9 @@ Die Stärke von TimesFM liegt in der Zero-Shot-Generalisierung ohne aktienspezif
 
 \section{Modellvergleich}\label{sec:modellvergleich}
 
-In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen. \cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen.
+In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen. \cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen, aufgeteilt in die drei Dimensionen Trading-Performance anhand der Finanzkennzahlen, Vorhersagequalität anhand der Fehlermaße und der Handelsaktivität.
 
-\subsection{Gesamtperformance}
+\subsection{Gesamtperformance}\label{sec:vgl_performance}
 \begin{table}[h!]
     \centering
     \begin{tabular}{l c c c}
@@ -590,38 +590,38 @@ SVR zeigt die beste durchschnittliche Gesamtrendite (6,56\%), gefolgt von Linear
 
 Beim Risikomanagement zeigt SVR mit einem durchschnittlichen Sharpe Ratio von 0,20 die beste Balance zwischen Rendite und Risiko. LinearSeparation ($-2,83$) und TimesFM ($-6,88$) weisen negative Sharpe Ratios auf, was auf hohe Volatilität bei geringen Renditen hindeutet.
 
-Der durchschnittliche Maximum Drawdown liegt bei SVR am niedrigsten (13,95\%), gefolgt von TimesFM (15,83\%) und LinearSeparation (17,58\%). Dies deutet auf ein besseres Risikomanagement des SVR-Modells hin.
+Der durchschnittliche Maximum Drawdown liegt bei SVR am niedrigsten (13,95\%), gefolgt von TimesFM (15,83\%) und LinearSeparation (17,58\%). Dies deutet wiederrum auf ein besseres Risikomanagement des SVR-Modells hin.
 
 
-Bei der reinen Vorhersagepräzision zeigt TimesFM den niedrigsten MAPE (1,08\%), dicht gefolgt von LinearSeparation (1,13\%) und SVR (1,30\%). Der geringe Unterschied deutet darauf hin, dass alle drei Modelle ähnlich nahe an den tatsächlichen Kursen liegen.
+Bei der reinen Vorhersagepräzision zeigt TimesFM den niedrigsten MAPE (1,08\%), gefolgt von LinearSeparation (1,13\%) und SVR (1,30\%), was eine interessante Gegenüberstellung zeigt, da das Modell mit der besten Vorhersagequalität nicht die beste Trading-Performance hat. Der geringe Unterschied zwischen den Werten deutet darauf hin, dass alle drei Modelle ähnlich nahe an den tatsächlichen Kursen liegen.
 
 Die Directional Accuracy zeigt SVR als Spitzenreiter (51,8\%), gefolgt von LinearSeparation (51,3\%) und TimesFM (50,0\% exakt am Zufallsniveau). Die Unterschiede sind marginal, aber SVR zeigt eine konsistent leichte Überlegenheit bei der Richtungsvorhersage.
 
-\subsection{Handelsverhalten}
+\subsection{Handelsverhalten}\label{sec:vgl_handelsverhalten}
 
 SVR zeigt mit durchschnittlich 20,7 Trades pro Aktie die höchste Handelsaktivität, was etwa einem Trade alle 18 Tage entspricht. TimesFM (13,0 Trades) und LinearSeparation (12,2 Trades) handeln deutlich konservativer mit etwa einem Trade alle 29-31 Tage.
 
 Die niedrigeren Signal-Schwellenwerte bei TimesFM ($\varepsilon = 0,29\%$) und SVR ($\varepsilon = 0,32\%$) im Vergleich zu LinearSeparation ($\varepsilon = 0,54\%$) erklären die unterschiedliche Handelsfrequenz teilweise. SVR kombiniert niedrige Schwellenwerte mit besserer Richtungsvorhersage, was zu mehr profitablen Trades führt.
 
 
-\subsection{Interpretation und Schlussfolgerungen}
+\subsection{Interpretation und Schlussfolgerungen}\label{sec:interpretation}
 
 Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern \( C \in [\num{0.1},\, \num{1000}], \; \gamma \in [\num{0.001},\, \num{10}] \) sichtbar wird.
 
-Die höhere Handelsfrequenz von durchschnittlich 20,7 Trades pro Aktie ermöglicht es der SVR, mehr Marktgelegenheiten zu nutzen. Der niedrigere Signal-Schwellenwert von $\varepsilon = 0{,}32\%$ führt zu häufigeren Handelssignalen, die durch die bessere Richtungsvorhersage öfter profitabel sind. Dies zeigt sich besonders bei Aktien mit starken Aufwärtstrends wie CTAS (+25,73\%) und GWW (+16,82\%), wo das Modell Momentum effektiv ausnutzt. Auch der niedrigste durchschnittliche Maximum Drawdown von 13,95\% deutet auf ein überlegenes Risikomanagement hin. Die höhere Trade-Frequenz ermöglicht schnellere Reaktionen auf negative Marktentwicklungen und damit Eindämmung der Verluste.
+Die höhere Handelsfrequenz von durchschnittlich 20,7 Trades pro Aktie ermöglicht es der SVR, mehr Marktgelegenheiten zu nutzen. Der niedrigere Signal-Schwellenwert von $\varepsilon = 0{,}32\%$ führt zu häufigeren Handelssignalen, die durch die bessere Richtungsvorhersage öfter profitabel sind. Dies zeigt sich besonders bei Aktien mit starken Aufwärtstrends wie CTAS (+25,73\%) und GWW (+16,82\%), wo das Modell Momentum effektiv ausnutzt. Auch der niedrigste durchschnittliche Maximum Drawdown von 13,95\% deutet auf ein überlegenes Risikomanagement hin. Dies könnte begründet sein durch die höhere Trade-Frequenz, welche schnellere Reaktionen auf negative Marktentwicklungen ermöglicht und damit Eindämmung der Verluste.
 
 Allerdings wurde gezeigt, dass SVR nicht in allen Kategorien die beste Performance erzielt. Bei der reinen Punktvorhersage liefern die Fehlermaße von TimesFM eine bessere Evaluation als SVR. Dies könnte auf das 512-Tage-Kontextfenster zurückzuführen sein, das langfristige Kursmuster besser interpolieren kann. Auch beim OOS-$R^2$ schneidet TimesFM mit $-0{,}03$ am besten ab, während SVR mit $-0{,}43$ deutlich schlechter liegt. Dies könnte sich durch die Komplexität des SVR-Modells erklären lassen. Die vielen Features (technische Indikatoren, Sentiment) können bei kurzfristigen Bewegungen zu Overfitting führen, während TimesFM durch seinen Zero-Shot-Ansatz näher an der naiven Baseline bleibt.
 
 Keines der Modelle übertrifft Buy-and-Hold konsistent. Die negativen OOS-$R^2$-Werte zeigen, dass alle Modelle Schwierigkeiten haben, eine zufällige Schätzung zu überbieten. Die Directional Accuracy liegt nur knapp über Zufall (50-52\%), was die fundamentale Schwierigkeit der Kursvorhersage unterstreicht.
 
-Eine allgemeine zentrale Beobachtung ist die Diskrepanz zwischen guter Punktvorhersagequalität und schwacher Trading-Performance. Die MAPE-Werte von 1,08--1,30\% zeigen, dass alle Modelle die Kurse mit hoher Präzision vorhersagen. Im Durchschnitt weichen die Vorhersagen nur etwa 1\% vom tatsächlichen Kurs ab. Trotz dieser scheinbar guten Punktvorhersagen liegt die durchschnittliche Rendite bei nur 4,00--6,56\%, deutlich unter Buy-and-Hold (11,62\%).
+Eine zentrale Beobachtung aller Modelle ist die Diskrepanz zwischen guter Punktvorhersagequalität und schwacher Trading-Performance. Die MAPE-Werte von 1,08--1,30\% zeigen, dass alle Modelle die Kurse mit hoher Präzision vorhersagen. Im Durchschnitt weichen die Vorhersagen nur etwa 1\% vom tatsächlichen Kurs ab. Trotz dieser scheinbar guten Punktvorhersagen liegt die durchschnittliche Rendite bei nur 4,00--6,56\%, deutlich unter Buy-and-Hold (11,62\%).
 
 Diese Diskrepanz lässt sich durch mehrere Faktoren erklären:
 
 \begin{itemize}
     \item \textbf{Signal-Threshold:} Der Schwellenwert $\varepsilon$ filtert kleine Vorhersagen heraus. Viele präzise Vorhersagen führen zu keinem Trade, während wenige große Fehlvorhersagen zu Verlusten führen können.
-    \item \textbf{Timing-Kosten:} Selbst bei korrekter Richtung kann falsches Timing (zu früh oder zu spät) die Profitabilität beeinträchtigen.
-    \item \textbf{Random-Walk-Nähe:} Die negativen OOS-$R^2$-Werte zeigen, dass die Modelle oft den Kurs vom Vortag als Vorhersage nutzen (was einen niedrigen MAPE ergibt), aber keine echte Vorhersagekraft haben. Ein MAPE von 1\% ist nicht beeindruckend, wenn die naive Vorhersage $\hat{p}_t = p_{t-1}$ ähnlich gut performt.
+    \item \textbf{Timing-Kosten:} Selbst bei korrekter Richtung kann falsches Timing (meist zu spät) die Profitabilität beeinträchtigen.
+    \item \textbf{Random-Walk-Nähe:} Die negativen OOS-$R^2$-Werte zeigen, dass die Modelle oft den Kurs vom Vortag als Vorhersage nutzen (was einen niedrigen MAPE ergibt), aber keine echte Vorhersagekraft hat. Ein MAPE von 1\% ist nicht beeindruckend, wenn die naive Vorhersage $\hat{p}_t = p_{t-1}$ ähnlich gut performt.
 \end{itemize}
 
 Diese Beobachtung unterstreicht den wichtigen Punkt, dass gute Punktvorhersagen keine profitable Trading-Strategie garantieren. Die Profitabilität hängt von der Fähigkeit ab, handelbare Signale zu generieren, also Vorhersagen, die konsistent in die richtige Richtung zeigen und groß genug sind, um den Signal-Threshold zu überschreiten. Die Directional Accuracy von nur 50--52\% zeigt, dass alle drei Modelle diese Fähigkeit nur marginal besitzen.
