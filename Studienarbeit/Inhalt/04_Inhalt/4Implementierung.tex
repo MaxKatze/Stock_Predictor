@@ -275,9 +275,11 @@ Das Modell arbeitet auf Log-Returns und verwendet die letzten 512 historischen L
 \end{figure}
 
 \subsection{Handelsstrategie}\label{subsec:impl_marktstrategie}
-Die Handelsstrategie ist die zentrale Handelslogik, die auf Basis der Modellvorhersagen Kauf- und Verkaufsentscheidungen trifft. Sie ist in \cref{alg:marktstrategie} dargestellt. Die Strategie nutzt den prognostizierten Log-Return $\hat{r}_{t+1}$ und vergleicht ihn mit der Signal-Schwelle $\varepsilon$, die aus dem \ac{MAE} auf den Validierungsdaten berechnet wird. Die Positionsgröße wird über das Half-Kelly-Kriterium bestimmt. Die Berechnung des Half-Kelly-Kriteriums wurde in \cref{subsec:kelly} beschrieben.
+Die Handelsentscheidungen sind als Teil der Backtrader-Strategie implementiert. Die Positionsgrößenbestimmung erfolgt über einen separaten Backtrader-Sizer, der das Half-Kelly-Kriterium aus~\cref{subsec:kelly} implementiert.
 
-Für jeden Handelstag wird dem Modell zunächst der aktuelle Kurs übergeben und eine Prognose für den nächsten Tag erstellt. Der daraus berechnete prognostizierte Log-Return wird mit der Schwelle $\varepsilon$ verglichen. Liegt er über $\varepsilon$, wird die Position mittels Half-Kelly-Kriterium auf den optimalen Anteil des Portfoliowerts angepasst. Liegt er unter $-\varepsilon$, werden alle Positionen geschlossen. Dazwischen wird die aktuelle Position gehalten.
+Die Signal-Schwelle $\varepsilon$ wird aus dem \ac{MAE} auf den Validierungsdaten berechnet. In jedem Event-Loop-Schritt wird der prognostizierte Log-Return $\hat{r}_{t+1}$ mit $\varepsilon$ verglichen. Bei $\hat{r}_{t+1} > \varepsilon$ wird ein Long-Signal generiert, bei $\hat{r}_{t+1} < -\varepsilon$ ein Cash-Signal, ansonsten wird die Position gehalten.
+
+Der Half-Kelly-Sizer verwendet ein rollendes Fenster von 60 Handelstagen zur Berechnung der Zielfraktion. Bei einem Long-Signal wird die Differenz zwischen Zielposition und aktueller Position als Order ausgeführt, was sowohl einem Kauf als auch einem Verkauf entsprechen kann. Bei einem Cash-Signal werden alle Positionen geschlossen. Der Ablauf ist in \cref{alg:marktstrategie} dargestellt.
 \begin{algorithm}
     \caption{PredictionStrategy -- Handelsstrategie}\label{alg:marktstrategie}
     \small
