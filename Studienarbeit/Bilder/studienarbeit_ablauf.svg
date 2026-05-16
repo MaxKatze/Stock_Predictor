@@ -112,7 +112,7 @@
   <g>
     <rect x="400" y="642" width="280" height="68" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
     <text x="540" y="664" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#633806">Evaluation: Fehlermaße</text>
-    <text x="540" y="688" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#854f0b">MAPE · RMSE · OOS-R² · DA · Kap. 3.6.1</text>
+    <text x="540" y="688" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#854f0b">MAPE · OOS-R² · DA · Kap. 3.6.1</text>
   </g>
 
   <!-- Zusammenführung unten -->

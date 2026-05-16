@@ -10,17 +10,36 @@ Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für di
 \end{figure}
 
 \subsubsection{Aktienauswahl}\label{subsubsec:aktienauswahl}
-Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei ist wie folgt aufgebaut:
-\begin{itemize}
-    \item  \textbf{Liste an Aktien:} Die Liste enthält alle Aktien, die zum Training der Modelle verwendet werden, wenn das Skript zur Aktienauswahl nicht ausgeführt wird.
-    \item \textbf{Start- und Enddatum für Trainingsdaten}
-    \item \textbf{Start- und Enddatum für Validierungsdaten}
-    \item \textbf{Start- und Enddatum für Testdaten}
-    \item \textbf{Start- und Enddatum für den gesamten Zeitraum:} Diese Daten werden vom Skript verwendet, das die Daten herunterlädt.
-    \item \textbf{Konfigurationsparameter für den Download:} Mit den Parametern lässt sich festlegen, ob bereinigte Daten heruntergeladen werden sollen und ob die Daten auch nochmal heruntergeladen werden sollen, wenn bereits Daten vorhanden sind.
-    \item \textbf{Liste der Makrofaktoren:} Die Liste enthält die Makrofaktoren, die zum Training der Modelle verwendet werden.
-    \item \textbf{Konfigurationsparameter die Aktienauswahl:} Mit den Parametern lässt sich festlegen, wie viele Simulationen durchgeführt werden sollen, wie groß die Gruppen sein sollen und wie viele Aktien ausgewählt werden sollen.
-\end{itemize}
+Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren. Sind diese Voraussetzungen nicht erfüllt, bricht das Skript mit einem Fehler ab. Die Konfigurationsdatei enthält folgende Parameter:
+
+\begin{table}[h!]
+    \centering
+    \small
+    \begin{tabular}{p{5cm}p{9cm}}
+        \toprule
+        \textbf{Parameter} & \textbf{Beschreibung} \\
+        \midrule
+        Liste an Aktien & Alle Aktien, die zum Training verwendet werden, falls das Auswahlskript nicht ausgeführt wird \\
+        \addlinespace
+        Trainingszeitraum & Start- und Enddatum für Trainingsdaten \\
+        \addlinespace
+        Validierungszeitraum & Start- und Enddatum für Validierungsdaten \\
+        \addlinespace
+        Testzeitraum & Start- und Enddatum für Testdaten \\
+        \addlinespace
+        Gesamtzeitraum & Start- und Enddatum für den Download aller Daten \\
+        \addlinespace
+        Download-Konfiguration & Optionen für bereinigte Daten und Überschreiben vorhandener Daten \\
+        \addlinespace
+        Liste der Makrofaktoren & Makrofaktoren, die zum Training verwendet werden \\
+        \addlinespace
+        Auswahlparameter & Anzahl Simulationen, Gruppengröße und Anzahl auszuwählender Aktien \\
+        \bottomrule
+    \end{tabular}
+    \caption{Parameter der Konfigurationsdatei für die Aktienauswahl}
+    \label{tab:config_params}
+\end{table}
+
 Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren können über ein Hilfsskript heruntergeladen werden. Dieses Skript nutzt die Yahoo-Finance-API, um die Daten herunterzuladen. Die Daten werden als CSV-Dateien gespeichert und in parquet-Dateien komprimiert.
 
 Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werden. Das Skript ist in \cref{alg:Skript_Aktienauswahl} dargestellt.
@@ -30,7 +49,7 @@ Sind diese Voraussetzungen erfüllt, kann das Skript fehlerfrei ausgeführt werd
     \begin{algorithmic}[1]
         \Require Konfigurationsdatei, historische Kursdaten, Makrofaktoren
         \State $config \gets \Call{LoadConfig}{}$
-        \State $train_strart, train_end \gets config.trainStart, config.trainEnd$
+        \State $train_start, train_end \gets config.trainStart, config.trainEnd$
         \State $tickers \gets$ S\&P 500 Ticker
         \State $stockData \gets \emptyset$
         \ForAll{$ticker \in tickers$}
@@ -70,7 +89,7 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
         \Require Konfigurationsdatei, Modellkonfiguration, historische Kursdaten, ausgewählte Aktien
         \State $config \gets \Call{LoadConfig}{}$
         \State $stocks \gets$ Liste der ausgewählten Aktien
-        \State $models \gets$ Modellkonfiguration (LinearSeparation, SVR, TimesFM)
+        \State $models \gets$ Modellkonfiguration (LinearSeparation, Preprocessed SVR, TimesFM)
         \State $results \gets \emptyset$
         \ForAll{$ticker \in stocks$}
         \State $train, val, test \gets \Call{GetDataSplit}{ticker, config}$ \Comment{60/10/30 Split}
@@ -84,7 +103,7 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
         \EndFor
         \EndFor
         \State Ausgeben der $results$
-        \State Ausgeben der aggregierten Druchschnittswerte pro Modell
+        \State Ausgeben der aggregierten Durchschnittswerte pro Modell
     \end{algorithmic}
 \end{algorithm}
 Das Skript lädt als Erstes die Konfigurationsdatei und die Liste der Aktien. Beim Laden der Aktienliste wird überprüft, ob die JSON-Datei aus dem Aktienauswahl-Skript vorhanden ist. Ist dies der Fall lädt das Skript die dort hinterlegten Aktien, andernfalls liest das Skript die Aktien aus der Konfigurationsdatei.
@@ -108,7 +127,7 @@ Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie 
         \State Füge $testDaten$ im Yahoo-Finance-Format zu $cerebro$ hinzu
         \State Füge \texttt{PredictionStrategy} mit Modell und Konfigurationsparametern hinzu
         \State Setze Startkapital auf \$100.000
-        \State Füge Analyzer hinzu: Sharpe-Ratio, Drawdown, MAE, RMSE, MAPE, $R^2_{OOS}$, DA
+        \State Füge Analyzer hinzu: Sharpe-Ratio, Drawdown, MAPE, $R^2_{OOS}$, DA
         \State $ergebnis \gets$ Führe $cerebro$ aus
         \State $totalReturn \gets (Endwert - Startkapital) / Startkapital$
         \State $bhReturn \gets (letzterKurs - ersterKurs) / ersterKurs$
@@ -180,11 +199,11 @@ Am Ende werden die drei Vorhersagen für den langfristigen Trend, den kurzfristi
 \end{figure}
 Zur Vorhersage des nächsten Tageskurses, bildet das Modell die Differenz zwischen dem ersten Trainingsdatum und dem Datum für die Vorhersage. Dies ist der Tag der dann in die beiden linearen Funktionen eingesetzt wird, die die Vorhersage für den langfristigen und kurzfristigen Trend liefern. In die ARMA-Komponente wird die Differenz zwischen dem letzten Trainingsdatum und dem Datum für die Vorhersage eingesetzt, um die Vorhersage für die zyklische Komponente zu liefern. Die drei Vorhersagen werden dann addiert und exponentiert, um die Vorhersage für den tatsächlichen Kurs zu erhalten.
 \section{Preprocessed SVR}\label{sec:preprocessed_svr}
-Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor. Die neun Features setzen sich zusammen aus drei verzögerten Log-Returns, einem exponentiell gewichteten Sentiment-Score über die letzten zehn Nachrichtenartikel, dem \ac{RSI}, dem \ac{MACD}, der normalisierten Position innerhalb der Bollinger-Bänder, der realisierten Volatilität über zehn Tage und einem binären Trading-Pause-Indikator, der den Monday-Effekt abbildet.
+Der Datenfluss des Preprocessed SVR Modells ist in \cref{fig:svr_prediction_datenfluss} dargestellt. Als Input dienen die historischen Kursdaten der Aktie bestehend aus Eröffnungs-, Höchst-, Tiefst- und Schlusskurs sowie dem Handelsvolumen. Diese Daten werden im Walk-Forward-Verfahren täglich aktualisiert. Im ersten Schritt berechnet das Modell aus diesen Daten einen neundimensionalen Feature-Vektor, dessen Komponenten in \cref{subsec:preprocessed_svr} detailliert beschrieben sind.
 
 Im zweiten Schritt berechnet das Modell den Target-Wert als Log-Return des Schlusskurses. Um den Einfluss von Ausreißern zu reduzieren, werden die Target-Werte auf ein festes Intervall geclippt. Im dritten Schritt werden die Features mit einem StandardScaler z-standardisiert, sodass jede Dimension einen Mittelwert von null und eine Standardabweichung von eins aufweist.
 
-Nach der Normalisierung verzweigt sich der Datenfluss. Auf der linken Seite wird das SVR-Modell mit einem RBF-Kernel auf den skalierten Trainingsdaten trainiert. Auf der rechten Seite findet optional ein Grid Search auf den Validierungsdaten statt. Dabei werden die Hyperparameter $C$, $\varepsilon$ und $\gamma$ über vordefinierte Wertebereiche durchsucht. Die Kombination mit dem niedrigsten \ac{RMSE} auf den Validierungsdaten wird ausgewählt und für das finale Training des SVR-Modells verwendet.
+Nach der Normalisierung verzweigt sich der Datenfluss. Auf der linken Seite wird das SVR-Modell mit einem RBF-Kernel auf den skalierten Trainingsdaten trainiert. Auf der rechten Seite findet optional ein Grid Search auf den Validierungsdaten statt. Dabei werden die Hyperparameter $C$, $\varepsilon$ und $\gamma$ über vordefinierte Wertebereiche durchsucht. Die Kombination mit dem niedrigsten \ac{MAPE} auf den Validierungsdaten wird ausgewählt und für das finale Training des SVR-Modells verwendet.
 
 Zur Vorhersage wird der aktuelle Feature-Vektor skaliert und in das trainierte Modell eingespeist. Das Modell liefert den prognostizierten Log-Return für den nächsten Tag. Im letzten Schritt wird der prognostizierte Kurs durch Preisrekonstruktion berechnet, indem der letzte Schlusskurs mit dem exponentierten Log-Return multipliziert wird.
 \begin{figure}[htbp]
@@ -197,7 +216,7 @@ Zur Vorhersage wird der aktuelle Feature-Vektor skaliert und in das trainierte M
 \section{TimesFM}\label{sec:timesfm_impl}
 Da mit dem TimesFM Modell ein Zero-Shot Ansatz verfolgt wird, muss das Modell nicht trainiert werden. Dem Modell werden ausschließlich die Trainingsdaten übergeben, die später als Basis für den Kontext der Vorhersage dienen. Deshalb zeigt \cref{fig:timesfm_datenfluss} auch den Datenfluss bei der Vorhersage von neuen Kursen, da dies der einzige Schritt ist, der mit diesem Modell durchgeführt wird. Für die bessere Vergleichbarkeit arbeitet auch dieses Modell auf logarithmierten Kursen.
 
-Aus diesem Grund werden im ersten Schritt die alle historischen Schlusskurse der Aktie logerithmiert. Die letzten 512 logarithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das TimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen.
+Aus diesem Grund werden im ersten Schritt alle historischen Schlusskurse der Aktie logarithmiert. Die letzten 512 logarithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das TimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen.
 
 Im letzten Schritt wandelt das Modell die prognostizierten Log-Returns in prognostizierte Kurse um, indem es die Log-Returns exponentiert und mit dem letzten Schlusskurs multipliziert. Der nächste Preis baut somit auf dem letzten prognostizierten Preis auf.
 \begin{figure}[htbp]

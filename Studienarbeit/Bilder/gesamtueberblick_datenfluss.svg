@@ -121,7 +121,7 @@
   <g>
     <rect x="80" y="714" width="240" height="52" rx="8" fill="#faeeda" stroke="#854f0b" stroke-width="0.5"/>
     <text x="200" y="734" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="14" font-weight="500" fill="#633806">Vorhersage-Metriken</text>
-    <text x="200" y="752" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#854f0b">MAPE · RMSE · OOS-R² · DA</text>
+    <text x="200" y="752" text-anchor="middle" dominant-baseline="central" font-family="'Anthropic Sans', -apple-system, sans-serif" font-size="12" fill="#854f0b">MAPE · OOS-R² · DA</text>
   </g>
 
   <!-- SCHRITT 8b: Finanz-Kennzahlen -->
