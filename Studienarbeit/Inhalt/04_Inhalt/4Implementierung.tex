@@ -264,12 +264,10 @@ Im Walk-Forward-Verfahren werden neue OHLCV-Daten täglich in einen internen Dat
 \end{figure}
 
 \subsection{TimesFM}\label{subsec:impl_timesfm}
-Da mit dem TimesFM Modell ein Zero-Shot Ansatz verfolgt wird, muss das Modell nicht trainiert werden. Dem Modell werden ausschließlich die Trainingsdaten übergeben, die später als Basis für den Kontext der Vorhersage dienen. Deshalb zeigt \cref{fig:timesfm_datenfluss} auch den Datenfluss bei der Vorhersage von neuen Kursen, da dies der einzige Schritt ist, der mit diesem Modell durchgeführt wird. Für die bessere Vergleichbarkeit arbeitet auch dieses Modell auf logarithmierten Kursen.
+Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Es handelt sich um ein Zero-Shot-Modell, das nicht trainiert wird. Die Implementierung verwendet das vortrainierte Google-Modell \texttt{google/timesfm-1.0-200m-pytorch}, das von HuggingFace geladen wird. Die Inferenz wurde auf einem Apple M2 Pro Chip mit CPU-Backend ausgeführt.
 
-Aus diesem Grund werden im ersten Schritt alle historischen Schlusskurse der Aktie logarithmiert. Die letzten 512 logarithmierten Schlusskurse bilden dann den Kontext für die Vorhersage. Dieser Kontext wird dann in das TimesFM Modell eingespeist, um die Vorhersage für den nächsten Log-Return zu erhalten. Das Modell nimmt dann die ersten \texttt{N} prognostizierten Log-Returns. \texttt{N} ist die Anzahl der Tage, die vorhergesagt werden sollen.
-
-Im letzten Schritt wandelt das Modell die prognostizierten Log-Returns in prognostizierte Kurse um, indem es die Log-Returns exponentiert und mit dem letzten Schlusskurs multipliziert. Der nächste Preis baut somit auf dem letzten prognostizierten Preis auf.
-\begin{figure}[htbp]
+Das Modell arbeitet auf Log-Returns und verwendet die letzten 512 historischen Log-Returns als Kontext für die Vorhersage. Im Walk-Forward-Verfahren werden neue Schlusskurse täglich in den internen Datenpuffer eingefügt. Zur Vorhersage wird der aktuelle Kontext in das TimesFM-Modell eingespeist, das den prognostizierten Log-Return für den nächsten Tag liefert. Dieser wird durch Exponentiation und Multiplikation mit dem letzten Schlusskurs in einen prognostizierten Kurs umgewandelt. Der Datenfluss ist in \cref{fig:timesfm_datenfluss} dargestellt.
+\begin{figure}[H]
     \centering
     \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/timesfm_datenfluss}
     \caption{TimesFM: Datenfluss der Vorhersage von neuen Kursen}
