@@ -116,19 +116,63 @@ Die 500-Datenpunkte-Schwelle entspricht etwa 2 Jahren Handelshistorie (bei 252 H
 Die Ausgabe erfolgt als JSON-Datei. Diese enthält die Liste der 10 ausgewählten Ticker, für jeden Ticker das dominante Faktorpaar, die Summe der Regressions-Koeffizienten $|\beta_{f_1}| + |\beta_{f_2}|$, den durchschnittlichen \ac{ROI} über alle Simulationen sowie eine Beispiel-Simulationsgruppe zur Nachvollziehbarkeit.
 
 \subsection{SDE-basierter Auswahlprozess}\label{subsec:sde_datenfluss}
-Es wird nun die tatsächliche Selektions-Logik des Selektors beschrieben. Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Wie in \cref{subsec:skript_aktienauswahl} beschrieben, wird der SDE-Selector mit den historischen Kursdaten der Aktien und den historischen Daten der Makrofaktoren ausgeführt. Im ersten Schritt diskretisiert der Selector die historischen Kursdaten und die historischen Daten der Makrofaktoren. Daraus ergibt sich ein Richtungsvektor für jede Aktie und jeden Makrofaktor, der die Richtung der Kursbewegung bzw. der Veränderung des Makrofaktors angibt.
+Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt. Die Implementierung folgt der in \cref{subsec:aufstellen_der_sdes} beschriebenen Konzeption und ist in \cref{alg:SDE_Selector} als Pseudocode zusammengefasst.
 
-Im zweiten Schritt berechnet der Selector dann mithilfe einer multiple linear Regression die Koeffizienten, die die Stärke der Beziehung zwischen den Aktienkursen und den Makrofaktoren angeben und sucht dann im dritten Schritt die zwei Faktoren aus, die die stärkste Beziehung zu den Aktienkursen haben. Der vierte Schritt bildet basierend auf den zwei Faktoren jeder Aktie Pools von Aktien. Alle Aktien in einem Pool haben die gleichen zwei Makrofaktoren.
-
-Jetzt beginnt die Schleife des Selectors. Die Schleife wird standardmäßig 100 Mal durchlaufen, kann aber über die Konfigurationsdatei angepasst werden. Im Durchlauf der Schleife werden erste die Aktienpools in Gruppen von je standardmäßig 4 Aktien aufgeteilt. Im zweiten Schritt stellt die Schleife für jede Gruppe die SDE auf und löst diese mit dem Euler-Maruyama-Schema. Nach dem Lösen der SDE wird der \ac{ROI} für jede Aktie berechnet. Der letzte Schritt der Schleife gibt die Aktie mit ihrem Rang innerhalb der Gruppe zurück.
-
-Nachdem die Schleife alle Durchläufe gemacht hat, berechnet der Selector den durchschnittlichen Rang jeder Aktie über alle Durchläufe und gibt die 10 Aktien mit dem besten durchschnittlichen Rang zurück. Diese 10 Aktien werden dann für das Training der Modelle verwendet.
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
+    \includesvg[width=0.65\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
     \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}
     \label{fig:sde_aktienauswahl}
 \end{figure}
+
+\begin{algorithm}[H]
+    \caption{SDE-Selector Implementierung}\label{alg:SDE_Selector}
+    \small
+    \begin{algorithmic}[1]
+        \Require $stockData$, $factorData$, $numSimulations$, $groupSize$, $numSelected$
+        \State \Comment{1. Diskretisierung: Preise $\to$ Richtungen $\{-1, 0, +1\}$}
+        \ForAll{$ticker \in stockData$}
+            \State $stockDirs[ticker] \gets \texttt{np.sign(np.diff(stockData[ticker]))}$
+        \EndFor
+        \ForAll{$factor \in factorData$}
+            \State $factorDirs[factor] \gets \texttt{np.sign(np.diff(factorData[factor]))}$
+        \EndFor
+
+        \State \Comment{2-3. Beta-Koeffizienten via OLS + dominantes Faktorpaar}
+        \State $X \gets [1, factorDirs]^T$ \Comment{Design-Matrix}
+        \ForAll{$ticker \in stockData$}
+            \State $\beta \gets \texttt{np.linalg.lstsq}(X, stockDirs[ticker])$
+            \State $dominantPairs[ticker] \gets \arg\max_{(i,j)} |\beta_i| + |\beta_j|$ via \texttt{combinations(6,2)}
+        \EndFor
+
+        \State \Comment{4. Poolbildung nach dominantem Faktorpaar}
+        \State Gruppiere Aktien mit identischem $dominantPairs$ in Pools
+
+        \State $rankings \gets \emptyset$
+        \For{$iteration = 1$ to $numSimulations$}
+            \State \Comment{5. Zufällige Simulationsgruppen à 4 Aktien pro Pool}
+            \State $groups \gets$ zufällige Gruppen à $groupSize$ aus jedem Pool
+
+            \ForAll{$group \in groups$} \Comment{6. SDE-Simulation via Euler-Maruyama}
+                \State Berechne $\mu$, $\Sigma$ aus Wahrscheinlichkeiten $p(c)$ (Gl.~\ref{eq:wkeitKombination})
+                \State $B \gets \texttt{np.linalg.cholesky}(\Sigma)$
+                \State $S \gets [1, \ldots, 1]$, $F \gets [1, \ldots, 1]$
+                \For{$day = 1$ to $378$}
+                    \State $Z \sim \mathcal{N}(0, I)$
+                    \State $S \gets S + \mu_S \Delta t + B_{stock} \sqrt{\Delta t} Z$
+                    \State $F \gets F + \mu_F \Delta t + B_{factor} \sqrt{\Delta t} Z$
+                \EndFor
+                \State $roi \gets (S - 1)$, $winner \gets \arg\max(roi)$
+                \State Speichere Platzierung in $rankings$
+            \EndFor
+        \EndFor
+
+        \State \Comment{7. Durchschnittsrang berechnen und Top-N auswählen}
+        \State \Return Top $numSelected$ Aktien nach durchschnittlichem Rang
+    \end{algorithmic}
+\end{algorithm}
+
+Zur Nachvollziehbarkeit wird die erste Simulationsgruppe als Plot gespeichert, der die normalisierten Verläufe aller 4 Aktien und 2 Faktoren über 378 Tage zeigt.
 
 \section{Vorhersagemodelle}\label{sec:impl_vorhersagemodelle}
 
