@@ -659,20 +659,11 @@ Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle unt
 \subsection{Fehlermaße}\label{subsec:fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die drei meistverwendeten, MAPE, RMSE und Directional Accuracy, verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-R2} herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~(\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}). Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score aber auch sinnlos, da der Informationsgehalt nach \cref{eq:R2eqRMSE} dem RMSE-Maß entspricht.
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden die beiden meistverwendeten, MAPE und Directional Accuracy, verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-R2} herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt. Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~(\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}). Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Als reiner Vergleichswert ist der $R^2$-Score aber auch sinnlos, da der Informationsgehalt nach \cref{eq:R2eqRMSE} dem RMSE-Maß entspricht.
 \begin{equation}
     R^2 = 1 - \frac{\text{RMSE}^2 \cdot n}{\text{SS}_{tot}}, \text{SS}_{tot} = const, n = const.\label{eq:R2eqRMSE} %eventuell Beweis führen hätte Aura
 \end{equation}
 Sinnvoll wäre nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$} Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
-
-\subsubsection*{Root Mean Squared Error}\label{subsubsec:root_mean_squared_error}
-Gegeben sei ein Signal \( [x_1, x_2, \dots, x_n] \) und eine zugehörige Vorhersage \( [\hat{x}_1, \hat{x}_2, \dots, \hat{x}_n] \). Der \ac{RMSE} misst die durchschnittliche quadratische Abweichung zwischen den vorhergesagten und den tatsächlichen Werten und ist definiert als
-
-\[
-    \mathrm{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}{(\hat{x}_i - x_i)}^2}.
-\]
-
-Der RMSE gewichtet Ausreißer durch die Quadratisierung stärker und ist durch die Wurzel interpretierbar, da er in derselbe Einheit wie die Werte der Zeitreihe angegeben wird.
 
 
 \subsubsection*{Mean Absolute Percentage Error}\label{subsubsec:mean_absolute_percentage_error}
