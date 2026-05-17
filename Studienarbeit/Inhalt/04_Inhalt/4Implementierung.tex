@@ -1,4 +1,4 @@
-\chapter{Implementierung}\label{chap:implementierung}
+\chapter{Implementierung}\label{chap:implementierung}\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
 % Viele Arbeiten die sich bereits mit Aktienkursvohersagen beschäftigt haben, wurden häufig kritisiert, da sie selten reproduzierbar sind. Oft fehlen theoretische Details und meist die gesamte Implementierung, sowie Datensätze.~\cite{Olorunnimbe2023} Um eine gute Reproduzierbarkeit zu gewährleisten, wird in diesem Kapitel die Implementierung jeglicher Modelle vorgestellt.
 
 \section{Technische Grundlagen}\label{sec:tech_grundlagen}
@@ -34,12 +34,11 @@ Die historischen Kursdaten werden als CSV-Dateien von der Yahoo Finance API bezo
 
 \section{Systemarchitektur}\label{sec:systemarchitektur}
 
-Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für die Aktienauswahl zuständig, während das zweite Skript die drei Modelle trainiert und evaluiert. \cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung über beide Skripte hinweg. Diese Aufteilung ermöglicht es, die Aktienauswahl unabhängig von der Modellevaluation durchzuführen.
+Die Implementierung ist in zwei Skripte aufgeteilt. Das erste Skript ist für die Aktienauswahl zuständig, während das zweite Skript die drei Modelle trainiert und evaluiert.~\cref{fig:gesamtueberblick_datenfluss} zeigt den Datenfluss der Implementierung über beide Skripte hinweg. Diese Aufteilung ermöglicht es, die Aktienauswahl unabhängig von der Modellevaluation durchzuführen.
 \begin{figure}[htbp]
     \centering
     \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/gesamtueberblick_datenfluss}
-    \caption{Gesamtüberblick: Datenfluss von der Beschaffung bis zur Evaluation}
-    \label{fig:gesamtueberblick_datenfluss}
+    \caption{Gesamtüberblick: Datenfluss von der Beschaffung bis zur Evaluation}\label{fig:gesamtueberblick_datenfluss}
 \end{figure}
 
 \section{Aktienauswahl}\label{sec:impl_aktienauswahl}
@@ -52,31 +51,30 @@ Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die
     \small
     \begin{tabular}{p{5cm}p{9cm}}
         \toprule
-        \textbf{Parameter} & \textbf{Beschreibung} \\
+        \textbf{Parameter}      & \textbf{Beschreibung}                                                                         \\
         \midrule
-        Liste an Aktien & Alle Aktien, die zum Training verwendet werden, falls das Auswahlskript nicht ausgeführt wird \\
+        Liste an Aktien         & Alle Aktien, die zum Training verwendet werden, falls das Auswahlskript nicht ausgeführt wird \\
         \addlinespace
-        Trainingszeitraum & Start- und Enddatum für Trainingsdaten \\
+        Trainingszeitraum       & Start- und Enddatum für Trainingsdaten                                                        \\
         \addlinespace
-        Validierungszeitraum & Start- und Enddatum für Validierungsdaten \\
+        Validierungszeitraum    & Start- und Enddatum für Validierungsdaten                                                     \\
         \addlinespace
-        Testzeitraum & Start- und Enddatum für Testdaten \\
+        Testzeitraum            & Start- und Enddatum für Testdaten                                                             \\
         \addlinespace
-        Gesamtzeitraum & Start- und Enddatum für den Download aller Daten \\
+        Gesamtzeitraum          & Start- und Enddatum für den Download aller Daten                                              \\
         \addlinespace
-        Download-Konfiguration & Optionen für bereinigte Daten und Überschreiben vorhandener Daten \\
+        Download-Konfiguration  & Optionen für bereinigte Daten und Überschreiben vorhandener Daten                             \\
         \addlinespace
-        Liste der Makrofaktoren & Makrofaktoren, die zum Training verwendet werden \\
+        Liste der Makrofaktoren & Makrofaktoren, die zum Training verwendet werden                                              \\
         \addlinespace
-        Auswahlparameter & Anzahl Simulationen, Gruppengröße und Anzahl auszuwählender Aktien \\
+        Auswahlparameter        & Anzahl Simulationen, Gruppengröße und Anzahl auszuwählender Aktien                            \\
         \bottomrule
     \end{tabular}
-    \caption{Parameter der Konfigurationsdatei für die Aktienauswahl}
-    \label{tab:config_params}
+    \caption{Parameter der Konfigurationsdatei für die Aktienauswahl}\label{tab:config_params}
 \end{table}
 
 \vspace{0.5em}
-\noindent Die in dieser Arbeit verwendeten Werte lauten: Trainingszeitraum 2020-01-02 bis 2023-12-29, Validierungszeitraum 2024-01-02 bis 2024-06-28, Testzeitraum 2024-07-01 bis 2025-12-31, 100 Simulationen, Gruppengröße 4, Auswahl der 10 bestplatzierten Aktien. Als Makrofaktoren werden die 6 in \cref{tab:makrofaktoren} genannten Zeitreihen verwendet.
+\noindent Die in dieser Arbeit verwendeten Werte lauten: Trainingszeitraum 2020--01--02 bis 2023--12--29, Validierungszeitraum 2024--01--02 bis 2024--06--28, Testzeitraum 2024--07--01 bis 2025--12--31, 100 Simulationen, Gruppengröße 4, Auswahl der 10 bestplatzierten Aktien. Als Makrofaktoren werden die 6 in \cref{tab:makrofaktoren} genannten Zeitreihen verwendet.
 
 Die historischen Kursdaten der Aktien und die historischen Daten der Makrofaktoren werden über ein separates Download-Skript bereitgestellt, das die \texttt{yfinance}-Bibliothek nutzt. Die Implementierung verwendet \texttt{pandas} für das Laden und Filtern der Zeitreihendaten, \texttt{PyYAML} für das Parsen der Konfiguration und \texttt{numpy} für numerische Berechnungen im SDE-Selector.
 
@@ -108,7 +106,7 @@ Das Skript verwendet eine statische Liste der S\&P-500-Konstituenten vom Januar 
         \State $selector \gets \Call{SDESelector}{numSimulations, groupSize, numSelected}$
         \State $selected \gets \Call{selector.select}{stockData, factorData}$ Selector wird augeführt
         \State Speichere $selected$ als JSON
-        \State Die JSON Datei mit den ausgewählten Aktien wird gespeichert.
+        \State Die JSON-Datei mit den ausgewählten Aktien wird gespeichert.
     \end{algorithmic}
 \end{algorithm}
 Die 500-Datenpunkte-Schwelle entspricht etwa 2 Jahren Handelshistorie (bei 252 Handelstagen pro Jahr) und schließt Aktien mit IPO, Delisting oder unvollständiger Historie während des Trainingszeitraums automatisch aus. Falls weniger als 20 Aktien oder weniger als 2 Makrofaktoren die Kriterien erfüllen, bricht das Skript mit einem Fehler ab.
@@ -121,8 +119,7 @@ Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt
 \begin{figure}[H]
     \centering
     \includesvg[width=0.65\textwidth,inkscapelatex=false]{Bilder/sde_aktienauswahl_datenfluss}
-    \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}
-    \label{fig:sde_aktienauswahl}
+    \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}\label{fig:sde_aktienauswahl}
 \end{figure}
 
 \begin{algorithm}[H]
@@ -132,17 +129,17 @@ Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt
         \Require $stockData$, $factorData$, $numSimulations$, $groupSize$, $numSelected$
         \State \Comment{1. Diskretisierung: Preise $\to$ Richtungen $\{-1, 0, +1\}$}
         \ForAll{$ticker \in stockData$}
-            \State $stockDirs[ticker] \gets \texttt{np.sign(np.diff(stockData[ticker]))}$
+        \State $stockDirs[ticker] \gets \texttt{np.sign(np.diff(stockData[ticker]))}$
         \EndFor
         \ForAll{$factor \in factorData$}
-            \State $factorDirs[factor] \gets \texttt{np.sign(np.diff(factorData[factor]))}$
+        \State $factorDirs[factor] \gets \texttt{np.sign(np.diff(factorData[factor]))}$
         \EndFor
 
-        \State \Comment{2-3. Beta-Koeffizienten via OLS + dominantes Faktorpaar}
+        \State \Comment{2--3. Beta-Koeffizienten via OLS + dominantes Faktorpaar}
         \State $X \gets [1, factorDirs]^T$ \Comment{Design-Matrix}
         \ForAll{$ticker \in stockData$}
-            \State $\beta \gets \texttt{np.linalg.lstsq}(X, stockDirs[ticker])$
-            \State $dominantPairs[ticker] \gets \arg\max_{(i,j)} |\beta_i| + |\beta_j|$ via \texttt{combinations(6,2)}
+        \State $\beta \gets \texttt{np.linalg.lstsq}(X, stockDirs[ticker])$
+        \State $dominantPairs[ticker] \gets \arg\max_{(i,j)} |\beta_i| + |\beta_j|$ via \texttt{combinations(6,2)}
         \EndFor
 
         \State \Comment{4. Poolbildung nach dominantem Faktorpaar}
@@ -150,21 +147,21 @@ Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt
 
         \State $rankings \gets \emptyset$
         \For{$iteration = 1$ to $numSimulations$}
-            \State \Comment{5. Zufällige Simulationsgruppen à 4 Aktien pro Pool}
-            \State $groups \gets$ zufällige Gruppen à $groupSize$ aus jedem Pool
+        \State \Comment{5. Zufällige Simulationsgruppen à 4 Aktien pro Pool}
+        \State $groups \gets$ zufällige Gruppen à $groupSize$ aus jedem Pool
 
-            \ForAll{$group \in groups$} \Comment{6. SDE-Simulation via Euler-Maruyama}
-                \State Berechne $\mu$, $\Sigma$ aus Wahrscheinlichkeiten $p(c)$ (Gl.~\ref{eq:wkeitKombination})
-                \State $B \gets \texttt{np.linalg.cholesky}(\Sigma)$
-                \State $S \gets [1, \ldots, 1]$, $F \gets [1, \ldots, 1]$
-                \For{$day = 1$ to $378$}
-                    \State $Z \sim \mathcal{N}(0, I)$
-                    \State $S \gets S + \mu_S \Delta t + B_{stock} \sqrt{\Delta t} Z$
-                    \State $F \gets F + \mu_F \Delta t + B_{factor} \sqrt{\Delta t} Z$
-                \EndFor
-                \State $roi \gets (S - 1)$, $winner \gets \arg\max(roi)$
-                \State Speichere Platzierung in $rankings$
-            \EndFor
+        \ForAll{$group \in groups$} \Comment{6. SDE-Simulation via Euler-Maruyama}
+        \State Berechne $\mu$, $\Sigma$ aus Wahrscheinlichkeiten $p(c)$ (Gl.~\ref{eq:wkeitKombination})
+        \State $B \gets \texttt{np.linalg.cholesky}(\Sigma)$
+        \State $S \gets [1, \ldots, 1]$, $F \gets [1, \ldots, 1]$
+        \For{$day = 1$ to $378$}
+        \State $Z \sim \mathcal{N}(0, I)$
+        \State $S \gets S + \mu_S \Delta t + B_{stock} \sqrt{\Delta t} Z$
+        \State $F \gets F + \mu_F \Delta t + B_{factor} \sqrt{\Delta t} Z$
+        \EndFor
+        \State $roi \gets (S - 1)$, $winner \gets \arg\max(roi)$
+        \State Speichere Platzierung in $rankings$
+        \EndFor
         \EndFor
 
         \State \Comment{7. Durchschnittsrang berechnen und Top-N auswählen}
@@ -177,9 +174,9 @@ Zur Nachvollziehbarkeit wird die erste Simulationsgruppe als Plot gespeichert, d
 \section{Vorhersagemodelle}\label{sec:impl_vorhersagemodelle}
 
 \subsection{Evaluationsskript}\label{subsec:evaluationsskript}
-Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die Modellkonfiguration, die historischen Kursdaten der ausgewählten Aktien und die Liste mit den ausgewählten Aktien. Sind diese Voraussetzungen nicht erfüllt, werden die betroffenen Aktien und Modelle übersprungen. Das Skript ist in \cref{alg:Skript_Modelevaluation} dargestellt.
+Voraussetzung für die Ausführung des Skripts sind die Konfigurationsdatei, die Modellkonfiguration, die historischen Kursdaten der ausgewählten Aktien und die Liste mit den ausgewählten Aktien. Sind diese Voraussetzungen nicht erfüllt, werden die betroffenen Aktien und Modelle übersprungen. Das Skript ist in \cref{alg:Skript_Modellevaluation} dargestellt.
 \begin{algorithm}
-    \caption{Skript Modelevaluation}\label{alg:Skript_Modelevaluation}
+    \caption{Skript Modellevaluation}\label{alg:Skript_Modellevaluation}
     \small
     \begin{algorithmic}[1]
         \Require Konfigurationsdatei, Modellkonfiguration, historische Kursdaten, ausgewählte Aktien
@@ -244,8 +241,7 @@ Bei jedem Walk-Forward-Schritt wird \texttt{update()} aufgerufen, das den neuen 
 \begin{figure}[htbp]
     \centering
     \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/linear_separation_datenfluss}
-    \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}
-    \label{fig:linear_separation_datenfluss}
+    \caption{LinearSeparation: Datenfluss von den Trainingsdaten bis zum trainierten Modell}\label{fig:linear_separation_datenfluss}
 \end{figure}
 
 \subsection{Preprocessed SVR}\label{subsec:impl_preprocessed_svr}
@@ -259,8 +255,7 @@ Im Walk-Forward-Verfahren werden neue OHLCV-Daten täglich in einen internen Dat
 \begin{figure}[H]
     \centering
     \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/svr_prediction_datenfluss}
-    \caption{Preprocessed SVR: Datenfluss von den Trainingsdaten bis zur Preisprognose}
-    \label{fig:svr_prediction_datenfluss}
+    \caption{Preprocessed SVR: Datenfluss von den Trainingsdaten bis zur Preisprognose}\label{fig:svr_prediction_datenfluss}
 \end{figure}
 
 \subsection{TimesFM}\label{subsec:impl_timesfm}
@@ -270,11 +265,10 @@ Das Modell arbeitet auf Log-Returns und verwendet die letzten 512 historischen L
 \begin{figure}[H]
     \centering
     \includesvg[width=0.6\textwidth,inkscapelatex=false]{Bilder/timesfm_datenfluss}
-    \caption{TimesFM: Datenfluss der Vorhersage von neuen Kursen}
-    \label{fig:timesfm_datenfluss}
+    \caption{TimesFM: Datenfluss der Vorhersage von neuen Kursen}\label{fig:timesfm_datenfluss}
 \end{figure}
 
-\subsection{Handelsstrategie}\label{subsec:impl_marktstrategie}
+\subsection{Handelsstrategie}\label{subsec:impl_marktstrategie}\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
 Die Handelsentscheidungen sind als Teil der Backtrader-Strategie implementiert. Die Positionsgrößenbestimmung erfolgt über einen separaten Backtrader-Sizer, der das Half-Kelly-Kriterium aus~\cref{subsec:kelly} implementiert.
 
 Die Signal-Schwelle $\varepsilon$ wird aus dem \ac{MAE} auf den Validierungsdaten berechnet. In jedem Event-Loop-Schritt wird der prognostizierte Log-Return $\hat{r}_{t+1}$ mit $\varepsilon$ verglichen. Bei $\hat{r}_{t+1} > \varepsilon$ wird ein Long-Signal generiert, bei $\hat{r}_{t+1} < -\varepsilon$ ein Cash-Signal, ansonsten wird die Position gehalten.

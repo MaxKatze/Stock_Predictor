@@ -1,6 +1,6 @@
 <svg width="100%" viewBox="0 0 720 700" role="img" xmlns="http://www.w3.org/2000/svg">
-  <title>TimesFM Modell: Datenfluss</title>
-  <desc>Ablauf des TimesFM Foundation Models von Close-Preisen über Log-Returns bis zur Preisprognose</desc>
+  <title>TimesFM-Modell: Datenfluss</title>
+  <desc>Ablauf des TimesFM Foundation Model von Close-Preisen über Log-Returns bis zur Preisprognose</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

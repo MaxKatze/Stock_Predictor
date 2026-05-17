@@ -11,12 +11,12 @@ Die \ac{SVR}-Modellierung orientiert sich an der Beschreibung in~\cite{drucker19
 
 wobei
 \begin{itemize}
-    \item $\mathbf{w}$ der Gewichtsvektor ist, welcher angibt wie stark welches Feature aus x in die Vorhersage eingeht,
-    \item $\phi(x)$ eine Funktion ist, welche die Input-Features in einen Raum höherer Dimension transformiert,
+    \item $\mathbf{w}$ der Gewichtsvektor ist, welcher angibt, wie stark welches Feature aus x in die Vorhersage eingeht,
+    \item $\phi(x)$ eine Funktion ist, die die Input-Features in einen Raum höherer Dimension transformiert,
     \item $b$ der Achsenabschnitt der Vorhersage ist.
 \end{itemize}
 
-Die Wahl von $\phi(x)$ wird später diskutiert, da sie über den Kernel-Trick vereinfacht wird und $\mathbf{w}$ und $b$ werden durch Lösen des folgenden Optimierungsproblem bestimmt (vgl.~\cite{drucker1997svr}):
+Die Wahl von $\phi(x)$ wird später diskutiert, da sie über den Kernel-Trick vereinfacht wird und $\mathbf{w}$ und $b$ werden durch das Lösen des folgenden Optimierungsproblems bestimmt (vgl.~\cite{drucker1997svr}):
 
 \begin{equation}\label{eq:optSVR}
     \min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \underbrace{\frac{1}{2}\|\mathbf{w}\|^2}_{Funktionsglätte} + C \underbrace{\sum_{t=1}^{n} (\xi_t + \xi_t^*)}_{Fehlerterme}
@@ -32,7 +32,7 @@ unter den Nebenbedingungen
 
 Hierbei sorgt $\frac{1}{2}\|\mathbf{w}\|^2$ dafür, dass die Glätte der Funktion in die Optimierung miteingeht. Dies sorgt dafür, dass die Regressionsfunktion nicht overfittet, was ein häufiges Problem bei Aktienprognosemodellen ist. Der $\varepsilon$-Schlauch definiert dabei einen Toleranzbereich um die Regressionsfunktion, innerhalb dessen Abweichungen nicht als Fehler gewertet werden. Dies ist im Falle von Aktienrenditen hilfreich, um Rauschen zu ignorieren. Um Trainingspunkte, die außerhalb dieses Schlauchs liegen, dennoch zuzulassen, werden $\xi_i$ und $\xi_i^*$ eingeführt, welche die Abweichung dieser Punkte messen und in das Optimierungsproblem einbeziehen, wodurch es lösbar bleibt. Der Parameter $C$ steuert dabei die Gewichtung zwischen Funktionsglätte und den Fehlern von Trainingsdaten, die außerhalb des $\varepsilon$-Schlauches liegen. Die Nebenbedingungen~\ref{eq:nb1},~\ref{eq:nb2} und~\ref{eq:nb3} sorgen dafür, dass die über- bzw. unterschätzten Werte in die Minimierung eingehen.
 
-$C$ und $\varepsilon$ werden im Validierungszeitraum $V$ mit einer Grid-Search bestimmt. Das bedeutet es werden für $C$ und $\varepsilon$ diskrete Wertebereiche $G_C$ und $G_\varepsilon$ gewählt und alle möglichen Kombinationen getestet. Die Kombination, die auf dem Validierungsdatensatz im Sinne des \ac{RMSE} das beste Ergebnis erzielt wird gewählt. Die Wertebereiche werden nach der Empfehlung aus~\cite{hsu2003practical} gewählt.
+$C$ und $\varepsilon$ werden im Validierungszeitraum $V$ mit einer Grid-Search bestimmt. Das bedeutet es werden für $C$ und $\varepsilon$ diskrete Wertebereiche $G_C$ und $G_\varepsilon$ gewählt und alle möglichen Kombinationen getestet. Die Kombination, die auf dem Validierungsdatensatz im Sinne des \ac{RMSE} das beste Ergebnis erzielt, wird gewählt. Die Wertebereiche werden nach der Empfehlung aus~\cite{hsu2003practical} gewählt.
 
 \begin{align*}
     G_C           & = \{0.1, 1, 10, 100, 1000\}    \\

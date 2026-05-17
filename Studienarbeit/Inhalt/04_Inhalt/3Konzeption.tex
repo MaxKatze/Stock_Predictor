@@ -53,8 +53,8 @@ Die Daten werden als CSV-Dateien von Yahoo Finance heruntergeladen und ein Auszu
         \toprule
         \textbf{Datum} & \textbf{Close} & \textbf{High} & \textbf{Low} & \textbf{Open} & \textbf{Volume} \\
         \midrule
-        2022-11-11     & 147.34         & 147.64        & 142.09       & 143.52        & 93979700        \\
-        2022-11-14     & 145.94         & 147.91        & 145.10       & 146.62        & 73374100        \\
+        2022--11--11   & 147.34         & 147.64        & 142.09       & 143.52        & 93979700        \\
+        2022--11--14   & 145.94         & 147.91        & 145.10       & 146.62        & 73374100        \\
         \bottomrule
     \end{tabular}
     \caption{Beispielhafte Rohdaten der Aktienpreise. Alle Preisangaben in USD.}\label{tab:beispiel_aktiendaten}
@@ -72,7 +72,7 @@ Die Unterteilung der Zeitreihen erfolgt in einem 60:10:30-Verhältnis, wobei 60\
 \subsection{Bereinigung}\label{subsec:bereinigung}
 
 Die Analysen in dieser Arbeit bestehen aus Backtest. Das bedeutet, dass vergangene Daten verwendet werden, um Strategien zu testen. Aus diesem Grund ist eine Bereinigung der historischen Aktienkurse notwendig, da sich die nominalen Preise einer Aktie im Zeitverlauf durch Ereignisse wie
-Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\) und \(\tilde{P_t}\) der bereinigte Preis auf dem ein Modell trainiert werden kann. \(\tilde{P}_t\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
+Aktiensplits oder Dividendenzahlungen verändern, ohne das sich der tatsächliche Unternehmenswert und demnach der Aktienwert geändert hat. Ohne eine solche Anpassung würden Kursbewegungen verzerrt dargestellt, was zu falsch trainerten Modellen oder falschen Tests führt. Sei \(P_t\) der beobachtete Schlusskurs einer Aktie zum Zeitpunkt \(t\) und \(\tilde{P_t}\) der bereinigte Preis, auf dem ein Modell trainiert werden kann.~\(\tilde{P_t}\) ergibt sich aus dem ursprünglichen Preis multipliziert mit einem Anpassungsfaktor \(A_t\): %Markus: Warum, mit welchem Ziel? A: Wie warum, steht doch oben.
 
 \[
     \tilde{P}_t = P_t \cdot A_t .
@@ -127,9 +127,9 @@ Der in dieser Arbeit gewählte Ansatz lässt sich als eine Verallgemeinerung des
     \caption{Makroökonomische Faktoren}\label{tab:makrofaktoren}
 \end{table}
 
-Der Ansatz in~\cite{Ofomataetal2017} teilt eine Aktienbewegung in drei diskrete Richtungen auf: Anstieg~$(+1)$, Rückgang~$(-1)$ und Stagnation~$(0)$. Bei $n$ betrachteten Aktien ergibt sich daraus ein Ergebnisraum von $3^n$ möglichen Bewegungskombinationen innerhalb eines Handelstages. Für $n = 4$ also bereits $3^4 = 81$ zu berücksichtigende Szenarien. Dadurch, dass in~\cite{Ofomataetal2017} nur 60 Handelstagen betrachtete werden, treten viele Bewegungen überhaupt nicht auf.
+Der Ansatz in~\cite{Ofomataetal2017} teilt eine Aktienbewegung in drei diskrete Richtungen auf: Anstieg~$(+1)$, Rückgang~$(-1)$ und Stagnation~$(0)$. Bei $n$ betrachteten Aktien ergibt sich daraus ein Ergebnisraum von $3^n$ möglichen Bewegungskombinationen innerhalb eines Handelstages. Für $n = 4$ also bereits $3^4 = 81$ zu berücksichtigende Szenarien. Dadurch, dass in~\cite{Ofomataetal2017} nur 60 Handelstagen betrachtet werden, treten viele Bewegungen überhaupt nicht auf.
 
-Um die genannten Probleme zu addressieren, wird die Grundstrukur beibehalten, jedoch wird der ursprüngliche $3^n$-dimensionale Aktienvektor durch einen $3^{g+f}$-dimensionalen Einflussvektor aus $g$ Aktien und $f$ Faktoren ersetzt. Die Grundstruktur des Verfahrens ist in \cref{fig:SDEablauf} zu sehen und lässt sich folgendermaßen zusammenfassen.
+Um die genannten Probleme zu adressieren, wird die Grundstruktur beibehalten, jedoch wird der ursprüngliche $3^n$-dimensionale Aktienvektor durch einen $3^{g+f}$-dimensionalen Einflussvektor aus $g$ Aktien und $f$ Faktoren ersetzt. Die Grundstruktur des Verfahrens ist in \cref{fig:SDEablauf} zu sehen und lässt sich folgendermaßen zusammenfassen.
 Für jede Aktie werden die beiden makroökonomischen Faktoren $f$ aus \cref{tab:makrofaktoren} gesucht, die am meisten Einfluss auf die Kursbewegung haben. Dann werden für alle Aktien, die dasselbe dominante Einflussfaktorpaar haben, Simulationsgruppen aus je 4 Aktien und den beiden Einflussfaktoren gebildet. Innerhalb dieser Simulationsgruppen werden die Kursverläufe der Aktien und Faktoren simuliert und diejenige Aktie, die nach dem Testzeitraum $Z$ den höchsten \ac{ROI} in der Simulation erzielt, geht als „Gewinner“ aus ihrer Simulationsgruppe hervor. Dieser Auswahlprozess wird über das gesamte Aktienuniversum durchgeführt. Danach werden diese „Gewinner“ wieder in Simulationsgruppen zu je 4 Aktien aufgeteilt. Durch diesen hierarchischen Prozess bleibt der Ansatz unabhängig von der Gesamtzahl der Aktien ($n$). Er lässt sich somit auf beliebig große Universen anwenden und berücksichtigt direkt den Einfluss makroökonomischer Faktoren.
 
 
@@ -187,7 +187,7 @@ Da jede Simulationsgruppe genau zwei Faktoren enthalten soll, wird jeder Aktie d
     (f_1^*, f_2^*) = \underset{j_1 \neq j_2}{\arg\max} \left( |\beta_{i,f_1}| + |\beta_{i,f_2}| \right)
 \end{equation}
 
-Dieses Paar wird als dominantes Faktorpaar $(f_{i,1}^*, f_{i,2}^*)$ der Aktie $i$ bezeichnet. Alle Aktien die dasselbe dominante Faktorpaar haben, werden in einem Pool zusammengefasst.
+Dieses Paar wird als dominantes Faktorpaar $(f_{i,1}^*, f_{i,2}^*)$ der Aktie $i$ bezeichnet. Alle Aktien, die dasselbe dominante Faktorpaar haben, werden in einem Pool zusammengefasst.
 
 \begin{equation}
     \mathcal{P}_{j_1, j_2} = \left\{ S_i : (j_1^*, j_2^*) = (j_1, j_2) \right\}
@@ -197,7 +197,7 @@ Bei den gewählten 7 Faktoren gibt es somit $\binom{7}{2} = 21$ mögliche Faktor
 
 
 %Herleitung die wie vielt besten Aktien wir damit bekommen, wenn das Verfahren perfekt wäre (quasi wie viel wir maximal verlieren)
-Durch das hierarchische Format der Aktienauswahl kann es durch die lokalen Vergleiche passieren, dass Aktien in früheren Stufen nicht den höchsten \ac{ROI} in der Simulation haben und somit nicht weiter betrachtet werden, obwohl sie im Vergleich der Grundgesamtheit unter den Top 10 vielversprechendensten Aktien gewesen wären. Dadurch wird die Aktienauswahl verschlechtert. Darum erfolgt die Aufteilung der Aktien von den Faktorpools in die Gruppen zufällig und die gesamte Aufteilung und Simulation wird $N=100$ mal durchgeführt. Die 10 Aktien mit der durchschnittlich besten "Platzierung" werden gewählt. Nach der gesamten Simulation ergeben sich die 10 am besten prognostizierten Aktien.
+Durch das hierarchische Format der Aktienauswahl kann es durch die lokalen Vergleiche passieren, dass Aktien in früheren Stufen nicht den höchsten \ac{ROI} in der Simulation haben und somit nicht weiter betrachtet werden, obwohl sie im Vergleich der Grundgesamtheit unter den Top 10 vielversprechendsten Aktien gewesen wären. Dadurch wird die Aktienauswahl verschlechtert. Darum erfolgt die Aufteilung der Aktien von den Faktorpools in die Gruppen zufällig und die gesamte Aufteilung und Simulation wird $N=100$ Mal durchgeführt. Die 10 Aktien mit der durchschnittlich besten Platzierung werden gewählt. Nach der gesamten Simulation ergeben sich die 10 am besten prognostizierten Aktien.
 
 
 \subsubsection{Aufstellen der SDEs}\label{subsec:aufstellen_der_sdes}
@@ -219,7 +219,7 @@ Es wird ein Einflussvektor $X$ aus Aktienbewegungen S und Faktorbewegungen F auf
     \Delta X(t) = {[\Delta S_1(t), \Delta S_2(t), \dots, \Delta S_g(t), \Delta F_1(t), \Delta F_2(t), \dots, \Delta F_f(t)]}^T.
 \]
 
-Für jede Aktienbewegung und Faktorbewegung gibt es drei mögliche Werte (+1, 0, -1). Daraus ergibt sich der Ereignisraum $C$ für den Einflussvektor $X$ zu allen möglichen Gesamtbewegungen. Für die Kombinationen des Einflussvektors $c \in C$ wird die Wahrscheinlichkeit pro Aktie $p_i(c)$ im Trainingszeitraum T nach \cref{eq:wkeitKombination} bestimmt. Außerdem wird eine Laplace-Glättung eingeführt. Dies soll das Problem eliminieren, dass Kombinationen die im Traininszeitraum aus statistischen Gründen nicht aufgetreten sind, als unmöglich angesehen werden.
+Für jede Aktienbewegung und Faktorbewegung gibt es drei mögliche Werte (+1, 0, -1). Daraus ergibt sich der Ereignisraum $C$ für den Einflussvektor $X$ zu allen möglichen Gesamtbewegungen. Für die Kombinationen des Einflussvektors $c \in C$ wird die Wahrscheinlichkeit pro Aktie $p_i(c)$ im Trainingszeitraum T nach \cref{eq:wkeitKombination} bestimmt. Außerdem wird eine Laplace-Glättung eingeführt. Dies soll das Problem eliminieren, dass Kombinationen die im Trainingszeitraum aus statistischen Gründen nicht aufgetreten sind, als unmöglich angesehen werden.
 
 \begin{equation}\label{eq:wkeitKombination}
     p_i(c) = \frac{N_c+1}{T + |C|},
@@ -248,7 +248,7 @@ Danach ergibt sich der Vektor der Trends der Aktien $\mu \in \mathbb{R}^g$, mit 
     \end{pmatrix}.
 \]
 
-Zusätzlich zum Trend, soll das Rauschen der Aktien modelliert werden. Dafür wird die Kovarianz der Aktien untereinander, die Kovarianz der Faktoren und Aktien und die Kovarianz der Faktoren untereinander betrachtet. Die Kovarianzmatrix ergibt sich nach
+Zusätzlich zum Trend soll das Rauschen der Aktien modelliert werden. Dafür wird die Kovarianz der Aktien untereinander, die Kovarianz der Faktoren und Aktien und die Kovarianz der Faktoren untereinander betrachtet. Die Kovarianzmatrix ergibt sich nach
 
 \[
     \Sigma = \mathbb{E}[\Delta X \cdot \Delta X^T] = \sum_{c \in C}^{} p(c) \cdot c \cdot c^T.
@@ -276,7 +276,7 @@ Die Kovarianzmatrix hat die Dimension $(f+g) \times (f+g)$ und lässt sich in di
     \caption{Bestandteile der Kovarianzmatrix}\label{tab:Kovarianzmatrix}
 \end{table}
 
-Der Volitalitätskoeffizient $\sigma$ der \ac{SDE} wird bestimmt als Cholesky-Zerlegung von $\Sigma$. Da $\Sigma$ mit nicht-negativen Wahrscheinlichkeiten $p(c)$ konstrukiert ist, ist $\Sigma$ positiv semidefinit, womit die Zerlegung existiert.
+Der Volatilitätskoeffizient $\sigma$ der \ac{SDE} wird bestimmt als Cholesky-Zerlegung von $\Sigma$. Da $\Sigma$ mit nicht-negativen Wahrscheinlichkeiten $p(c)$ konstruiert ist, ist $\Sigma$ positiv semidefinit, womit die Zerlegung existiert.
 
 \[
     B \cdot B^T = \Sigma
@@ -289,7 +289,7 @@ Die gesamte \ac{SDE} ergibt sich zu
 \]
 wobei $W(t) \in \mathbb{R}^{f+g}$ ein Wiener-Prozess der Dimension $f+g$ ist. Die Faktoren $F$ werden nicht simuliert, da sie lediglich für die Modellierung der Aktien $S$ verwendet werden.
 
-Zur Lösung der \ac{SDE} wird das Euler-Maruyama-Schema verwendet. Der Startwert ist der Aktienkurs der jeweiligen Aktie am Begin des Testzeitraumes $Z$. Danach wird die diskrete Annäherung simuliert nach der \cref{eq:euler}.
+Zur Lösung der \ac{SDE} wird das Euler-Maruyama-Schema verwendet. Der Startwert ist der Aktienkurs der jeweiligen Aktie zu Beginn des Testzeitraums $Z$. Danach wird die diskrete Annäherung simuliert nach der \cref{eq:euler}.
 
 \begin{equation}\label{eq:euler}
     S_i(t+1) = S_i(t) + \mu_{S_i} \Delta t + \sum_{j=1}^{f+g}B_{ij} \Delta W_{j,t}
@@ -305,11 +305,11 @@ Auf diese Weise können die Aktienkurse innerhalb einer Simulationsgruppe simuli
 
 \section{Modellentwicklung}\label{sec:entwicklung}
 
-In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelnen Aktie operieren und auf Basis historischer Kursdaten sowie weiterer Eingabegrößen den Aktienkurs des nächsten Handelstages vorhersagen. Zur Bestimmung der Modelqualität werden die Modelle auf den 10 ausgewählten Aktien getestet. Das Ziel ist ein Modellvergleich zwischen den vorgestellten Modellen untereinander.
+In diesem Kapitel werden drei Modelle entwickelt, die jeweils auf einer einzelnen Aktie operieren und auf Basis historischer Kursdaten sowie weiterer Eingabegrößen den Aktienkurs des nächsten Handelstages vorhersagen. Zur Bestimmung der Modellqualität werden die Modelle auf den 10 ausgewählten Aktien getestet. Das Ziel ist ein Modellvergleich zwischen den vorgestellten Modellen untereinander.
 
 \subsection{LinearSeparation}\label{subsec:linearesModell}
 
-Es wird ein komplett neues Verfahren vorgestellt, dass ohne Black-Box Modelle wie Machine Learning auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert, welche sinnvoll kombiniert werden, um eine Vorhersage zu treffen. Das Grundvorgehen des Modells ist, den Aktienkurs in einfacher schätzbare Teile zu zerlegen, jeden davon einzeln zu extrapolieren und die Vorhersagen zu einer Gesamtvorhersage zusammenzusetzen. Daraus entsteht ein Modell, welches den Preis des nächsten Tages auf Basis der vergangenen Tage schätzt:
+Es wird ein komplett neues Verfahren vorgestellt, dass ohne Black-Box-Modelle wie Machine Learning auskommen soll. Es wird sich dafür an den vorhandenen linearen Verfahren \ac{ARMA} und \ac{HP} orientiert, welche sinnvoll kombiniert werden, um eine Vorhersage zu treffen. Das Grundvorgehen des Modells ist, den Aktienkurs in einfacher schätzbare Teile zu zerlegen, jeden davon einzeln zu extrapolieren und die Vorhersagen zu einer Gesamtvorhersage zusammenzusetzen. Daraus entsteht ein Modell, welches den Preis des nächsten Tages auf Basis der vergangenen Tage schätzt:
 
 \[
     \hat{P}_{t+1} = f((P_0, P_1, \dots. P_t)).
@@ -375,7 +375,7 @@ Um nun aus den Residuen den kurzfristigen Trend $\tau^\text{kurz}$ zu extrahiere
     \right)
 \end{equation}
 
-Die \ac{HP}-Filter liefern somit geglätte Trendverläufe $\hat{\tau}^{\text{lang}}_t$ und $\hat{\tau}^{\text{kurz}}_t$ für die historischen Daten bis zum Zeitpunkt $T$. Um Vorhersagen treffen zu können müssen diese Trends extrapoliert werden. Da beide Trends im Kontext von Tagespreisen langfristig sind, können sie lokal durch ein lineares Modell approximiert werden. Die Idee dabei ist, dass sich der gerade extrahierte, geglättete Trend innerhalb eines kurzen Zeitfensters gut durch eine Gerade beschreiben lässt, die anschließend in die Zukunft verlängert wird. Dafür wird die \ac{OLS}-Methode verwendet.
+Die \ac{HP}-Filter liefern somit geglättete Trendverläufe $\hat{\tau}^{\text{lang}}_t$ und $\hat{\tau}^{\text{kurz}}_t$ für die historischen Daten bis zum Zeitpunkt $T$. Um Vorhersagen treffen zu können müssen diese Trends extrapoliert werden. Da beide Trends im Kontext von Tagespreisen langfristig sind, können sie lokal durch ein lineares Modell approximiert werden. Die Idee dabei ist, dass sich der gerade extrahierte, geglättete Trend innerhalb eines kurzen Zeitfensters gut durch eine Gerade beschreiben lässt, die anschließend in die Zukunft verlängert wird. Dafür wird die \ac{OLS}-Methode verwendet.
 
 Konkret wird für jeden Trend über ein gleitendes Fenster der letzten $w$ Beobachtungen $\{\hat{\tau}_{T-w+1}, \ldots, \hat{\tau}_T\}$ mittels \ac{OLS} eine lineare Funktion der Zeit gefittet. Dabei werden die Parameter $\hat{a}$ (Achsenabschnitt) und $\hat{b}$ (Steigung) so gewählt, dass
 
@@ -398,7 +398,7 @@ Nach der Trendentfernung verbleiben die Residuen $c_t$ als kurzfristige Muster.
     c_t = \tilde{p}_t - \hat{\tau}^{\text{kurz}}_t.
 \]
 
-Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorrausgesetzt, dass die zugrundeliegenden Daten stationär sind. Um zu prüfen, ob dies nach der Trendentfernung der Fall ist, wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Der \ac{ADF}-Test~\cite{dickey1979distribution} prüft die Nullhypothese, dass eine Unit Root vorliegt, die Zeitreihe also nicht stationär ist. Wird diese bei einem p-Wert kleiner als 0${,}05$ verworfen, kann
+Diese werden durch ein \ac{ARMA}(p,q)-Modell beschrieben~\cite{box2015time}. Für die Anwendung eines \ac{ARMA}-Modells, wird vorausgesetzt, dass die zugrundeliegenden Daten stationär sind. Um zu prüfen, ob dies nach der Trendentfernung der Fall ist, wird der \ac{ADF}-Test~\cite{dickey1979distribution} angewendet. Der \ac{ADF}-Test~\cite{dickey1979distribution} prüft die Nullhypothese, dass eine Unit Root vorliegt, die Zeitreihe also nicht stationär ist. Wird diese bei einem p-Wert kleiner als 0${,}05$ verworfen, kann
 Stationarität angenommen werden. Sollte Stationarität nicht gewährleistet werden können, wird die Wahl der \ac{HP}-Filter Parameter $\lambda$ variiert.
 Zur Modellierung der Residuen $c_t$ wird ein Standard \ac{ARMA}(p,q)-Modell nach~\cite{box2015time} verwendet:
 
@@ -412,7 +412,7 @@ mit den Autokorrelationskoeffizienten $\phi_i$, Fehlerkoeffizienten $\theta_j$ u
     \text{AIC}(p,q) = 2(p+q) - 2\ln(\hat{L}),
 \end{equation}
 
-wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist. \ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden.~\cite{hyndman2008automatic}
+wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist.~\ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell, welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden~\cite{hyndman2008automatic}.
 
 Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
 
@@ -445,7 +445,7 @@ Die Rücktransformation in den ursprünglichen Preisraum erfolgt durch Exponenti
 %Einmal Markus fragen: Müssen wir so etwas wie theoretische Grundlagen von SVRs auch schreiben, oder kann man das vorraussetzen
 \subsection{Preprocessed SVR}\label{subsec:preprocessed_svr}
 
-\ac{SVR}s wurden schon häufig verwendet, um Aktienkurse vorherzusagen. In dieser Arbeit stehen zwei Unterschiede zu den bisherigen Verfahren im Vordergrund. Zunächst wird auf Log-Renditen trainiert und vorhergesagt, da diese annähernd stationär sind, additiv über die Zeit und symmetrischer verteilt. Außerdem werden in diesem Ansatz vorher berechnete technische Indikatoren und News-Sentiments als Features für die \ac{SVR} verwendet, anstatt roher vergangener Preise.
+\ac{SVR}s wurden schon häufig verwendet, um Aktienkurse vorherzusagen. In dieser Arbeit stehen zwei Unterschiede zu den bisherigen Verfahren im Vordergrund. Zunächst wird auf Log-Renditen trainiert und vorhergesagt, da diese annähernd stationär sind, additiv über die Zeit und symmetrischer verteilt. Zudem werden in diesem Ansatz vorher berechnete technische Indikatoren und News-Sentiments als Features für die \ac{SVR} verwendet, anstatt roher vergangener Preise.
 
 Es wird eine klassische \ac{SVR}-Modellierung nach~\textcite{drucker1997svr} verwendet. Es ist das Ziel aus einem Feature-Vektor $x_t$ mit $d$ Features, die Log-Rendite $\hat{r}_{t+1}$ vorherzusagen.
 
@@ -453,7 +453,7 @@ Es wird eine klassische \ac{SVR}-Modellierung nach~\textcite{drucker1997svr} ver
     \hat{r}_{t+1} = f(x_t), \quad x_t \in \mathbb{R}^d
 \end{equation}
 
-Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und die genaue Beschreibung, sowie Parameterwahl ist ausfürlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$ abstrahiert, welche mithilfe der vergangenen Bewegungsmuster des Kurses einem $d$-dimensionalen Eingabe-Feature-Vektor auf den geschätzten Aktienpreis des nächsten Tages abbildet. Während andere Arbeiten den Feature-Vektor nur mit vergangenen Preisen modellieren~\cite{tay2001application}\cite{oliveira2018stock}, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen
+Im Gegensatz zu linearen Regressionen nimmt die \ac{SVR} keine spezifizierte funktionale Form an, sondern lernt die Abbildung anhand historischer Trainingsbeispiele, was sinnvoll für Aktienkursvorhersage ist, da Aktienkurse sich nicht durch eine spezifizierte funktionale Form beschreiben lassen. Die Modellierung der \ac{SVR} orientiert sich an~\cite{drucker1997svr} und die genaue Beschreibung, sowie Parameterwahl ist ausführlich formuliert in~\cref{appendix:svr_modellierung}. Zur Fokussierung auf den neuen Ansatz dieser Arbeit, wird die \ac{SVR} als eine Abbildung $f: \mathbb{R}^d \to \mathbb{R}$ abstrahiert, welche mithilfe der vergangenen Bewegungsmuster des Kurses einem $d$-dimensionalen Eingabe-Feature-Vektor auf den geschätzten Aktienpreis des nächsten Tages abbildet. Während andere Arbeiten den Feature-Vektor nur mit vergangenen Preisen modellieren~\cite{tay2001application,oliveira2018stock}, verwendet dieser Ansatz verschiedene Informationsquellen und Eingabewerte mithilfe eines ausführlichen Feature-Engineerings, um das Erkennen von Strukturen in Marktbewegungen für die Regression zu vereinfachen
 
 
 \subsubsection{Feature Engineering}
@@ -478,7 +478,7 @@ wobei $P_t$ den Schlusskurs am Tag $t$ bezeichnet. Log-Renditen werden gegenübe
 
 \subsubsection{Sentiment Score}
 
-Nachrichtenmeldungen beeinflussen nachweislich die Kursentwicklung einer Aktie.~\cite{tetlock2007}. Um diesen Effekt zu erfassen, wird die externe Sentiment-API von Alpha Vantage genutzt~\cite{alphavantage}, die für jede veröffentlichte Nachricht einen Sentiment-Score $s_{i} \in [-1, 1]$ pro erwähnter Aktie liefert, wobei $-1$ stark negatives und $+1$ stark positives Sentiment bedeutet.
+Nachrichtenmeldungen beeinflussen nachweislich die Kursentwicklung einer Aktie~\cite{tetlock2007}. Um diesen Effekt zu erfassen, wird die externe Sentiment-API von Alpha Vantage genutzt~\cite{alphavantage}, die für jede veröffentlichte Nachricht einen Sentiment-Score $s_{i} \in [-1, 1]$ pro erwähnter Aktie liefert, wobei $-1$ stark negatives und $+1$ stark positives Sentiment bedeutet.
 
 Da nicht alle Nachrichten gleich relevant sind, wird ein exponentiell gewichteter Durchschnitt über die letzten 10 Meldungen berechnet, um aktuelleren Nachrichten ein höheres Gewicht beizumessen:
 
@@ -550,7 +550,7 @@ Die Merkmale $r_{t-1}$, $r_{t-2}$, $r_{t-3}$, $\text{Sent}_t$, $\text{MACD}_t$ u
     \tilde{x} = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}.
 \end{equation}
 
-Diese Methode ist koheränt, das sie keine Annahmen über den Wertebereich der Features benötigt. Der RSI wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist. Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden ausschließlich auf den Trainingsdaten berechnet und anschließend auf Test- und Validierungsdaten angewendet.
+Diese Methode ist koheränt, da sie keine Annahmen über den Wertebereich der Features benötigt. Der RSI wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist. Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden ausschließlich auf den Trainingsdaten berechnet und anschließend auf Test- und Validierungsdaten angewendet.
 
 
 \subsection{TimesFM}\label{subsec:timesfm}
@@ -572,7 +572,7 @@ ausgibt, wobei $f_\theta$ das vortrainierte TimesFM-Modell mit den unveränderte
 
 \section{Handelsstrategie}\label{sec:marktstrategie}
 
-Die in Kapitel~\ref{sec:entwicklung} vorgestellten Modelle liefern jeweils eine Preisprognose für einen künftigen Zeitpunkt $t+k$. Um ihre realistische Anwendbarkeit zu bewerten, wird eine einheitliche, regelbasierte Handelsstrategie definiert, die für alle Modelle identisch ist. Dies stellt sicher, dass Performanceunterschiede im Backtesting ausschließlich auf die Prognosegüte der Modelle zurückzuführen sind und testet alle Modelle auf ihre praktische Anwendbarkeit. Die Strategie umfasst die drei Komponenten Forecasting Horizon $k$, das Handelssignal sowie die Positionsgröße.
+Die in~\cref{sec:entwicklung} vorgestellten Modelle liefern jeweils eine Preisprognose für einen künftigen Zeitpunkt $t+k$. Um ihre realistische Anwendbarkeit zu bewerten, wird eine einheitliche, regelbasierte Handelsstrategie definiert, die für alle Modelle identisch ist. Dies stellt sicher, dass Performanceunterschiede im Backtesting ausschließlich auf die Prognosegüte der Modelle zurückzuführen sind und testet alle Modelle auf ihre praktische Anwendbarkeit. Die Strategie umfasst die drei Komponenten Forecasting Horizon $k$, das Handelssignal sowie die Positionsgröße.
 
 \subsection{Forecasting Horizon}\label{subsec:horizon}
 
@@ -599,7 +599,7 @@ Der Schwellenwert $\varepsilon$ wird als die mittlere absolute Prognoseabweichun
     \varepsilon = \text{MAE}_{\text{val}} = \frac{1}{|\mathcal{V}|} \sum_{t \in \mathcal{V}} |\hat{r}_{t+1} - r_{t+1}|.
 \end{equation}
 
-Das bedeutet, dass eine Kaufentscheidung nur dann getroffen wird, wenn die vorhergesagte Rendite die typische Prognoseunsicherheit des Modells übersteigt. Liegt die Vorhersage innerhalb des Unsicherheitsbereichs $[-\varepsilon, \varepsilon]$, wird die aktuelle Position beibehalten. Erst bei einer stark negativen Prognose unterhalb von $-\varepsilon$ werden alle Positionen geschlossen.~\cite{de2018advances}.
+Das bedeutet, dass eine Kaufentscheidung nur dann getroffen wird, wenn die vorhergesagte Rendite die typische Prognoseunsicherheit des Modells übersteigt. Liegt die Vorhersage innerhalb des Unsicherheitsbereichs $[-\varepsilon, \varepsilon]$, wird die aktuelle Position beibehalten. Erst bei einer stark negativen Prognose unterhalb von $-\varepsilon$ werden alle Positionen geschlossen~\cite{de2018advances}.
 
 \subsection{Positionsgröße}\label{subsec:kelly}
 
@@ -624,7 +624,7 @@ Das volle Kelly-Kriterium führt in der Praxis jedoch zu extremen Positionsgrö�
     f_t = \frac{1}{2} \cdot \frac{\hat{\mu}_t}{\hat{\sigma}^2_t}.
 \end{equation}
 
-Da weder Short-Selling, noch Hebel-Trading betrachtet werden, wird $f_t$ auf das Intervall $[0, 1]$ beschränkt, indem negative Werte auf 0 und Werte größer 1 auf 1 gesetzt werden.
+Da weder Short-Selling noch Hebel-Trading betrachtet werden, wird $f_t$ auf das Intervall $[0, 1]$ beschränkt, indem negative Werte auf 0 und Werte größer 1 auf 1 gesetzt werden.
 
 Ist also zum Zeitpunkt $t$ $\text{Signal}_t = \text{Long}$, wird die Position so angepasst, dass sie dem Anteil $f_t$ vom Gesamtportfoliowert entspricht. Dies kann auch einer Reduktion der Position entsprechen. Das Signal bedeutet hierbei lediglich, dass weiterhin investiert werden sollte. Ist $\text{Signal}_t = \text{Hold}$, wird keine Aktion durchgeführt und die aktuelle Position beibehalten. Ist $\text{Signal}_t = \text{Cash}$, werden alle Positionen geschlossen, also alle Anteile verkauft.
 
@@ -632,25 +632,25 @@ Ist also zum Zeitpunkt $t$ $\text{Signal}_t = \text{Long}$, wird die Position so
 %Markus: Erstens: Warum schränken nachfolgende Abschnitte die Arbeit ein, zweitens: warum sollte das Eure Vorhersagestrategie beeinflussen, das ist doch vollkommen egal.  Abschnitt raus oder in den Anhang. A: Schränkt die Arbeit ein, weil es sich eben von der realen Welt unterscheidet. Beeinflusst die Strategie dahingehend, dass sie einfacher wird.
 Da im Rahmen dieser Arbeit nicht alle realistischen Marktszenarien berücksichtigt werden können, müssen einige Annahmen getroffen werden.
 
-\subsection*{Komission}\label{subsec:komission}
+\subsection*{Kommission}\label{subsec:kommission}
 
-Komission ist eine Gebühr, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an. Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Komission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Komission mittlerweile stark gesunken, teilweise auf bis 1US\$ pro Trade. Um die Arbeit unabhängig von Änderungen in der Praxis im Bezug auf Komissionen zu halten, wird bei den Backtests dieser Arbeit keine Komission berechnet.~\cite{jones2002century}
+Kommission ist eine Gebühr, die ein Broker oder eine Börse für die Ausführung einer Order verlangt. Diese ist meistens prozentual abhängig vom Ordervolumen und fällt sowohl beim Kauf als auch beim Verkauf an. Dadurch wird die Profitabilität eines Portfolios reduziert. In den letzten Jahren haben sich die Kommission drastisch reduziert. Im Jahr 1970 lagen sie noch bei ca. 1\% des Ordervolumens. Durch Neobroker und Konkurrenz unter Brokern ist die Kommission mittlerweile stark gesunken, teilweise auf bis zu 1US\$ pro Trade. Um die Arbeit unabhängig von Änderungen in der Praxis in Bezug auf Kommissionen zu halten, wird bei den Backtests dieser Arbeit keine Kommission berechnet~\cite{jones2002century}.
 
 \subsection*{Spread}\label{subsec:spread}
 
 Der Spread ist die Differenz zwischen Kaufpreis und Verkaufspreis einer Aktie. Dieser ist an einer Börse meist unterschiedlich, wobei der Kaufpreis höher als der Verkaufspreis ist.
-Wird eine Aktie gekauft und sofort wieder verkauft, entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs und -schlusskurse verwendet, kann kein Spread betrachtet werden. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet.~\cite{jones2002century}
+Wird eine Aktie gekauft und sofort wieder verkauft, entsteht also ein Verlust. Besonders bei Hochfrequenzhandel führt dies zu Verlusten. Da diese Arbeit ausschließlich Tagesöffnungs- und -schlusskurse verwendet, kann kein Spread betrachtet werden. Als Preis wird daher in dieser Arbeit der erste bzw. letzte gehandelte Marktpreis verwendet~\cite{jones2002century}.
 
 \subsection*{Liquidität}\label{subsec:liquiditaet}
 
-Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen ist. Da auschließlich liquide Aktien aus dem S\&P500 verwendet werden, wird angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können. Um eine Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Kaufentscheidungen, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren.~\cite{loras2024slippage}
+Die verwendeten Tageskurse spiegeln die tatsächlich gehandelten Preise wider, berücksichtigen jedoch nicht, ob zum angegebenen Preis tatsächlich ausreichend Volumen für eine Order verfügbar gewesen ist. Da ausschließlich liquide Aktien aus dem S\&P500 verwendet werden, wird angenommen, dass alle Transaktionen zum beobachteten Preis ausgeführt werden können. Um eine Verzerrung durch simultane Informationsnutzung zu vermeiden, werden Kaufentscheidungen, die auf dem Schlusskurs eines Tages basieren, zum Eröffnungskurs des folgenden Tages ausgeführt. Auf diese Weise wird sichergestellt, dass Entscheidungen ausschließlich auf Basis von Informationen getroffen werden, die zu diesem Zeitpunkt bereits verfügbar waren~\cite{loras2024slippage}.
 
 
 \section{Metriken}\label{sec:bewertungskriterien} % Vorhersagequalität (Hypothesen-Tests), Modell-Vergleich (Diebold-Mariano-Test)
 
-Die Bewertung der genannten Modell erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in \cref{sec:entwicklung} vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward jeweils für jede ausgewählte Aktie getestet. Das bedeutet, es wird die tatsächliche Historie der Aktienkursbewegung simuliert und es werden jeweils Vorhersagen erstellt. Die erstellten Ergebnisse werden nicht gesichert auch in der Zukunft funktionieren, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte.~\cite{Olorunnimbe2023} Anschließend werden sie anhand der in \cref{subsec:fehlermasse} vorgestellten Fehlermaße bewertet.
+Die Bewertung der genannten Modelle erfolgt in zwei Schritten. Nachdem die Vorhersagemodelle in \cref{sec:entwicklung} vorgestellt wurden, werden sie in dem genannten Testzeitraum in einem etablierten Walk-Forward jeweils für jede ausgewählte Aktie getestet. Das bedeutet, es wird die tatsächliche Historie der Aktienkursbewegung simuliert und es werden jeweils Vorhersagen erstellt. Die erstellten Ergebnisse lassen sich nicht gesichert auf die Zukunft übertragen, aber zeigen wie gut das Modell in der Vergangenheit funktioniert hätte~\cite{Olorunnimbe2023}. Anschließend werden sie anhand der in \cref{subsec:fehlermasse} vorgestellten Fehlermaße bewertet.
 
-Mithilfe der in \cref{sec:marktstrategie} entwickelten Handelsstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kritierien eine Kaufs- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kennzahlen in \cref{subsec:finanzkennzahlen}.
+Mithilfe der in \cref{sec:marktstrategie} entwickelten Handelsstrategien, werden die Modelle dann praxisnah getestet. Es wird ein virtuelles Portfolio angelegt, mit einem Startkapital von $ V_0 = 100.000 $ US\$. Die Modelle werden in einem Walk-Forward jeweils pro Aktie getestet, wobei die Modelle eine Preisreihe ab dem aktuellen Tag vorhersagen und anhand der in \cref{sec:marktstrategie} vorgestellten Kriterien eine Kauf- oder Verkaufsentscheidung simuliert wird. Dadurch kann der Portfoliowert steigen und fallen. Am Ende des Testzeitraums erfolgt eine Bewertung anhand der in Kennzahlen in \cref{subsec:finanzkennzahlen}.
 
 Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle untereinander.
 %idk wirkt iwi nutzlos:
@@ -659,18 +659,17 @@ Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle unt
 \subsection{Fehlermaße}\label{subsec:fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic},~\cite{metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden MAPE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-R2} herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt.
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic,metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden MAPE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-$R^2$}-Maß herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt.
 
-Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~(\cite{lstmaro2023},\cite{lstm_gru_trends2024},\cite{tan2024comparing},\cite{balamohal2023lstmup}). Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Sinnvoll ist nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$} Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
+Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023,lstm_gru_trends2024,tan2024comparing,balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Sinnvoll ist nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$}-Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
 
 Die formalen mathematischen Definitionen aller verwendeten Fehlermaße sind in \cref{app:metriken} zu finden.
 
 \subsection{Finanzwirtschaftliche Kennzahlen}\label{subsec:finanzkennzahlen}
 
 %Was machen andere, was machen wir und warum?
-Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel im Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}.
+Viele Arbeiten, die sich mit Zeitreihenextrapolation beschäftigen und insbesondere die zu Aktienkursvorhersagen, beenden die Evaluation nach der Untersuchung der Fehlermaße~\cite{gandhmal2019systematic}. Da diese Arbeit einen weiteren praktischen Fokus fasst, soll auch die praktische Anwendbarkeit, und damit finanzwirtschaftlich evaluiert werden. Außerdem ist im Falle von Aktienkursvorhersage eine Fehlerminimierung nicht zwingend das optimale Ziel in Bezug auf die praktische Anwendung~\cite{sharpe_optimized2025}.
 
-Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~(\cite{ensemble_drl2025},~\cite{longshort2024},~\cite{lstm_trading_twse2025}). Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden, werden in dieser Arbeit die Gesamtrendite, der Excess Return und der Maximum Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhängigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe-Ratio evaluiert.
+Viele Arbeiten, die auch die reale Anwendbarkeit testen, fokussieren sich auf Gesamtrendite, Sharpe Ratio und Maximum Drawdown~\cite{ensemble_drl2025,longshort2024,lstm_trading_twse2025}. Weitere, seltener verwendete Kennzahlen sind das Sortino Ratio, Calmar Ratio und Value-at-risk threshold~\cite{Olorunnimbe2023}. Alle Metriken befassen sich mit Rendite oder Volatilität. Um diese beiden Kennzahlen einer Strategiequalität abzubilden, werden in dieser Arbeit die Gesamtrendite, der Excess Return und der Maximum Drawdown verwendet. Da Risiko und Rendite in der Finanzwelt keine unabhängigen Größen darstellen, sondern sich häufig beeinflussen, wird ebenso die Sharpe-Ratio evaluiert.
 
 Die formalen mathematischen Definitionen aller verwendeten finanzwirtschaftlichen Kennzahlen sind in \cref{app:metriken} zu finden.
-

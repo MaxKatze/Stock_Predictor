@@ -1,6 +1,6 @@
 \chapter{Ergebnisse und Bewertung}\label{chap:ergebnisse_und_bewertung}
 
-In diesem Kapitel werden die Ergebnisse der in \cref{chap:konzeption} vorgestellten Verfahren präsentiert. Zunächst wird in~\cref{sec:sde} die SDE-basierte Aktienauswahl durchgeführt, um aus dem S\&P500-Universum zehn Aktien für die weitere Analyse zu selektieren und die Zwischenergebnisse so wie Endergebnisse der SDE-Simulation vorgestellt. In~\cref{sec:rois} werden die final gewählten Aktien aufgelistet und die Qualität des SDE Ansatzes evaluiert, sowie Stärken und Schwächen benannt und Gründe für die Performance diskutiert. Anschließend folgt die Evaluation der Vorhersagemodelle und danach die Bewertung. In~\cref{sec:linearseparation}, ~\cref{sec:svr} und~\cref{sec:timesfm} werden jeweils die gemessenen Metriken der jeweiligen Modelle vorgestellt. Für jedes Modell werden die Ergebnisse für $\varepsilon$-Threshold, Fehlermaße, Finanzkennzahlen und Trading Performance vorgestellt. Außerdem wird je ein beispielhafter Walk-Foward Durchlauf präsentiert. In~\cref{sec:modellvergleich} werden dann die Vorhersagemodelle verglichen. Explizit wird in~\cref{sec:vgl_performance} die Performance der Vorhersagemodelle in allen Metriken einander gegenüber gestellt. In~\cref{sec:vgl_handelsverhalten} wird das Handelsverhalten der Modelle verglichen. In~\cref{sec:interpretation} erfolgt abschließend die Bewertung und Interpretation aller Ergebnisse. Es werden Gründe für die Performance der Modelle diskutiert, es werden Schlüsse aus den Vergleichen gezogen und eine Bewertung der Modelle präsentiert.
+In diesem Kapitel werden die Ergebnisse der in \cref{chap:konzeption} vorgestellten Verfahren präsentiert. Zunächst wird in~\cref{sec:sde} die SDE-basierte Aktienauswahl durchgeführt, um aus dem S\&P500-Universum zehn Aktien für die weitere Analyse zu selektieren und die Zwischenergebnisse so wie Endergebnisse der SDE-Simulation vorgestellt. In~\cref{sec:rois} werden die final gewählten Aktien aufgelistet und die Qualität des SDE Ansatzes evaluiert, sowie Stärken und Schwächen benannt und Gründe für die Performance diskutiert. Anschließend folgt die Evaluation der Vorhersagemodelle und danach die Bewertung. In~\cref{sec:linearseparation},~\cref{sec:svr} und~\cref{sec:timesfm} werden jeweils die gemessenen Metriken der jeweiligen Modelle vorgestellt. Für jedes Modell werden die Ergebnisse für $\varepsilon$-Threshold, Fehlermaße, Finanzkennzahlen und Trading Performance vorgestellt. Außerdem wird je ein beispielhafter Walk-Foward Durchlauf präsentiert. In~\cref{sec:modellvergleich} werden dann die Vorhersagemodelle verglichen. Explizit wird in~\cref{sec:vgl_performance} die Performance der Vorhersagemodelle in allen Metriken einander gegenüber gestellt. In~\cref{sec:vgl_handelsverhalten} wird das Handelsverhalten der Modelle verglichen. In~\cref{sec:interpretation} erfolgt abschließend die Bewertung und Interpretation aller Ergebnisse. Es werden Gründe für die Performance der Modelle diskutiert, es werden Schlüsse aus den Vergleichen gezogen und eine Bewertung der Modelle präsentiert.
 
 \section{SDE Aktienauswahl}\label{sec:sde}
 
@@ -8,7 +8,7 @@ Das in \cref{subsec:aktienauswahl} beschriebene Verfahren zur Aktienauswahl wurd
 
 \subsection{Dominante Faktorpaare}
 
-Im ersten Schritt wurde für jede Aktie mittels OLS-Regression das dominante Faktorpaar bestimmt. Die Summe der Betragskoeffizienten $|\beta_{i,j}| + |\beta_{i,k}|$ gibt an, wie stark die diskretisierten Kursbewegungen der Aktie mit den beiden Faktoren korrelieren. \cref{tab:beta_beispiele} zeigt einen Ausschnitt der Aktien mit den höchsten Beta-Summen.
+Im ersten Schritt wurde für jede Aktie mittels OLS-Regression das dominante Faktorpaar bestimmt. Die Summe der Betragskoeffizienten $|\beta_{i,j}| + |\beta_{i,k}|$ gibt an, wie stark die diskretisierten Kursbewegungen der Aktie mit den beiden Faktoren korrelieren.~\cref{tab:beta_beispiele} zeigt einen Ausschnitt der Aktien mit den höchsten Beta-Summen.
 
 \begin{table}[h!]
     \centering
@@ -68,26 +68,26 @@ Das hierarchische SDE-Verfahren wurde mit 100 Monte-Carlo-Simulationen durchgef�
     \centering
     \begin{tabular}{c l c c c l}
         \toprule
-        Rang & Ticker & Unternehmen & $\varnothing$ Platz & $\varnothing$ sim. ROI & Faktorpaar \\
+        Rang & Ticker & Unternehmen                & $\varnothing$ Platz & $\varnothing$ sim. ROI & Faktorpaar             \\
         \midrule
-        1 & CARR & Carrier Global Corp. & 12,3 & 22,68\,\% & Öl, Gold \\
-        2 & OTIS & Otis Worldwide Corp. & 14,7 & 21,15\,\% & Staatsanleihe, S\&P500 \\
-        3 & RSG & Republic Services Inc. & 15,2 & 24,50\,\% & Inflation, S\&P500 \\
-        4 & CTAS & Cintas Corp. & 16,8 & 24,48\,\% & Dollar, S\&P500 \\
-        5 & AJG & Arthur J. Gallagher \& Co. & 17,4 & 25,39\,\% & Dollar, S\&P500 \\
-        6 & PEP & PepsiCo Inc. & 18,9 & 22,92\,\% & Staatsanleihe, S\&P500 \\
-        7 & TT & Trane Technologies & 19,5 & 23,39\,\% & Dollar, S\&P500 \\
-        8 & GWW & W.W. Grainger Inc. & 20,1 & 22,74\,\% & Öl, S\&P500 \\
-        9 & RMD & ResMed Inc. & 21,6 & 20,87\,\% & Gold, S\&P500 \\
-        10 & BLK & BlackRock Inc. & 22,3 & 19,94\,\% & Staatsanleihe, Dollar \\
+        1    & CARR   & Carrier Global Corp.       & 12,3                & 22,68\,\%              & Öl, Gold               \\
+        2    & OTIS   & Otis Worldwide Corp.       & 14,7                & 21,15\,\%              & Staatsanleihe, S\&P500 \\
+        3    & RSG    & Republic Services Inc.     & 15,2                & 24,50\,\%              & Inflation, S\&P500     \\
+        4    & CTAS   & Cintas Corp.               & 16,8                & 24,48\,\%              & Dollar, S\&P500        \\
+        5    & AJG    & Arthur J. Gallagher \& Co. & 17,4                & 25,39\,\%              & Dollar, S\&P500        \\
+        6    & PEP    & PepsiCo Inc.               & 18,9                & 22,92\,\%              & Staatsanleihe, S\&P500 \\
+        7    & TT     & Trane Technologies         & 19,5                & 23,39\,\%              & Dollar, S\&P500        \\
+        8    & GWW    & W.W. Grainger Inc.         & 20,1                & 22,74\,\%              & Öl, S\&P500            \\
+        9    & RMD    & ResMed Inc.                & 21,6                & 20,87\,\%              & Gold, S\&P500          \\
+        10   & BLK    & BlackRock Inc.             & 22,3                & 19,94\,\%              & Staatsanleihe, Dollar  \\
         \bottomrule
     \end{tabular}
     \caption{Die zehn durch SDE-Verfahren ausgewählten Aktien nach durchschnittlicher Platzierung}\label{tab:selected_stocks}
 \end{table}
 
-Die durchschnittliche Platzierung zeigt, wie konsistent eine Aktie über verschiedene Gruppierungen performt. CARR erreicht mit Platz 12,3 die beste durchschnittliche Position, obwohl der simulierte ROI mit 22,68\% nicht der höchste ist. Im Gegensatz dazu erreicht AJG mit dem höchsten durchschnittlichen simulierten ROI von 25,39\% nur Rang 5, da die Performance stärker von der jeweiligen Gruppierung abhängt. Diese Diskrepanz unterstreicht die Notwendigkeit des Monte-Carlo-Ansatzes, da die durchschnittliche Platzierung robuster gegenüber der zufälligen Gruppierung ist, als der absolute ROI-Wert einer einzelnen Simulation.
+Die durchschnittliche Platzierung zeigt, wie konsistent eine Aktie über verschiedene Gruppierungen abschneidet. CARR erreicht mit Platz 12,3 die beste durchschnittliche Position, obwohl der simulierte ROI mit 22,68\% nicht der höchste ist. Im Gegensatz dazu erreicht AJG mit dem höchsten durchschnittlichen simulierten ROI von 25,39\% nur Rang 5, da die Performance stärker von der jeweiligen Gruppierung abhängt. Diese Diskrepanz unterstreicht die Notwendigkeit des Monte-Carlo-Ansatzes, da die durchschnittliche Platzierung robuster gegenüber der zufälligen Gruppierung ist als der absolute ROI-Wert einer einzelnen Simulation.
 
-Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROIs mit den tatsächlich realisierten Buy-and-Hold-Renditen im Testzeitraum verglichen. \cref{tab:sde_validation} stellt die Vorhersagen den tatsächlichen Ergebnissen gegenüber.
+Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROIs mit den tatsächlich realisierten Buy-and-Hold-Renditen im Testzeitraum verglichen.~\cref{tab:sde_validation} stellt die Vorhersagen den tatsächlichen Ergebnissen gegenüber.
 
 \begin{table}[h!]
     \centering
@@ -95,18 +95,18 @@ Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROI
         \toprule
         Ticker & $\varnothing$ sim. ROI & Tatsächl. B\&H & Abweichung \\
         \midrule
-        CARR & 22,68\,\% & -12,29\,\% & +34,97\,PP \\
-        OTIS & 21,15\,\% & -4,88\,\% & +26,03\,PP \\
-        RSG & 24,50\,\% & 13,11\,\% & +11,39\,PP \\
-        CTAS & 24,48\,\% & 11,02\,\% & +13,46\,PP \\
-        AJG & 25,39\,\% & 2,30\,\% & +23,09\,PP \\
-        PEP & 22,92\,\% & -6,47\,\% & +29,39\,PP \\
-        TT & 23,39\,\% & 23,33\,\% & +0,06\,PP \\
-        GWW & 22,74\,\% & 15,40\,\% & +7,34\,PP \\
-        RMD & 20,87\,\% & 31,79\,\% & -10,92\,PP \\
-        BLK & 19,94\,\% & 42,86\,\% & -22,92\,PP \\
+        CARR   & 22,68\,\%              & -12,29\,\%     & +34,97\,PP \\
+        OTIS   & 21,15\,\%              & -4,88\,\%      & +26,03\,PP \\
+        RSG    & 24,50\,\%              & 13,11\,\%      & +11,39\,PP \\
+        CTAS   & 24,48\,\%              & 11,02\,\%      & +13,46\,PP \\
+        AJG    & 25,39\,\%              & 2,30\,\%       & +23,09\,PP \\
+        PEP    & 22,92\,\%              & -6,47\,\%      & +29,39\,PP \\
+        TT     & 23,39\,\%              & 23,33\,\%      & +0,06\,PP  \\
+        GWW    & 22,74\,\%              & 15,40\,\%      & +7,34\,PP  \\
+        RMD    & 20,87\,\%              & 31,79\,\%      & -10,92\,PP \\
+        BLK    & 19,94\,\%              & 42,86\,\%      & -22,92\,PP \\
         \midrule
-        \O & 22,81\,\% & 11,62\,\% & +11,19\,PP \\
+        \O     & 22,81\,\%              & 11,62\,\%      & +11,19\,PP \\
         \bottomrule
     \end{tabular}
     \caption{Vergleich von prognostizierten und tatsächlichen Renditen}\label{tab:sde_validation}
@@ -114,7 +114,7 @@ Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROI
 
 Die durchschnittliche Abweichung beträgt +11,19 Prozentpunkte, wobei das SDE-Verfahren die Renditen tendenziell überschätzt.
 
-Diese Abweichungen können durch verschiedene Limitierungen des SDE-Verfahrens begründet werden. Die Diskretisierung der Kursbewegungen in lediglich drei Zustände (+1, 0, -1) führt zu einem Informationsverlust, da die tatsächliche Magnitude von Preisbewegungen ignoriert wird. Eine Aktie, die konstant um +2\% steigt, wird identisch behandelt wie eine, die um +0,5\% steigt. Außerdem kann die hierarchische Gruppenzuteilung zu unvorteilhaften Paarungen führen. Die Modellierung über lediglich zwei makroökonomische Faktoren und drei weitere Aktien pro Simulationsgruppe vereinfacht die komplexe Marktdynamik stark. Möglicherweise reichen die Informationen aus vergangenem Kurs, sowie Einfluss von ähnlichen Aktien und den Faktoren nicht aus um einen Aktienkurs langfristig zu skizzieren.
+Diese Abweichungen können durch verschiedene Limitierungen des SDE-Verfahrens begründet werden. Die Diskretisierung der Kursbewegungen in lediglich drei Zustände (+1, 0, -1) führt zu einem Informationsverlust, da die tatsächliche Magnitude von Preisbewegungen ignoriert wird. Eine Aktie, die konstant um +2\% steigt, wird identisch behandelt wie eine, die um +0,5\% steigt. Außerdem kann die hierarchische Gruppenzuteilung zu unvorteilhaften Paarungen führen. Die Modellierung über lediglich zwei makroökonomische Faktoren und drei weitere Aktien pro Simulationsgruppe vereinfacht die komplexe Marktdynamik stark. Möglicherweise reichen die Informationen aus vergangenem Kurs sowie Einfluss von ähnlichen Aktien und den Faktoren nicht aus, um einen Aktienkurs langfristig zu skizzieren.
 Trotz dieser Diskrepanzen werden die ausgewählten Aktien für die Modellevaluation beibehalten. Dies gewährleistet die Vermeidung eines Lookahead Bias, da die Auswahl ausschließlich auf Informationen vor dem Testzeitraum basiert. Zudem ist das Ziel dieser Arbeit, eine stringente End-to-End-Strategie von Aktienauswahl bis zur Vorhersagemodellierung zu testen.
 
 Ausführliche Ergebnisse der Aktienauswahl, einschließlich der dominanten Faktorpaare, Beta-Summen und durchschnittlichen ROIs für die analysierten Aktien, sind in \cref{app:selection_results} zu finden.
@@ -126,7 +126,7 @@ Ausführliche Ergebnisse der Aktienauswahl, einschließlich der dominanten Fakto
 
 In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:linearesModell} vorgestellten LinearSeparation-Modells präsentiert. Das Modell wurde auf den zehn durch das SDE-Verfahren ausgewählten Aktien im Testzeitraum (07.2024--12.2025) evaluiert.
 
-Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt. \cref{tab:ls_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte für das Modell variieren zwischen 0,28\% und 1,37\%.
+Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt.~\cref{tab:ls_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte für das Modell variieren zwischen 0,28\% und 1,37\%.
 
 \begin{table}[h!]
     \centering
@@ -153,7 +153,7 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
 
 Aktien mit höherer Volatilität wie OTIS weisen einen größeren Schwellenwert auf, da das Modell hier größere Prognosefehler produziert. Niedrigere Schwellenwerte bei Aktien wie RSG führen zu häufigeren Handelssignalen.
 
-Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet. \cref{tab:ls_fehler} fasst die Ergebnisse zusammen.
+Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet.~\cref{tab:ls_fehler} fasst die Ergebnisse zusammen.
 
 \begin{table}[h!]
     \centering
@@ -178,11 +178,11 @@ Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{su
     \caption{Fehlermaße des LinearSeparation-Modells im Testzeitraum}\label{tab:ls_fehler}
 \end{table}
 
-Der durchschnittliche MAPE von 1,13\% zeigt, dass die Vorhersagen im Mittel um etwa 1\% vom tatsächlichen Kurs abweichen. Die negativen OOS-$R^2$-Werte von durchschnittlich $-0,10$ deuten darauf hin, dass das Modell den Random-Walk-Benchmark nicht übertrifft. Es lässt sich beobachten dass die Vorhersagen häufig sehr nah an den Kursen vom Vortag liegen, was bedeutet dass das Modell zu stark interpoliert.
+Der durchschnittliche MAPE von 1,13\% zeigt, dass die Vorhersagen im Mittel um etwa 1\% vom tatsächlichen Kurs abweichen. Die negativen OOS-$R^2$-Werte von durchschnittlich $-0,10$ deuten darauf hin, dass das Modell den Random-Walk-Benchmark nicht übertrifft. Es lässt sich beobachten, dass die Vorhersagen häufig sehr nah an den Kursen vom Vortag liegen, was bedeutet, dass das Modell zu stark interpoliert.
 
 Die Directional Accuracy liegt mit durchschnittlich 51,3\% knapp über dem Zufallsniveau von 50\%. Einzelne Aktien wie RSG (56,1\%), CTAS (55,1\%) und BLK (54,8\%) zeigen eine leicht überdurchschnittliche Trefferquote bei der Richtungsvorhersage.
 
-Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen. \cref{tab:ls_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
+Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen.~\cref{tab:ls_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
 
 \begin{table}[h!]
     \centering
@@ -264,9 +264,9 @@ In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:preprocessed_svr} 
 
 Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale Kombination der SVR-Hyperparameter bestimmt. Der Suchraum umfasste:
 \begin{itemize}
-    \item $C \in \{{,}1, 1, 10, 100, 1000\}$ (Regularisierung)
-    \item $\varepsilon \in \{{,}001, 0{,}01, 0{,}05, 0{,}1, 0{,}5\}$ (Epsilon-Tube)
-    \item $\gamma \in \{{,}001, 0{,}01, 0{,}1, 1, 10, \text{scale}, \text{auto}\}$ (RBF-Kernel)
+    \item $C \in \{0.1, 1, 10, 100, 1000\}$ (Regularisierung)
+    \item $\varepsilon \in \{0.001, 0.01, 0.05, 0.1, 0.5\}$ (Epsilon-Tube)
+    \item $\gamma \in \{0.001, 0.01, 0.1, 1, 10, \text{'scale'}, \text{'auto'}\}$ (RBF-Kernel)
 \end{itemize}
 
 \cref{tab:svr_hyperparams} zeigt die durch Grid-Search ermittelten optimalen Parameter für jede Aktie.
@@ -294,7 +294,7 @@ Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale
 
 Die optimalen Parameter variieren stark zwischen den Aktien. Die besten Performer (CTAS, RSG) nutzen kleine $\varepsilon$-Werte (0,001), was auf präzisere Anpassungen hindeutet. Der Regularisierungsparameter $C$ liegt meist bei 0,1, mit einem Ausreißer, PEP (1000), was auf eine extreme Kursbewegung hindeutet.
 
-Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt. \cref{tab:svr_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte variieren zwischen 0,20\% (RSG) und 0,47\% (RMD).
+Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt.~\cref{tab:svr_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte variieren zwischen 0,20\% (RSG) und 0,47\% (RMD).
 
 \begin{table}[h!]
     \centering
@@ -319,7 +319,7 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (SVR)}\label{tab:svr_epsilon}
 \end{table}
 
-Die Vorhersagequalität des SVR-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet. \cref{tab:svr_fehler} fasst die Ergebnisse zusammen.
+Die Vorhersagequalität des SVR-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet.~\cref{tab:svr_fehler} fasst die Ergebnisse zusammen.
 
 \begin{table}[h!]
     \centering
@@ -348,7 +348,7 @@ Der durchschnittliche MAPE von 1,30\% zeigt, dass die Vorhersagen im Mittel um e
 
 Die Directional Accuracy liegt mit durchschnittlich 51,8\% über dem Zufallsniveau von 50\%. Besonders hohe Trefferquoten zeigen RSG (55,9\%), OTIS (55,1\%) und AJG (53,7\%).
 
-Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen. \cref{tab:svr_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
+Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen.~\cref{tab:svr_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
 
 \begin{table}[h!]
     \centering
@@ -422,10 +422,10 @@ Die Visualisierung zeigt mehrere charakteristische Eigenschaften:
 
 \section{TimesFM}\label{sec:timesfm}
 
-In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:timesfm} vorgestellten TimesFM Foundation Models präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell.
+In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:timesfm} vorgestellten TimesFM Foundation Model präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell.
 
-TimesFM unterscheidet sich fundamental von den bisherigen Ansätzen, da das Modell direkt auf den Testdaten angewendet wird, ohne auf den spezifischen Aktien trainiert worden zu sein. Außerdem gehen bis zu 512 vergangene Werte im Kontextwindow in die Vorhersage ein.
-Die Schwellenwert-Bestimmung $\varepsilon$ erfolgt wie bei den anderen Modellen aus dem \ac{MAE} auf den Validierungsdaten. \cref{tab:timesfm_epsilon} zeigt die ermittelten Schwellenwerte.
+TimesFM unterscheidet sich fundamental von den bisherigen Ansätzen, da das Modell direkt auf den Testdaten angewendet wird, ohne auf den spezifischen Aktien trainiert worden zu sein. Außerdem gehen bis zu 512 vergangene Werte im Kontextfenster in die Vorhersage ein.
+Die Schwellenwert-Bestimmung $\varepsilon$ erfolgt wie bei den anderen Modellen aus dem \ac{MAE} auf den Validierungsdaten.~\cref{tab:timesfm_epsilon} zeigt die ermittelten Schwellenwerte.
 
 \begin{table}[h!]
     \centering
@@ -450,7 +450,7 @@ Die Schwellenwert-Bestimmung $\varepsilon$ erfolgt wie bei den anderen Modellen 
     \caption{Schwellenwerte $\varepsilon$ für das Handelssignal pro Aktie (TimesFM)}\label{tab:timesfm_epsilon}
 \end{table}
 
-Die Vorhersagequalität wird anhand der etablierten Fehlermaße bewertet. \cref{tab:timesfm_fehler} fasst die Ergebnisse zusammen.
+Die Vorhersagequalität wird anhand der etablierten Fehlermaße bewertet.~\cref{tab:timesfm_fehler} fasst die Ergebnisse zusammen.
 
 \begin{table}[h!]
     \centering
@@ -504,11 +504,11 @@ Die Directional Accuracy liegt mit 50,0\% exakt am Zufallsniveau.
     \caption{Trading-Performance des TimesFM-Modells}\label{tab:timesfm_trading}
 \end{table}
 
-Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien Performen entweder ziemlich gut oder ziemlich schlecht, mit den Extrema
+Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien schneiden entweder ziemlich gut oder ziemlich schlecht ab, mit den Extrema
 \begin{itemize}
     \item \textbf{TT:} +22,54\% Return,
     \item \textbf{RSG:} +14,21\% Return,
-    \item \textbf{RMD:} -23,80\% Return.
+    \item \textbf{OTIS:} -23,80\% Return.
 \end{itemize}
 
 \cref{tab:timesfm_trades} zeigt die Handelsaktivität des TimesFM-Modells.
@@ -535,7 +535,7 @@ Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien Performen
     \caption{Trade-Verteilung des TimesFM-Modells über den Testzeitraum}\label{tab:timesfm_trades}
 \end{table}
 
-Im Durchschnitt werden 13,0 Trades pro Aktie ausgeführt. Die niedrigere Handelsfrequenz (ein Trade alle 29 Tage) resultiert aus der konservativen Zero-Shot-Vorhersage des Foundation Models.
+Im Durchschnitt werden 13,0 Trades pro Aktie ausgeführt. Die niedrigere Handelsfrequenz (ein Trade alle 29 Tage) resultiert aus der konservativen Zero-Shot-Vorhersage des Foundation Model.
 
 Die Trade-Verteilung zeigt eine starke Long-Bias mit 75 Buy-Orders (57,7\%), nur 20 Sell-Orders (15,4\%) und 35 Close-Positionen (26,9\%). Dies deutet darauf hin, dass das Modell primär Aufwärtstrends identifiziert und bei Unsicherheit eher aus dem Markt geht.
 
@@ -547,7 +547,7 @@ Die Trade-Verteilung zeigt eine starke Long-Bias mit 75 Buy-Orders (57,7\%), nur
     \caption{Walk-Forward-Backtest für TT mit TimesFM-Modell. Oben: Portfoliowert. Unten: Aktienkurs (schwarz), Vorhersagen (blau), Kaufsignale (grün), Verkaufssignale (rot).}\label{fig:walkforward_tt_timesfm}
 \end{figure}
 
-Die Visualisierung zeigt charakteristische Eigenschaften des Zero-Shot Foundation Models:
+Die Visualisierung zeigt charakteristische Eigenschaften des Zero-Shot Foundation Model:
 \begin{itemize}
     \item \textbf{Konservative Vorhersagen:} Die blauen Punkte zeigen Bewegung sehr nahe an den vergangenen Kursen ($P_{t+1} \approx P_t$),
     \item \textbf{Seltene Trades:} Nur 12 Trades über 377 Tage zeigen ein selektives Vorgehen,
@@ -558,7 +558,7 @@ Die Stärke von TimesFM liegt in der Zero-Shot-Generalisierung ohne aktienspezif
 
 \section{Modellvergleich}\label{sec:modellvergleich}
 
-In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen. \cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen, aufgeteilt in die drei Dimensionen Trading-Performance anhand der Finanzkennzahlen, Vorhersagequalität anhand der Fehlermaße und der Handelsaktivität.
+In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen.~\cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen, aufgeteilt in die drei Dimensionen Trading-Performance anhand der Finanzkennzahlen, Vorhersagequalität anhand der Fehlermaße und der Handelsaktivität.
 
 \subsection{Gesamtperformance}\label{sec:vgl_performance}
 \begin{table}[h!]
@@ -606,7 +606,7 @@ Die niedrigeren Signal-Schwellenwerte bei TimesFM ($\varepsilon = 0,29\%$) und S
 
 \subsection{Interpretation und Schlussfolgerungen}\label{sec:interpretation}
 
-Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern \( C \in [\num{0.1},\, \num{1000}], \; \gamma \in [\num{0.001},\, \num{10}] \) sichtbar wird.
+Das SVR-Modell zeigt über die meisten Performancekategorien hinweg die besten Ergebnisse und erreicht mit 6,56\% die höchste durchschnittliche Gesamtrendite. Mehrere Designentscheidungen tragen zu dieser Überlegenheit bei. Die Integration technischer Indikatoren (RSI, MACD, Bollinger Bands) liefert zusätzliche Trendsignale, die reine Kurshistorien nicht erfassen können. Auch die Verwendung von exponentiell gewichteten News-Sentiments, könnte ein Grund für die bessere Performance sein. Die aufwendige, aktienspezifische Hyperparameter-Optimierung durch Grid-Search passt das Modell besser an die individuellen Parameter jeder Aktie an, was in den stark variierenden optimalen Parametern \( C \in [0.1, 1000], \; \gamma \in [0.001, 10] \) sichtbar wird.
 
 Die höhere Handelsfrequenz von durchschnittlich 20,7 Trades pro Aktie ermöglicht es der SVR, mehr Marktgelegenheiten zu nutzen. Der niedrigere Signal-Schwellenwert von $\varepsilon = 0{,}32\%$ führt zu häufigeren Handelssignalen, die durch die bessere Richtungsvorhersage öfter profitabel sind. Dies zeigt sich besonders bei Aktien mit starken Aufwärtstrends wie CTAS (+25,73\%) und GWW (+16,82\%), wo das Modell Momentum effektiv ausnutzt. Auch der niedrigste durchschnittliche Maximum Drawdown von 13,95\% deutet auf ein überlegenes Risikomanagement hin. Dies könnte begründet sein durch die höhere Trade-Frequenz, welche schnellere Reaktionen auf negative Marktentwicklungen ermöglicht und damit Eindämmung der Verluste.
 
@@ -621,7 +621,7 @@ Diese Diskrepanz lässt sich durch mehrere Faktoren erklären:
 \begin{itemize}
     \item \textbf{Signal-Threshold:} Der Schwellenwert $\varepsilon$ filtert kleine Vorhersagen heraus. Viele präzise Vorhersagen führen zu keinem Trade, während wenige große Fehlvorhersagen zu Verlusten führen können.
     \item \textbf{Timing-Kosten:} Selbst bei korrekter Richtung kann falsches Timing (meist zu spät) die Profitabilität beeinträchtigen.
-    \item \textbf{Random-Walk-Nähe:} Die negativen OOS-$R^2$-Werte zeigen, dass die Modelle oft den Kurs vom Vortag als Vorhersage nutzen (was einen niedrigen MAPE ergibt), aber keine echte Vorhersagekraft hat. Ein MAPE von 1\% ist nicht beeindruckend, wenn die naive Vorhersage $\hat{p}_t = p_{t-1}$ ähnlich gut performt.
+    \item \textbf{Random-Walk-Nähe:} Die negativen OOS-$R^2$-Werte zeigen, dass die Modelle oft den Kurs vom Vortag als Vorhersage nutzen (was einen niedrigen MAPE ergibt), aber keine echte Vorhersagekraft hat. Ein MAPE von 1\% ist nicht beeindruckend, wenn die naive Vorhersage $\hat{p}_t = p_{t-1}$ ähnlich gut abschneidet.
 \end{itemize}
 
 Diese Beobachtung unterstreicht den wichtigen Punkt, dass gute Punktvorhersagen keine profitable Trading-Strategie garantieren. Die Profitabilität hängt von der Fähigkeit ab, handelbare Signale zu generieren, also Vorhersagen, die konsistent in die richtige Richtung zeigen und groß genug sind, um den Signal-Threshold zu überschreiten. Die Directional Accuracy von nur 50--52\% zeigt, dass alle drei Modelle diese Fähigkeit nur marginal besitzen.
