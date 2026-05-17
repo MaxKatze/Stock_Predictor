@@ -12,5 +12,3 @@ Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kom
 todo Studienarbeit
 *  Quellen korrekt kompilieren (LaTeX muckt manchmal, glaube man muss einfach öfter kompilieren)
 * Tabellen passen nicht auf die Seite (Tabelle 5.3 und im Anhang, maybe Querformat, oder nicht zweimal nebeneinander sondern halt einfach einmal und dann länger)
-* Ausblick noch bisschen ausschmücken, vlt ca. 2 neue Ideen oder vorhandene Ideen ausführlicher beschreiben, Claude kann da wohl was kochen
-* Eventuell die Interpretation der Evaluation in den jeweiligen Modellkapiteln schonmal anteasern, Claude ist darin ganz gut (Ich höre Markus schon sagen dass wir ihn nur mit Zahlen bewerfen, aber nicht interpretieren obwohl das weiter unten kommt), I guess die Arbeit könnte aber wirklich mehr Interpretation gebrauchen

@@ -255,7 +255,7 @@ Eine moderate Korrelation ($r = 0,46$) zwischen der Anzahl der Trades und der Ge
     \caption{Walk-Forward-Backtest für RMD mit LinearSeparation-Modell. Oben: Portfoliowert. Unten: Aktienkurs (schwarz), Vorhersagen (blau), Kaufsignale (grün), Verkaufssignale (rot).}\label{fig:walkforward_rmd}
 \end{figure}
 
-
+Insgesamt zeigt das LinearSeparation-Modell eine moderate Performance, die deutlich unter Buy-and-Hold liegt. Die starke Orientierung der Vorhersagen am Kurs des Vortags und die negativen OOS-$R^2$-Werte deuten darauf hin, dass das Modell zu wenig echte Vorhersagekraft besitzt und in vielen Fällen einer Random-Walk-Schätzung nahe kommt. Die niedrige Handelsfrequenz aufgrund des vergleichsweise hohen Schwellenwertes verstärkt zudem das Problem, dass profitable Marktbewegungen häufig nicht ausgenutzt werden können. Eine ausführliche Diskussion dieser Beobachtungen im Vergleich mit den anderen Modellen erfolgt in \cref{sec:interpretation}.
 
 
 \section{Preprocessed SVR}\label{sec:svr}
@@ -420,6 +420,8 @@ Die Visualisierung zeigt mehrere charakteristische Eigenschaften:
     \item \textbf{Risikomanagement:} Rechtzeitige Verkäufe bei negativen Trends
 \end{itemize}
 
+Insgesamt zeigt das SVR-Modell die beste Trading-Performance der drei Ansätze, obwohl die reine Punktvorhersagequalität laut Fehlermaßen schwächer ausfällt als bei den anderen Modellen. Die höhere Handelsfrequenz, kombiniert mit der besten Directional Accuracy, scheint mehr Marktgelegenheiten profitabel auszunutzen. Auch der niedrigste Maximum Drawdown deutet auf ein vergleichsweise gutes Risikomanagement hin. Die Gründe für diese Ergebnisse, insbesondere der scheinbare Widerspruch zwischen schwächeren Fehlermaßen und besserer Rendite, werden in \cref{sec:interpretation} ausführlich diskutiert.
+
 \section{TimesFM}\label{sec:timesfm}
 
 In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:timesfm} vorgestellten TimesFM Foundation Model präsentiert. Im Gegensatz zu den vorherigen Modellen arbeitet TimesFM im Zero-Shot-Modus ohne Training auf den Aktiendaten und nutzt Googles vortrainiertes 200M-Parameter-Modell.
@@ -555,6 +557,8 @@ Die Visualisierung zeigt charakteristische Eigenschaften des Zero-Shot Foundatio
 \end{itemize}
 
 Die Stärke von TimesFM liegt in der Zero-Shot-Generalisierung ohne aktienspezifisches Training. Bei einzelnen Aktien wie TT erreicht das Modell exzellente Ergebnisse (Sharpe 6,59), während die durchschnittliche Performance durch konservative Vorhersagen gemindert wird.
+
+Insgesamt liefert TimesFM die beste reine Vorhersagepräzision der drei Modelle, was angesichts des Zero-Shot-Ansatzes ohne aktienspezifisches Training bemerkenswert ist. Allerdings übersetzt sich diese Präzision nicht in eine entsprechend gute Trading-Performance: Die Directional Accuracy liegt exakt am Zufallsniveau und die Vorhersagen folgen nahe am Kurs des Vortages, was wenig handelbare Signale erzeugt. Die heterogene Performance über die einzelnen Aktien hinweg deutet zudem darauf hin, dass das Modell für manche Kursverläufe gut geeignet ist, für andere jedoch keinerlei Vorteil bietet. Die Implikationen dieser Beobachtungen werden in \cref{sec:interpretation} im Modellvergleich vertieft.
 
 \section{Modellvergleich}\label{sec:modellvergleich}
 
