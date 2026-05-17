@@ -10,7 +10,7 @@ Das in \cref{subsec:aktienauswahl} beschriebene Verfahren zur Aktienauswahl wurd
 
 Im ersten Schritt wurde für jede Aktie mittels \ac{OLS}-Regression das dominante Faktorpaar bestimmt. Die Summe der Betragskoeffizienten $|\beta_{i,j}| + |\beta_{i,k}|$ gibt an, wie stark die diskretisierten Kursbewegungen der Aktie mit den beiden Faktoren korrelieren.~\cref{tab:beta_beispiele} zeigt einen Ausschnitt der Aktien mit den höchsten Beta-Summen.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c c c}
         Ticker & Faktor 1      & Faktor 2 & $\sum|\beta|$ \\
@@ -30,7 +30,7 @@ Im ersten Schritt wurde für jede Aktie mittels \ac{OLS}-Regression das dominant
 
 Die Verteilung der dominanten Faktorpaare über alle Aktien zeigt, dass der S\&P500-Index in fast allen Kombinationen vertreten ist (\cref{tab:faktorpaar_verteilung}). Dies entspricht der Erwartung, dass Aktien innerhalb des Index stark mit dem Gesamtmarkt korrelieren.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c c}
         Faktorpaar             & Anzahl Aktien & Anteil   \\
@@ -64,8 +64,9 @@ Das hierarchische SDE-Verfahren wurde mit 100 Monte-Carlo-Simulationen durchgef�
 
 \cref{tab:selected_stocks} zeigt die zehn durch das Verfahren ausgewählten Aktien, sortiert nach ihrer durchschnittlichen Platzierung über alle 100 Simulationsrunden. Zusätzlich werden der durchschnittliche simulierte \ac{ROI} und das dominante Faktorpaar angegeben.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
+    \footnotesize
     \begin{tabular}{c l c c c l}
         \toprule
         Rang & Ticker & Unternehmen                & $\varnothing$ Platz & $\varnothing$ sim. ROI & Faktorpaar             \\
@@ -89,7 +90,7 @@ Die durchschnittliche Platzierung zeigt, wie konsistent eine Aktie über verschi
 
 Um die Qualität des SDE-Verfahrens zu bewerten, werden die prognostizierten ROIs mit den tatsächlich realisierten Buy-and-Hold-Renditen im Testzeitraum verglichen.~\cref{tab:sde_validation} stellt die Vorhersagen den tatsächlichen Ergebnissen gegenüber.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c c c}
         \toprule
@@ -124,11 +125,11 @@ Ausführliche Ergebnisse der Aktienauswahl, einschließlich der dominanten Fakto
 % TODO: Ergebnisse des LinearSeparation-Modells auf den ausgewählten Aktien
 
 
-In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:linearesModell} vorgestellten LinearSeparation-Modells präsentiert. Das Modell wurde auf den zehn durch das SDE-Verfahren ausgewählten Aktien im Testzeitraum (07.2024--12.2025) evaluiert.
+In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:linearesModell} vorgestellten Linear\-Separation-Modells präsentiert. Das Modell wurde auf den zehn durch das SDE-Verfahren ausgewählten Aktien im Testzeitraum (07.2024--12.2025) evaluiert.
 
 Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt.~\cref{tab:ls_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte für das Modell variieren zwischen 0,28\% und 1,37\%.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c}
         \toprule
@@ -155,7 +156,7 @@ Aktien mit höherer Volatilität wie OTIS weisen einen größeren Schwellenwert 
 
 Die Vorhersagequalität des LinearSeparation-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet.~\cref{tab:ls_fehler} fasst die Ergebnisse zusammen.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=1.2] S[table-format=-1.2] S[table-format=1.2]}
         \toprule
@@ -184,7 +185,7 @@ Die \ac{DA} liegt mit durchschnittlich 51,3\% knapp über dem Zufallsniveau von 
 
 Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen.~\cref{tab:ls_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=-2.2] S[table-format=2.2] S[table-format=-2.2] S[table-format=-2.2] S[table-format=2.2]}
         \toprule
@@ -220,7 +221,7 @@ Der durchschnittliche Maximum Drawdown von 17,58\% zeigt das Risiko der Strategi
 
 Die Handelsaktivität der Strategie wird in \cref{tab:ls_trades} dargestellt. Der Signal-Threshold $\varepsilon$ begrenzt die Häufigkeit der Trades. Im Durchschnitt werden 12,2 Trades pro Aktie über den gesamten Testzeitraum von 377 Tagen ausgeführt, was einer Frequenz von etwa einem Trade alle 31 Tage entspricht.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
         \toprule
@@ -271,7 +272,7 @@ Für jede Aktie wurde mittels Grid-Search auf den Validierungsdaten die optimale
 
 \cref{tab:svr_hyperparams} zeigt die durch Grid-Search ermittelten optimalen Parameter für jede Aktie.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c c c}
         \toprule
@@ -296,7 +297,7 @@ Die optimalen Parameter variieren stark zwischen den Aktien. Die besten Performe
 
 Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ für das Handelssignal aus dem \ac{MAE} auf den Validierungsdaten bestimmt.~\cref{tab:svr_epsilon} zeigt die ermittelten Schwellenwerte für jede Aktie. Die Werte variieren zwischen 0,20\% (RSG) und 0,47\% (RMD).
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c}
         \toprule
@@ -321,7 +322,7 @@ Wie in \cref{subsec:signal} beschrieben, wird der Schwellenwert $\varepsilon$ f�
 
 Die Vorhersagequalität des SVR-Modells wird anhand der in \cref{subsec:fehlermasse} definierten Fehlermaße bewertet.~\cref{tab:svr_fehler} fasst die Ergebnisse zusammen.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=1.2] S[table-format=-1.2] S[table-format=1.2]}
         \toprule
@@ -350,7 +351,7 @@ Die \ac{DA} liegt mit durchschnittlich 51,8\% über dem Zufallsniveau von 50\%. 
 
 Die finanzwirtschaftliche Bewertung erfolgt anhand der in \cref{subsec:finanzkennzahlen} definierten Kennzahlen.~\cref{tab:svr_trading} zeigt die Ergebnisse der simulierten Handelsstrategie mit einem Startkapital von 100.000 US\$.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=2.2] S[table-format=2.2] S[table-format=2.2] S[table-format=-1.2] S[table-format=2.2]}
         \toprule
@@ -377,7 +378,7 @@ Die durchschnittliche Gesamtrendite beträgt 6,56\%. Die Excess-Rendite liegt be
 
 Die Handelsaktivität der Strategie wird in \cref{tab:svr_trades} dargestellt.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
         \toprule
@@ -429,7 +430,7 @@ In diesem Abschnitt werden die Ergebnisse des in \cref{subsec:timesfm} vorgestel
 TimesFM unterscheidet sich fundamental von den bisherigen Ansätzen, da das Modell direkt auf den Testdaten angewendet wird, ohne auf den spezifischen Aktien trainiert worden zu sein. Außerdem gehen bis zu 512 vergangene Werte im Kontextfenster in die Vorhersage ein.
 Die Schwellenwert-Bestimmung $\varepsilon$ erfolgt wie bei den anderen Modellen aus dem \ac{MAE} auf den Validierungsdaten.~\cref{tab:timesfm_epsilon} zeigt die ermittelten Schwellenwerte.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c}
         \toprule
@@ -454,7 +455,7 @@ Die Schwellenwert-Bestimmung $\varepsilon$ erfolgt wie bei den anderen Modellen 
 
 Die Vorhersagequalität wird anhand der etablierten Fehlermaße bewertet.~\cref{tab:timesfm_fehler} fasst die Ergebnisse zusammen.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=1.2] S[table-format=-1.2] S[table-format=1.2]}
         \toprule
@@ -483,7 +484,7 @@ Die \ac{DA} liegt mit 50,0\% exakt am Zufallsniveau.
 
 \cref{tab:timesfm_trading} zeigt die finanziellen Ergebnisse der TimesFM-basierten Handelsstrategie.
 
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=2.2] S[table-format=2.2] S[table-format=2.2] S[table-format=-2.2] S[table-format=2.2]}
         \toprule
@@ -514,7 +515,7 @@ Anzumerken ist die heterogene Performance bei einzelnen Aktien. Aktien schneiden
 \end{itemize}
 
 \cref{tab:timesfm_trades} zeigt die Handelsaktivität des TimesFM-Modells.
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l S[table-format=2.0] S[table-format=2.0] S[table-format=2.0] S[table-format=2.0]}
         \toprule
@@ -565,7 +566,7 @@ Insgesamt liefert TimesFM die beste reine Vorhersagepräzision der drei Modelle,
 In diesem Abschnitt werden die drei evaluierten Vorhersagemodelle systematisch verglichen.~\cref{tab:model_comparison} fasst die zentralen Performance-Metriken zusammen, aufgeteilt in die drei Dimensionen Trading-Performance anhand der Finanzkennzahlen, Vorhersagequalität anhand der Fehlermaße und der Handelsaktivität.
 
 \subsection{Gesamtperformance}\label{sec:vgl_performance}
-\begin{table}[h!]
+\begin{table}[htbp]
     \centering
     \begin{tabular}{l c c c}
         \toprule

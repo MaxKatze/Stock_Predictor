@@ -1,8 +1,4 @@
-\appendix
-\crefalias{chapter}{appendix}
-\crefalias{section}{appendix}
-\chapter{SVR Modellierung}
-\label{appendix:svr_modellierung}
+\chapter{SVR Modellierung}\label{appendix:svr_modellierung}
 Die \ac{SVR}-Modellierung orientiert sich an der Beschreibung in~\cite{drucker1997svr}. Die Vorhersage der Rendite erfolgt nach
 
 \begin{equation}\label{eq:renditeSVR}
@@ -19,7 +15,7 @@ wobei
 Die Wahl von $\phi(x)$ wird später diskutiert, da sie über den Kernel-Trick vereinfacht wird und $\mathbf{w}$ und $b$ werden durch das Lösen des folgenden Optimierungsproblems bestimmt (vgl.~\cite{drucker1997svr}):
 
 \begin{equation}\label{eq:optSVR}
-    \min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \underbrace{\frac{1}{2}\|\mathbf{w}\|^2}_{Funktionsglätte} + C \underbrace{\sum_{t=1}^{n} (\xi_t + \xi_t^*)}_{Fehlerterme}
+    \min_{\mathbf{w}, b, \boldsymbol{\xi}, \boldsymbol{\xi}^*} \underbrace{\frac{1}{2}\|\mathbf{w}\|^2}_{\text{Funktionsglätte}} + C \underbrace{\sum_{t=1}^{n} (\xi_t + \xi_t^*)}_{\text{Fehlerterme}}
 \end{equation}
 
 unter den Nebenbedingungen

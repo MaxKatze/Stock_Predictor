@@ -4,7 +4,7 @@
 \section{Technische Grundlagen}\label{sec:tech_grundlagen}
 
 \subsection{Backtrader Framework}\label{subsec:backtrader}
-Für die Evaluation der Handelsstrategien wird das Python-Framework \texttt{Backtrader}~\cite{backtrader} verwendet. \texttt{Backtrader} ist eine etablierte Open-Source-Lösung für Backtesting und Live-Trading, die eine ereignisgesteuerte Architektur bietet. Die Wahl fiel auf \texttt{Backtrader} aus folgenden Gründen:
+Für die Evaluation der Handelsstrategien wird das Python-Framework \texttt{Back\-trader}~\cite{backtrader} verwendet. \texttt{Backtrader} ist eine etablierte Open-Source-Lösung für Backtesting und Live-Trading, die eine ereignisgesteuerte Architektur bietet. Die Wahl fiel auf \texttt{Backtrader} aus folgenden Gründen:
 
 \begin{itemize}
     \item \textbf{Walk-Forward-Unterstützung:} Das Framework ermöglicht die sequentielle Verarbeitung historischer Daten Bar-für-Bar, wodurch ein realistischer Handelsverlauf simuliert wird, bei dem zu jedem Zeitpunkt nur vergangene Informationen verfügbar sind.
@@ -122,9 +122,9 @@ Der Datenfluss der Aktienauswahl ist in \cref{fig:sde_aktienauswahl} dargestellt
     \caption{Aktienauswahl: Datenfluss von den historischen Kursdaten und Makrofaktoren bis zu den ausgewählten Aktien}\label{fig:sde_aktienauswahl}
 \end{figure}
 
+\small
 \begin{algorithm}[H]
     \caption{SDE-Selector Implementierung}\label{alg:SDE_Selector}
-    \small
     \begin{algorithmic}[1]
         \Require $stockData$, $factorData$, $numSimulations$, $groupSize$, $numSelected$
         \State \Comment{1. Diskretisierung: Preise $\to$ Richtungen $\{-1, 0, +1\}$}
@@ -245,7 +245,7 @@ Bei jedem Walk-Forward-Schritt wird \texttt{update()} aufgerufen, das den neuen 
 \end{figure}
 
 \subsection{Preprocessed SVR}\label{subsec:impl_preprocessed_svr}
-Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Die Implementierung verwendet \texttt{sklearn.svm.SVR} mit \ac{RBF}-Kernel sowie \texttt{sklearn.preprocessing.StandardScaler} zur Feature-Normalisierung.
+Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Die Implementierung verwendet \texttt{sklearn.svm.SVR} mit \acs{RBF}-Kernel sowie \texttt{sklearn.preprocessing.StandardScaler} zur Feature-Norma\-lisierung.
 
 In jedem Backtrader-Event-Loop-Schritt werden aus den bis dahin verfügbaren historischen OHLCV-Daten die neun Features berechnet, deren Komponenten in \cref{subsec:preprocessed_svr} beschrieben sind. Diese Berechnung erfolgt über die vergangenen Tage im internen Datenpuffer. Als Target-Werte dienen die Log-Returns des Schlusskurses. Die Features werden mittels StandardScaler z-standardisiert.
 
@@ -259,7 +259,7 @@ Im Walk-Forward-Verfahren werden neue OHLCV-Daten täglich in einen internen Dat
 \end{figure}
 
 \subsection{TimesFM}\label{subsec:impl_timesfm}
-Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Es handelt sich um ein Zero-Shot-Modell, das nicht trainiert wird. Die Implementierung verwendet das vortrainierte Google-Modell \texttt{google/timesfm-1.0-200m-pytorch}, das von HuggingFace geladen wird. Die Inferenz wurde auf einem Apple M2 Pro Chip mit CPU-Backend ausgeführt.
+Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Es handelt sich um ein Zero-Shot-Modell, das nicht trainiert wird. Die Implementierung verwendet das vortrainierte Google-Modell \texttt{google/timesfm-1.0-200m-py\-torch}, das von HuggingFace geladen wird. Die Inferenz wurde auf einem Apple M2 Pro Chip mit CPU-Backend ausgeführt.
 
 Das Modell arbeitet auf Log-Returns und verwendet die letzten 512 historischen Log-Returns als Kontext für die Vorhersage. Im Walk-Forward-Verfahren werden neue Schlusskurse täglich in den internen Datenpuffer eingefügt. Zur Vorhersage wird der aktuelle Kontext in das TimesFM-Modell eingespeist, das den prognostizierten Log-Return für den nächsten Tag liefert. Dieser wird durch Exponentiation und Multiplikation mit dem letzten Schlusskurs in einen prognostizierten Kurs umgewandelt. Der Datenfluss ist in \cref{fig:timesfm_datenfluss} dargestellt.
 \begin{figure}[H]

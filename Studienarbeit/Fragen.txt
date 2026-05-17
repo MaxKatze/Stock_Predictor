@@ -6,9 +6,3 @@ Implementierung nicht viel Code, aber von außen zeigen, wie es funktioinert
 Klare Trennung zwischen Stand der Technik und unserem Kapitel (vor allem aktuell noch shit haha, man merkt wir haben noch nichts eigenes)
 
 Nächstes Mal schneller fragen nach Feedback, sonst vergisst er warum manche Kommentare.
-
-
-
-todo Studienarbeit
-*  Quellen korrekt kompilieren (LaTeX muckt manchmal, glaube man muss einfach öfter kompilieren)
-* Tabellen passen nicht auf die Seite (Tabelle 5.3 und im Anhang, maybe Querformat, oder nicht zweimal nebeneinander sondern halt einfach einmal und dann länger)
