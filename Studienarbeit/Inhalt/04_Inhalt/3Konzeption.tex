@@ -349,7 +349,7 @@ Der Zusammenhang ist multiplikativ, da Aktienkurse prozentual schwanken. Das Rau
 
 Die Komponenten des Preises werden über verschiedene Wege modelliert und dann extrapoliert. Die längerfristigen Trends $\tau^\text{lang}$ und $\tau^\text{kurz}$ werden mithilfe eines \ac{HP}-Filters~\cite{hodrick1997postwar} modelliert und mittels \ac{OLS} extrapoliert.
 
-Es wird mittels eines HP-Filters aus den historischen Log-Preisen $p_1, \ldots, p_T$ (mit $t=1,\ldots,T$) der langfristige Trend $\tau^\text{lang}$ extrahiert:
+Es wird mittels eines \ac{HP}-Filters aus den historischen Log-Preisen $p_1, \ldots, p_T$ (mit $t=1,\ldots,T$) der langfristige Trend $\tau^\text{lang}$ extrahiert:
 
 \begin{equation}\label{eq:hpFilterLang}
     \hat{\tau}_t^\text{lang} = \arg\min_{\{\hat{\tau}_t^\text{lang}\}} \left(
@@ -366,7 +366,7 @@ Mithilfe der daraus entstehenden geglätteten Zeitreihe $\hat{\tau}_t^\text{lang
     \tilde{p}_t = p_t - \hat{\tau}^{\text{lang}}_t
 \]
 
-Um nun aus den Residuen den kurzfristigen Trend $\tau^\text{kurz}$ zu extrahieren, wird auf der Residuenzeitreihe $\tilde{p}_t$ ein weiterer HP-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird in \cref{chap:implementierung} bestimmt.
+Um nun aus den Residuen den kurzfristigen Trend $\tau^\text{kurz}$ zu extrahieren, wird auf der Residuenzeitreihe $\tilde{p}_t$ ein weiterer \ac{HP}-Filter, nach \cref{eq:hpFilterKurz} mit einem kleineren $\lambda_\text{kurz}$ angewendet, um den aktuellen Trend $\tau^{\text{kurz}}$ zu glätten. Die Größenordnung von $\lambda_\text{kurz}$ wird in \cref{chap:implementierung} bestimmt.
 
 \begin{equation}\label{eq:hpFilterKurz}
     \hat{\tau}_t^\text{kurz} = \arg\min_{\{\hat{\tau}_t^\text{kurz}\}} \left(
@@ -414,7 +414,7 @@ mit den Autokorrelationskoeffizienten $\phi_i$, Fehlerkoeffizienten $\theta_j$ u
 
 wobei $\hat{L}$ die maximierte Likelihood des geschätzten Modells ist.~\ac{AIC} bestraft dabei die Modellkomplexität und die Anpassungsgüte wird belohnt. Gewählt wird das Modell, welches das \ac{AIC} minimiert. So kann die optimale Modellkomplexität bestimmt werden~\cite{hyndman2008automatic}.
 
-Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
+Mit dem geschätzten \ac{ARMA}$(p^*, q^*)$-Modell werden die Residuen rekursiv vorhergesagt:
 
 \begin{equation}
     \hat{c}_{T+k}
@@ -424,7 +424,7 @@ Mit dem geschätzten ARMA$(p^*, q^*)$-Modell werden die Residuen rekursiv vorher
 
 Dabei werden für alle $k>1$ die bereits vorhergesagten Werte als Eingabe verwendet. Außerdem werden alle zukünftigen Fehlerterme auf ihren Erwartungswert $\hat{\varepsilon}_{T+k} = \mathbb{E}[\varepsilon] = 0$ gesetzt.
 
-Dies führt dazu, dass der ARMA-Beitrag zur Gesamtvorhersage für große Horizonte $k$ exponentiell gegen null konvergiert, und die Vorhersage zunehmend von den extrapolierten Trendkomponenten dominiert wird, was genau der Modellierung entspricht.
+Dies führt dazu, dass der \ac{ARMA}-Beitrag zur Gesamtvorhersage für große Horizonte $k$ exponentiell gegen null konvergiert, und die Vorhersage zunehmend von den extrapolierten Trendkomponenten dominiert wird, was genau der Modellierung entspricht.
 
 Die gesamte Vorhersage des Log-Preises zum Zeitpunkt $T+k$ ergibt sich aus der Summe aller drei modellierten Komponenten.
 
@@ -497,11 +497,11 @@ Die allgemeine Marktdynamik ist aus Rohkursen allein schwer extrahierbar. Der \a
     \text{RSI}_t = 100 - \frac{100}{1 + \dfrac{\overline{U}_t}{\overline{D}_t}},
 \end{equation}
 
-wobei $\overline{U}_t$ den exponentiell geglätteten Durchschnitt der positiven Kursveränderungen und $\overline{D}_t$ den exponentiellen Durchschnitt der negativen Kursveränderungen der letzten 14 Handelstage bezeichnet. Der RSI liegt per Konstruktion im Intervall $[0, 100]$, was seine spätere Normalisierung vereinfacht.
+wobei $\overline{U}_t$ den exponentiell geglätteten Durchschnitt der positiven Kursveränderungen und $\overline{D}_t$ den exponentiellen Durchschnitt der negativen Kursveränderungen der letzten 14 Handelstage bezeichnet. Der \ac{RSI} liegt per Konstruktion im Intervall $[0, 100]$, was seine spätere Normalisierung vereinfacht.
 
 \subsubsection{Moving Average Convergence Divergence}
 
-Während der RSI kurzfristige Über- oder Untertreibungen misst, erfasst der \ac{MACD} mittelfristiges Momentum und Trendwechsel, wodurch die beiden Parameter kombiniert ein gutes Bild auf die Kursentwicklung geben. Der MACD bildet die Differenz zweier exponentiell geglätteter Durchschnitte~\cite{appel1979}:
+Während der RSI kurzfristige Über- oder Untertreibungen misst, erfasst der \ac{MACD} mittelfristiges Momentum und Trendwechsel, wodurch die beiden Parameter kombiniert ein gutes Bild auf die Kursentwicklung geben. Der \ac{MACD} bildet die Differenz zweier exponentiell geglätteter Durchschnitte~\cite{appel1979}:
 
 \begin{equation}
     \text{MACD}_t = \text{EMA}_{12}(p)_t - \text{EMA}_{26}(p)_t,
@@ -550,7 +550,7 @@ Die Merkmale $r_{t-1}$, $r_{t-2}$, $r_{t-3}$, $\text{Sent}_t$, $\text{MACD}_t$ u
     \tilde{x} = \frac{x - \mu_{\text{train}}}{\sigma_{\text{train}}}.
 \end{equation}
 
-Diese Methode ist koheränt, da sie keine Annahmen über den Wertebereich der Features benötigt. Der RSI wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist. Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden ausschließlich auf den Trainingsdaten berechnet und anschließend auf Test- und Validierungsdaten angewendet.
+Diese Methode ist koheränt, da sie keine Annahmen über den Wertebereich der Features benötigt. Der \ac{RSI} wird durch Division durch 100 auf $[0,1]$ skaliert. Die Features $\text{BB}_t$ und $d_t$ erfordern keine weitere Transformation, da $\text{BB}_t$ konstruktionsbedingt in $[0,1]$ liegt und $d_t$ bereits binär ist. Die Normalisierungsparameter ($\mu_{\text{train}}$, $\sigma_{\text{train}}$) werden ausschließlich auf den Trainingsdaten berechnet und anschließend auf Test- und Validierungsdaten angewendet.
 
 
 \subsection{TimesFM}\label{subsec:timesfm}
@@ -593,7 +593,7 @@ Ein Kaufsignal auf Basis des Vorzeichens der vorhergesagten Rendite ($\hat{r}_{t
     \end{cases}
 \end{equation}
 
-Der Schwellenwert $\varepsilon$ wird als die mittlere absolute Prognoseabweichung (MAE) des jeweiligen Modells auf den Validierungsdaten $\mathcal{V}$ gesetzt.
+Der Schwellenwert $\varepsilon$ wird als die mittlere absolute Prognoseabweichung (\ac{MAE}) des jeweiligen Modells auf den Validierungsdaten $\mathcal{V}$ gesetzt.
 
 \begin{equation}
     \varepsilon = \text{MAE}_{\text{val}} = \frac{1}{|\mathcal{V}|} \sum_{t \in \mathcal{V}} |\hat{r}_{t+1} - r_{t+1}|.
@@ -659,7 +659,7 @@ Ziel der Bewertungen ist immer ein Modellvergleich der vorgestellten Modelle unt
 \subsection{Fehlermaße}\label{subsec:fehlermasse}
 
 %Welche Fehlermaße verwenden andere Arbeiten, welche verwenden wir und warum
-Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem MAPE, RMSE, MSE, Directional Accuracy, $R^2$ und MAE~\cite{gandhmal2019systematic,metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden MAPE und Directional Accuracy verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-$R^2$}-Maß herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt.
+Die Extrapolation von Zeitreihen ist ein weitreichend untersuchtes Gebiet. Dadurch haben sich einige Fehlermaße zur Bewertung der Verfahren etabliert. Zu den am häufigsten verwendeten zählen unter anderem \ac{MAPE}, \ac{RMSE}, \ac{MSE}, \ac{DA}, $R^2$ und \ac{MAE}~\cite{gandhmal2019systematic,metrics_review2021}. Um eine möglichst hohe Vergleichbarkeit mit anderen Arbeiten zu gewährleisten, werden \ac{MAPE} und \ac{DA} verwendet. Um die Aussagekraft der Analyse zu erhöhen, wird zudem das \ac{OOS-$R^2$}-Maß herangezogen, welches misst, wie viel Varianz ein Modell im Vergleich zu einem Random Walk ($P_{t+1} = P_t$) als naivem Benchmark erklärt.
 
 Hierbei sei anzumerken, dass viele Arbeiten einen $R^2$-Score anhand von Preisen als Metrik verwenden, zum Beispiel~\cite{lstmaro2023,lstm_gru_trends2024,tan2024comparing,balamohal2023lstmup}. Diese Bewertung ist wenig aussagekräftig, da Aktienkurse stark autokorreliert sind ($P_t \approx P_{t-1}$), und somit ein $R^2$-Score von $>0,9$ eine nicht vorhandene, außerordentlich gute Modellqualität anzeigt. Ein so berechneter $R^2$-Score ist somit nur als Vergleichswert und nicht als eigenständiges Maß interpretierbar. Sinnvoll ist nur eine $R^2$-Analyse auf Renditen, anstatt auf Preisen. Da diese Arbeit das \ac{OOS-$R^2$}-Maß auf Renditen verwendet, wird diese Ungenauigkeit eliminiert.
 

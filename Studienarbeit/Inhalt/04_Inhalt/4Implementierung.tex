@@ -227,16 +227,16 @@ Die Methode \texttt{RunBacktest} ist in \cref{alg:RunBacktest} dargestellt. Sie 
 \end{algorithm}
 Die Backtest-Engine nutzt die \texttt{Cerebro}-Klasse von Backtrader als zentrale Steuerungseinheit (siehe \cref{subsec:backtrader}). Die Testdaten werden als \texttt{PandasData}-Feed eingebunden, der Backtrader das schrittweise Durchlaufen der historischen Daten im Walk-Forward-Verfahren ermöglicht. Die Handelsstrategie \texttt{PredictionStrategy} erhält das trainierte Modell sowie die modellspezifischen Parameter ($\varepsilon$, Forecast-Horizon, Warmup-Period).
 
-Backtrader bietet integrierte Analyzer für Sharpe Ratio (mit Riskfreerate 2\%) und Maximum Drawdown. Für die Vorhersagemetriken werden custom Analyzer implementiert, die bei jedem Zeitschritt die Modelvorhersage mit dem tatsächlichen Kurs vergleichen und \ac{MAPE}, $R^2_{\text{OOS}}$ und DA akkumulieren. Nach Ausführung der Simulation extrahiert das Skript die Finanzkennzahlen (Total Return, Buy-and-Hold Return, Excess Return) sowie die Analyzer-Ergebnisse und gibt diese als Dictionary zurück.
+Backtrader bietet integrierte Analyzer für Sharpe Ratio (mit Riskfreerate 2\%) und Maximum Drawdown. Für die Vorhersagemetriken werden custom Analyzer implementiert, die bei jedem Zeitschritt die Modelvorhersage mit dem tatsächlichen Kurs vergleichen und \ac{MAPE}, $R^2_{\text{OOS}}$ und \ac{DA} akkumulieren. Nach Ausführung der Simulation extrahiert das Skript die Finanzkennzahlen (Total Return, Buy-and-Hold Return, Excess Return) sowie die Analyzer-Ergebnisse und gibt diese als Dictionary zurück.
 
 \subsection{LinearSeparation}\label{subsec:impl_linear_separation}
-Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Der Datenfluss ist in \cref{fig:linear_separation_datenfluss} dargestellt. Die Implementierung verwendet \texttt{statsmodels} für HP-Filter und ARMA-Modellierung.
+Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Der Datenfluss ist in \cref{fig:linear_separation_datenfluss} dargestellt. Die Implementierung verwendet \texttt{statsmodels} für \ac{HP}-Filter und ARMA-Modellierung.
 
-Die logarithmierten Schlusskurse werden mit zwei aufeinanderfolgenden HP-Filtern zerlegt. Hodrick und Prescott~\cite{hodrick1997postwar} empfehlen für Quartalsdaten $\lambda = 1600$. Bei Tagesdaten liegen etwa $252/4 = 63$ Beobachtungen pro Quartal vor, also eine um Faktor 63 höhere Frequenz. Um bei höherer Datenfrequenz die gleiche relative Glättungswirkung zu erzielen, wird $\lambda$ mit dem Quadrat der Frequenzerhöhung multipliziert: $\lambda_{\text{lang}} = 1600 \cdot 63^2 \approx 6{,}35 \times 10^6$. In der Implementierung wird vereinfacht $\lambda_{\text{lang}} = 1600 \cdot 252^2 \approx 1{,}01 \times 10^8$ verwendet, um einen mehrjährigen strukturellen Trend zu erfassen. Das erste Residuum wird erneut gefiltert mit $\lambda_{\text{kurz}} = 1600$, was Bewegungen im Wochenbereich erfasst.
+Die logarithmierten Schlusskurse werden mit zwei aufeinanderfolgenden \ac{HP}-Filtern zerlegt. Hodrick und Prescott~\cite{hodrick1997postwar} empfehlen für Quartalsdaten $\lambda = 1600$. Bei Tagesdaten liegen etwa $252/4 = 63$ Beobachtungen pro Quartal vor, also eine um Faktor 63 höhere Frequenz. Um bei höherer Datenfrequenz die gleiche relative Glättungswirkung zu erzielen, wird $\lambda$ mit dem Quadrat der Frequenzerhöhung multipliziert: $\lambda_{\text{lang}} = 1600 \cdot 63^2 \approx 6{,}35 \times 10^6$. In der Implementierung wird vereinfacht $\lambda_{\text{lang}} = 1600 \cdot 252^2 \approx 1{,}01 \times 10^8$ verwendet, um einen mehrjährigen strukturellen Trend zu erfassen. Das erste Residuum wird erneut gefiltert mit $\lambda_{\text{kurz}} = 1600$, was Bewegungen im Wochenbereich erfasst.
 
 Die Trends werden über Rolling Windows ($w_{\text{lang}} = 252$ Tage, $w_{\text{kurz}} = 40$ Tage) linear extrapoliert. Das ARMA-Modell wird auf die zyklische Komponente gefittet. Die drei Vorhersagen werden addiert und exponentiert.
 
-Bei jedem Walk-Forward-Schritt wird \texttt{update()} aufgerufen, das den neuen Preis anhängt (Rolling Window 500 Tage) und die HP-Filter neu berechnet. Das ARMA-Modell wird aus Performancegründen nur alle 5 Tage neu gefittet.
+Bei jedem Walk-Forward-Schritt wird \texttt{update()} aufgerufen, das den neuen Preis anhängt (Rolling Window 500 Tage) und die \ac{HP}-Filter neu berechnet. Das \ac{ARMA}-Modell wird aus Performancegründen nur alle 5 Tage neu gefittet.
 
 \begin{figure}[htbp]
     \centering
@@ -245,11 +245,11 @@ Bei jedem Walk-Forward-Schritt wird \texttt{update()} aufgerufen, das den neuen 
 \end{figure}
 
 \subsection{Preprocessed SVR}\label{subsec:impl_preprocessed_svr}
-Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Die Implementierung verwendet \texttt{sklearn.svm.SVR} mit RBF-Kernel sowie \texttt{sklearn.preprocessing.StandardScaler} zur Feature-Normalisierung.
+Das Modell ist als Python-Klasse implementiert, die als Objekt in der Backtrader-Strategie gehalten wird. Die Implementierung verwendet \texttt{sklearn.svm.SVR} mit \ac{RBF}-Kernel sowie \texttt{sklearn.preprocessing.StandardScaler} zur Feature-Normalisierung.
 
 In jedem Backtrader-Event-Loop-Schritt werden aus den bis dahin verfügbaren historischen OHLCV-Daten die neun Features berechnet, deren Komponenten in \cref{subsec:preprocessed_svr} beschrieben sind. Diese Berechnung erfolgt über die vergangenen Tage im internen Datenpuffer. Als Target-Werte dienen die Log-Returns des Schlusskurses. Die Features werden mittels StandardScaler z-standardisiert.
 
-Für die Hyperparameteroptimierung wird ein Grid Search über die Validierungsdaten durchgeführt. Die durchsuchten Wertebereiche sind $C \in \{0.1, 1, 10, 100, 1000\}$, $\varepsilon \in \{0.001, 0.01, 0.05, 0.1, 0.5\}$ und $\gamma \in \{0.001, 0.01, 0.1, 1, 10, \text{'scale'}, \text{'auto'}\}$. Die Parameterkombination mit dem niedrigsten RMSE auf den Validierungsdaten wird für die finalen Tests verwendet.
+Für die Hyperparameteroptimierung wird ein Grid Search über die Validierungsdaten durchgeführt. Die durchsuchten Wertebereiche sind $C \in \{0.1, 1, 10, 100, 1000\}$, $\varepsilon \in \{0.001, 0.01, 0.05, 0.1, 0.5\}$ und $\gamma \in \{0.001, 0.01, 0.1, 1, 10, \text{'scale'}, \text{'auto'}\}$. Die Parameterkombination mit dem niedrigsten \ac{RMSE} auf den Validierungsdaten wird für die finalen Tests verwendet.
 
 Im Walk-Forward-Verfahren werden neue OHLCV-Daten täglich in einen internen Datenpuffer eingefügt. Zur Vorhersage werden die aktuellen Features skaliert und in das trainierte SVR-Modell eingespeist. Der prognostizierte Log-Return wird durch Exponentiation und Multiplikation mit dem letzten Schlusskurs in einen prognostizierten Kurs umgewandelt. Der Datenfluss ist in \cref{fig:svr_prediction_datenfluss} dargestellt.
 \begin{figure}[H]
