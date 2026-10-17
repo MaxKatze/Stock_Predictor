@@ -1,2 +1,1 @@
-backtrader_environment/ for code \n
-Studienarbeit.pdf for compiled German Version
+backtrader_environment/ for code, Studienarbeit.pdf for compiled German Version.
